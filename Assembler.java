@@ -47,57 +47,57 @@ public class Assembler
         try (BufferedReader readFile = new BufferedReader(new FileReader(file))) 
         {
             //read line by line
-            String line;
+            String fileLine;
             //while it is not null
-            while ((line = readFile.readLine()) != null) 
+            while ((fileLine = readFile.readLine()) != null) 
             {
                 //split by the semicolon
-                String[] lineSplit = line.split(";");
-                line = lineSplit[0].trim();
+                String[] lineSplit = fileLine.split(";");
+                fileLine = lineSplit[0].trim();
                 
                 //if the current line being read from the file is a blank line, just move to the next line
-                if (line.isEmpty()) 
+                if (fileLine.isEmpty()) 
                 {
                     //just continue to the next one
                     continue; 
                 }
                 
                 //if the line has a colon
-                if (line.contains(":")) 
+                if (fileLine.contains(":")) 
                 {
                     //splits the line into two parts
                     //everything before the colon is the label name
                     //everything after the colon are the instruction
-                    String[] labelSplit = line.split(":");
+                    String[] labelSplit = fileLine.split(":");
                     //takes the first part of that split which is the label
                     String name = labelSplit[0].trim();
 
                     //put the label name and the location to the table
-                    table.put(name, locationCounter);
+                    table.put(name, locCounter);
 
                     //if there is instruction after the colon
                     if (labelSplit.length > 1) 
                     {
                         //gets the instruction
-                        line = labelSplit[1].trim();
+                        fileLine = labelSplit[1].trim();
                     } 
                     //there is nothing after
                     else 
                     {
                         //just set to empty string
-                        line = "";
+                        fileLine = "";
                     }
                 }
 
                 
 
                 //if the instruction is LOC
-                if (line.toUpperCase().startsWith("LOC")) 
+                if (fileLine.toUpperCase().startsWith("LOC")) 
                 {
                     //found \\s+ from Google, it says that split by one or more whitespace characters (\\s+)
-                    String[] parts = line.split("\\s+");
+                    String[] instructionParts = fileLine.split("\\s+");
                     //set the location counter to that value 
-                    locCounter = Integer.parseInt(parts[1]);
+                    locCounter = Integer.parseInt(instructionParts[1]);
                 } 
                 else if (!line.isEmpty()) 
                 {
@@ -114,7 +114,7 @@ public class Assembler
     //pass TWO will go here
     private static void passTwo(File file) throws IOException 
     {
-        
+
     }
 
 
