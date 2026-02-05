@@ -136,7 +136,9 @@ private static void passTwo(File file) throws IOException
     BufferedReader readFile = new BufferedReader(new FileReader(file));
 
     //create the new file to write the output to
-    PrintWriter writeToFile = new PrintWriter(new FileWriter("output.txt"));
+    PrintWriter listingWriter = new PrintWriter(new FileWriter("listing.txt"));
+    PrintWriter loadWriter    = new PrintWriter(new FileWriter("load.txt"));
+
 
     //read each line from the file
     String fileLine;
@@ -148,11 +150,6 @@ private static void passTwo(File file) throws IOException
         //if its a blank line or just labels after continue over it
         if (line.isEmpty() || (line.contains(":") && line.split(":").length <= 1))
         {
-            //write to the file, \t is for tabs for spacing purposes
-            //writeToFile.println("\t\t\t" + fileLine);
-
-            // This prints 16 spaces (8 for address + 8 for value) so the source starts at the same spot
-            writeToFile.printf("%-16s%s%n", "", fileLine);
             continue;
         }
 
@@ -162,11 +159,6 @@ private static void passTwo(File file) throws IOException
             //split into parts by the spaces
             String[] splitByParts = line.split("\\s+");
             currentLoc = Integer.parseInt(splitByParts[1]);
-            //write to the file to keep track
-            //writeToFile.println("\t\t\t" + fileLine);
-
-            //prints 16 spaces (8 for address + 8 for value) so the source starts at the same spot
-            writeToFile.printf("%-16s%s%n", "", fileLine);
             continue;
         }
 
@@ -452,15 +444,21 @@ private static void passTwo(File file) throws IOException
         //writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
 
         // %-8s creates a left-aligned column exactly 8 characters wide
-        writeToFile.printf("%-8s%-8s%s%n", octaladdress, octalvalue, fileLine);
+        loadWriter.println(octaladdress + "\t" + octalvalue);
+        String cleanLine = line.replaceAll("\\s+", " ");
+        listingWriter.println(octaladdress + "\t" + octalvalue + "\t" + cleanLine);
+
+
 
         //increase the location count
         currentLoc = currentLoc + 1;
     }
 
     //close the files
-    writeToFile.close();
+    listingWriter.close();
+    loadWriter.close();
     readFile.close();
+
 }
 
 
