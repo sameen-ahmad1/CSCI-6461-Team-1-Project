@@ -36,6 +36,14 @@ public class Assembler
     //store 
     private static final Map<String, Integer> table = new HashMap<>();
 
+    //error checker make sure that the values stay within bit limits
+    private static void rangeCheck(int val, int max, String name) 
+    {
+        if (val < 0 || val > max) 
+        {
+            throw new IllegalArgumentException(name + " value " + val + " is out of range (0-" + max + ")");
+        }
+    }
 
     //first pass
     private static void passOne(File file) throws IOException 
@@ -71,6 +79,13 @@ public class Assembler
                     String[] labelSplit = fileLine.split(":");
                     //takes the first part of that split which is the label
                     String name = labelSplit[0].trim();
+
+
+                    //ERROR CHECK: Duplicate labels
+                    if (table.containsKey(name)) 
+                    {
+                        throw new IllegalArgumentException("Duplicate label found: " + name);
+                    }
 
                     //put the label name and the location to the table
                     table.put(name, locCounter);
@@ -159,7 +174,7 @@ private static void passTwo(File file) throws IOException
 
         // split into whitespace tokens
         String[] binaryParts = line.split("\\s+");
-        String operationName = binaryParts[0].toUpperCase(Locale.ROOT);
+        String operationName = binaryParts[0].toUpperCase();
 
         int instructions = 0;
 
@@ -197,7 +212,18 @@ private static void passTwo(File file) throws IOException
                 
             //map the opcode to octal, find it from Isa.java file
             //it gets all the information stored for that specific instruction
-            Isa.Instruction instr = Isa.Instruction.valueOf(operationName);
+
+            // ERROR CHECK: Check if opcode exists in Isa.java
+            Isa.Instruction instr;
+            try 
+            {
+                instr = Isa.Instruction.valueOf(operationName);
+            } 
+            catch (IllegalArgumentException e) 
+            {
+                throw new IllegalArgumentException("Opcode NOT allowed '" + operationName + "' on line: " + fileLine);
+            }
+            
 
 
             //the oppcode must be the first 6 bits of the 16-bit word
@@ -210,7 +236,8 @@ private static void passTwo(File file) throws IOException
             {
                 case NONE -> {
                     // HLT: no operands
-                    if (operands.length != 0) {
+                    if (operands.length != 0) 
+                    {
                         throw new IllegalArgumentException(instr.mnemonic + " takes no operands: " + fileLine);
                     }
                 }
@@ -225,6 +252,7 @@ private static void passTwo(File file) throws IOException
                     if (code < 0 || code > 15) {
                         throw new IllegalArgumentException("TRAP code out of range (0..15): " + fileLine);
                     }
+                    rangeCheck(code, 15, "TRAP Code");
                     instructions |= (code & 0x1F);
                 }
 
@@ -241,6 +269,11 @@ private static void passTwo(File file) throws IOException
                     int memAddr = table.containsKey(addrToken) ? table.get(addrToken) : Integer.parseInt(addrToken);
 
                     int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
+
+                    rangeCheck(r, 3, "Register/CC/FR");
+                    rangeCheck(ix, 3, "Index Register");
+                    rangeCheck(memAddr, 31, "Address");
+
 
                     instructions |= (r & 0x3) << 8;
                     instructions |= (ix & 0x3) << 6;
@@ -262,6 +295,7 @@ private static void passTwo(File file) throws IOException
 
                     int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
 
+
                     instructions |= (cc & 0x3) << 8;          // CC uses R field
                     instructions |= (ix & 0x3) << 6;
                     instructions |= (indirectBit & 0x1) << 5;
@@ -281,6 +315,9 @@ private static void passTwo(File file) throws IOException
 
                     int indirectBit = (operands.length == 3) ? Integer.parseInt(operands[2]) : 0;
 
+                    rangeCheck(ix, 3, "Index Register");
+                    rangeCheck(memAddr, 31, "Address");
+
                     // R field stays 0
                     instructions |= (ix & 0x3) << 6;
                     instructions |= (indirectBit & 0x1) << 5;
@@ -296,6 +333,9 @@ private static void passTwo(File file) throws IOException
                     int r = Integer.parseInt(operands[0]);
                     int imm = Integer.parseInt(operands[1]);
 
+                    rangeCheck(r, 3, "Register");
+                    rangeCheck(imm, 31, "Immediate Value");
+
                     instructions |= (r & 0x3) << 8;
                     instructions |= (imm & 0x1F); // 5-bit imm
                 }
@@ -307,6 +347,7 @@ private static void passTwo(File file) throws IOException
                     }
 
                     int imm = Integer.parseInt(operands[0]);
+                    rangeCheck(imm, 31, "Immediate Value");
                     instructions |= (imm & 0x1F);
                 }
 
@@ -318,6 +359,9 @@ private static void passTwo(File file) throws IOException
 
                     int rx = Integer.parseInt(operands[0]);
                     int ry = Integer.parseInt(operands[1]);
+
+                    rangeCheck(rx, 3, "Rx");
+                    rangeCheck(ry, 3, "Ry");
 
                     // Use R slot for rx, IX slot for ry
                     instructions |= (rx & 0x3) << 8;
@@ -331,6 +375,7 @@ private static void passTwo(File file) throws IOException
                     }
 
                     int rx = Integer.parseInt(operands[0]);
+                    rangeCheck(rx, 3, "Rx");
                     instructions |= (rx & 0x3) << 8;
                 }
 
@@ -343,6 +388,8 @@ private static void passTwo(File file) throws IOException
                     int r = Integer.parseInt(operands[0]);
                     int dev = Integer.parseInt(operands[1]);
 
+                    rangeCheck(r, 3, "Register");
+                    rangeCheck(dev, 31, "Device ID");
                     instructions |= (r & 0x3) << 8;
                     instructions |= (dev & 0x1F);
                 }
@@ -379,6 +426,8 @@ private static void passTwo(File file) throws IOException
                     int lr    = Integer.parseInt(operands[2]); // 0/1
                     int al    = Integer.parseInt(operands[3]); // 0/1
 
+                    rangeCheck(r, 3, "Register");
+                    rangeCheck(count, 15, "Count");
                     // rebuild lower bits for this format
                     instructions = (instr.opcode << 10);
                     instructions |= (r & 0x3) << 8;
