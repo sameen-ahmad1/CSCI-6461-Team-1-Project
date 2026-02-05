@@ -111,172 +111,299 @@ public class Assembler
 
 
 
-    //pass TWO will go here, coverts into 16-bit octal 
-    private static void passTwo(File file) throws IOException 
+    //pass TWO will go here, coverts into 16-bit octal
+private static void passTwo(File file) throws IOException
+{
+    //current location counter
+    int currentLoc = 0;
+
+    //read the files
+    BufferedReader readFile = new BufferedReader(new FileReader(file));
+
+    //create the new file to write the output to
+    PrintWriter writeToFile = new PrintWriter(new FileWriter("output.txt"));
+
+    //read each line from the file
+    String fileLine;
+    while ((fileLine = readFile.readLine()) != null)
     {
-        //current location counter
-        int currentLoc = 0;
+        //split by the ; so it reads each line
+        String line = fileLine.split(";")[0].trim();
 
-        //read the files
-        BufferedReader readFile = new BufferedReader(new FileReader(file));
-
-        //create the new file to write the output to
-        PrintWriter writeToFile = new PrintWriter(new FileWriter("output.txt"));
-
-        //read each line from the file
-        String fileLine;
-        while ((fileLine = readFile.readLine()) != null) 
+        //if its a blank line or just labels after continue over it
+        if (line.isEmpty() || (line.contains(":") && line.split(":").length <= 1))
         {
-            //split by the ; so it reads each line
-            String line = fileLine.split(";")[0].trim();
+            //write to the file, \t is for tabs for spacing purposes
+            writeToFile.println("\t\t\t" + fileLine);
+            continue;
+        }
+
+        //if the line starts with LOC
+        if (line.toUpperCase().startsWith("LOC"))
+        {
+            //split into parts by the spaces
+            String[] splitByParts = line.split("\\s+");
+            currentLoc = Integer.parseInt(splitByParts[1]);
+            //write to the file to keep track
+            writeToFile.println("\t\t\t" + fileLine);
+            continue;
+        }
+
             
-            
-            //if its a blank line or just labels after continue over it
-            if (line.isEmpty() || (line.contains(":") && line.split(":").length <= 1)) 
-            {
-                //write to the file, \t is for tabs for spacing purposes
-                writeToFile.println("\t\t\t" + fileLine);
-                continue;
+        //this checks if the line contains a colon, which means there is a label
+        if (line.contains(":"))
+        {
+            // [1] is the actual instruction
+            line = line.split(":")[1].trim();
+        }
+
+        // split into whitespace tokens
+        String[] binaryParts = line.split("\\s+");
+        String operationName = binaryParts[0].toUpperCase(Locale.ROOT);
+
+        int instructions = 0;
+
+        String operandText = "";
+        if (binaryParts.length > 1) {
+            operandText = String.join(" ", Arrays.copyOfRange(binaryParts, 1, binaryParts.length)).trim();
+        }
+        // remove all whitespace so "3, 0, 15" -> "3,0,15"
+        operandText = operandText.replaceAll("\\s+", "");
+        String[] operands = operandText.isEmpty() ? new String[0] : operandText.split(",");
+
+        if (operationName.equals("DATA"))
+        {
+            if (operands.length < 1) {
+                throw new IllegalArgumentException("DATA missing value on line: " + fileLine);
             }
 
-            //if the line starts with LOC
-            if (line.toUpperCase().startsWith("LOC")) 
-            {
-                //split into parts by the spaces
-                String[] splitByParts = line.split("\\s+");
-
-                //set the current location to the value
-                currentLoc = Integer.parseInt(splitByParts[1]);
-                //write to the file to keep track
-                writeToFile.println("\t\t\t" + fileLine);
-                continue;
-            }
-
-            
-            //this checks if the line contains a colon, which means there is a label
-            if (line.contains(":")) 
-            {
-                // [1] is the actual instruction
-                line = line.split(":")[1].trim();
-            }
-
-            
-
-            //parse now for binary conversions
-            String[] binaryParts = line.split("\\s+"); 
-            //get the operation name
-            String operationName = binaryParts[0].toUpperCase();
-
-            //set the instruction for the conversion
-            int instructions = 0;
-
-            if (operationName.equals("DATA")) 
-            {
-                
                 //if its the data, then get the value of it
                 String val = binaryParts[1];
 
                 //check to see if the value is a label thats already in the table
-                if (table.containsKey(val)) 
-                {
-                    //get the memory address if its already there
-                    instructions = table.get(val);
-                } 
-                else 
-                {
-                    //convert it into the int
-                    instructions = Integer.parseInt(val);
-                }
-            } 
-            else 
+            if (table.containsKey(val))
             {
+                //get the memory address if its already there
+                instructions = table.get(val);
+            }
+            else
+            {
+                //convert it into the int
+                instructions = Integer.parseInt(val);
+            }
+        }
+        else
+        {
                 
-                //map the opcode to octal, find it from Isa.java file
-                //it gets all the information stored for that specific instruction
-                Isa.Instruction instr = Isa.Instruction.valueOf(operationName);
+            //map the opcode to octal, find it from Isa.java file
+            //it gets all the information stored for that specific instruction
+            Isa.Instruction instr = Isa.Instruction.valueOf(operationName);
 
 
-                //the ppcode must be the first 6 bits of the 16-bit word
-                //in Java, an integer is 32 bits
-                //to move the 6-bit opcode into the correct position for a 16-bit word, we need to shift it 10 spaces to the left
-                //10 bits will be filled with Register (2 bits), Index Register (2 bits), Indirect bit (1 bit), and Address (5 bits)
-                instructions = (instr.opcode << 10); 
+            //the oppcode must be the first 6 bits of the 16-bit word
+            //in Java, an integer is 32 bits
+            //to move the 6-bit opcode into the correct position for a 16-bit word, we need to shift it 10 spaces to the left
+            instructions = (instr.opcode << 10);
 
-
-                //if there are instructions
-                if (binaryParts.length > 1) 
-                {
-                    //finds the operands and splits them 
-                    String[] operands = binaryParts[1].split(",");
-                    
-                    //if it matches the format
-                    if (instr.format == Isa.Format.R_X_ADDR_I) 
-                    {
-                        int memAddr;
-
-                        // [Op:6][R:2][IX:2][I:1][memAddr:5] 
-                        //gets the first operand
-                        int r = Integer.parseInt(operands[0].trim());
-                        //gets the second operand
-                        int ix = Integer.parseInt(operands[1].trim());
-                        
-                        //memory address
-                        //gets the memory address
-                        String memaddstring = operands[2].trim();
-
-                        
-                        //if the table has it
-                        if (table.containsKey(memaddstring)) 
-                        {
-                            //get the memory address
-                            memAddr = table.get(memaddstring);
-                        } 
-                        else 
-                        {
-                            //parse to get the int
-                            memAddr = Integer.parseInt(memaddstring);
-                        }
-
-                        
-
-                        //get the indirect bit
-                        int indirectBit = 0;
-                        if (operands.length == 4) 
-                        {
-                            indirectBit = Integer.parseInt(operands[3].trim());
-                        }
-
-                        //everything has a Left-Shift 
-                        //register is shifted by 8 since it is 2 bits
-                        instructions = instructions | (r << 8);     
-                        //index is shifted by 6 since it is 2 bits
-                        instructions = instructions | (ix << 6);  
-                        //indirect bit is shifted by 5 since it is only one bit
-                        instructions = instructions | (indirectBit << 5); 
-                        //memory address is remaining 5 bits
-                        //0x1F (binary 11111) makes sure that the address doesn't go above the 5-bit limit
-                        instructions = instructions | (memAddr & 0x1F);
+            // encode line based on format defined in Isa.java
+            switch (instr.format)
+            {
+                case NONE -> {
+                    // HLT: no operands
+                    if (operands.length != 0) {
+                        throw new IllegalArgumentException(instr.mnemonic + " takes no operands: " + fileLine);
                     }
                 }
+
+                case TRAP_CODE -> {
+                    // TRAP code
+                    if (operands.length != 1) {
+                        throw new IllegalArgumentException("TRAP requires 1 operand (code): " + fileLine);
+                    }
+                    int code = Integer.parseInt(operands[0]);
+                    // table max 16 => 0..15
+                    if (code < 0 || code > 15) {
+                        throw new IllegalArgumentException("TRAP code out of range (0..15): " + fileLine);
+                    }
+                    instructions |= (code & 0x1F);
+                }
+
+                case R_X_ADDR_I -> {
+                    // r, x, address[, I]
+                    if (!(operands.length == 3 || operands.length == 4)) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires r,x,address[,I]: " + fileLine);
+                    }
+
+                    int r  = Integer.parseInt(operands[0]);
+                    int ix = Integer.parseInt(operands[1]);
+
+                    String addrToken = operands[2];
+                    int memAddr = table.containsKey(addrToken) ? table.get(addrToken) : Integer.parseInt(addrToken);
+
+                    int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
+
+                    instructions |= (r & 0x3) << 8;
+                    instructions |= (ix & 0x3) << 6;
+                    instructions |= (indirectBit & 0x1) << 5;
+                    instructions |= (memAddr & 0x1F);
+                }
+
+                case CC_X_ADDR_I -> {
+                    // cc, x, address[, I]
+                    if (!(operands.length == 3 || operands.length == 4)) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires cc,x,address[,I]: " + fileLine);
+                    }
+
+                    int cc = Integer.parseInt(operands[0]);
+                    int ix = Integer.parseInt(operands[1]);
+
+                    String addrToken = operands[2];
+                    int memAddr = table.containsKey(addrToken) ? table.get(addrToken) : Integer.parseInt(addrToken);
+
+                    int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
+
+                    instructions |= (cc & 0x3) << 8;          // CC uses R field
+                    instructions |= (ix & 0x3) << 6;
+                    instructions |= (indirectBit & 0x1) << 5;
+                    instructions |= (memAddr & 0x1F);
+                }
+
+                case X_ADDR_I -> {
+                    // x, address[, I]
+                    if (!(operands.length == 2 || operands.length == 3)) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires x,address[,I]: " + fileLine);
+                    }
+
+                    int ix = Integer.parseInt(operands[0]);
+
+                    String addrToken = operands[1];
+                    int memAddr = table.containsKey(addrToken) ? table.get(addrToken) : Integer.parseInt(addrToken);
+
+                    int indirectBit = (operands.length == 3) ? Integer.parseInt(operands[2]) : 0;
+
+                    // R field stays 0
+                    instructions |= (ix & 0x3) << 6;
+                    instructions |= (indirectBit & 0x1) << 5;
+                    instructions |= (memAddr & 0x1F);
+                }
+
+                case R_IMM -> {
+                    // r, immed  (AIR/SIR)
+                    if (operands.length != 2) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires r,immed: " + fileLine);
+                    }
+
+                    int r = Integer.parseInt(operands[0]);
+                    int imm = Integer.parseInt(operands[1]);
+
+                    instructions |= (r & 0x3) << 8;
+                    instructions |= (imm & 0x1F); // 5-bit imm
+                }
+
+                case IMM -> {
+                    // immed (RFS)
+                    if (operands.length != 1) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires immed: " + fileLine);
+                    }
+
+                    int imm = Integer.parseInt(operands[0]);
+                    instructions |= (imm & 0x1F);
+                }
+
+                case RX_RY -> {
+                    // rx, ry (MLT/DVD/TRR/AND/ORR)
+                    if (operands.length != 2) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires rx,ry: " + fileLine);
+                    }
+
+                    int rx = Integer.parseInt(operands[0]);
+                    int ry = Integer.parseInt(operands[1]);
+
+                    // Use R slot for rx, IX slot for ry
+                    instructions |= (rx & 0x3) << 8;
+                    instructions |= (ry & 0x3) << 6;
+                }
+
+                case RX_ONLY -> {
+                    // rx (NOT)
+                    if (operands.length != 1) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires rx: " + fileLine);
+                    }
+
+                    int rx = Integer.parseInt(operands[0]);
+                    instructions |= (rx & 0x3) << 8;
+                }
+
+                case IO_R_DEVID -> {
+                    // r, devid (IN/OUT/CHK)
+                    if (operands.length != 2) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires r,devid: " + fileLine);
+                    }
+
+                    int r = Integer.parseInt(operands[0]);
+                    int dev = Integer.parseInt(operands[1]);
+
+                    instructions |= (r & 0x3) << 8;
+                    instructions |= (dev & 0x1F);
+                }
+
+                case FR_X_ADDR_I -> {
+                    // fr, x, address[, I]  (FADD/FSUB/VADD/VSUB/LDFR/STFR)
+                    if (!(operands.length == 3 || operands.length == 4)) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires fr,x,address[,I]: " + fileLine);
+                    }
+
+                    int fr = Integer.parseInt(operands[0]);
+                    int ix = Integer.parseInt(operands[1]);
+
+                    String addrToken = operands[2];
+                    int memAddr = table.containsKey(addrToken) ? table.get(addrToken) : Integer.parseInt(addrToken);
+
+                    int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
+
+                    instructions |= (fr & 0x3) << 8;          // FR uses R field
+                    instructions |= (ix & 0x3) << 6;
+                    instructions |= (indirectBit & 0x1) << 5;
+                    instructions |= (memAddr & 0x1F);
+                }
+
+                case SHIFT_ROT -> {
+                    // r, count, L/R, A/L (SRC/RRC)
+                    // This assumes [OP:6][R:2][A/L:1][L/R:1][COUNT:4][00:2]
+                    if (operands.length != 4) {
+                        throw new IllegalArgumentException(instr.mnemonic + " requires r,count,L/R,A/L: " + fileLine);
+                    }
+
+                    int r     = Integer.parseInt(operands[0]);
+                    int count = Integer.parseInt(operands[1]);
+                    int lr    = Integer.parseInt(operands[2]); // 0/1
+                    int al    = Integer.parseInt(operands[3]); // 0/1
+
+                    // rebuild lower bits for this format
+                    instructions = (instr.opcode << 10);
+                    instructions |= (r & 0x3) << 8;
+                    instructions |= (al & 0x1) << 7;
+                    instructions |= (lr & 0x1) << 6;
+                    instructions |= (count & 0xF) << 2; // 4-bit count into bits 5..2
+                }
             }
-
-            //convert them
-            //%06o is for making it an octal number (o), make it 6 characters wide (6), fill any empty spaces with zeros
-            String octaladdress = String.format("%06o", currentLoc);
-            String octalvalue = String.format("%06o", instructions);
-
-            //write this to the file 
-            writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
-
-            //increase the location count
-            currentLoc = currentLoc + 1;
         }
 
-        //close the files
-        writeToFile.close();
-        readFile.close();
+        //convert them, %06o is for making it an octal number (o), make it 6 characters wide (6), fill any empty spaces with zeros
+        String octaladdress = String.format("%06o", currentLoc);
+        String octalvalue   = String.format("%06o", (instructions & 0xFFFF));
+
+        //write this to the file
+        writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
+
+        //increase the location count
+        currentLoc = currentLoc + 1;
     }
 
+    //close the files
+    writeToFile.close();
+    readFile.close();
+}
 
 
     //take the file path from the terminal and run the two functions
