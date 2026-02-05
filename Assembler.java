@@ -149,7 +149,10 @@ private static void passTwo(File file) throws IOException
         if (line.isEmpty() || (line.contains(":") && line.split(":").length <= 1))
         {
             //write to the file, \t is for tabs for spacing purposes
-            writeToFile.println("\t\t\t" + fileLine);
+            //writeToFile.println("\t\t\t" + fileLine);
+
+            // This prints 16 spaces (8 for address + 8 for value) so the source starts at the same spot
+            writeToFile.printf("%-16s%s%n", "", fileLine);
             continue;
         }
 
@@ -160,7 +163,10 @@ private static void passTwo(File file) throws IOException
             String[] splitByParts = line.split("\\s+");
             currentLoc = Integer.parseInt(splitByParts[1]);
             //write to the file to keep track
-            writeToFile.println("\t\t\t" + fileLine);
+            //writeToFile.println("\t\t\t" + fileLine);
+
+            //prints 16 spaces (8 for address + 8 for value) so the source starts at the same spot
+            writeToFile.printf("%-16s%s%n", "", fileLine);
             continue;
         }
 
@@ -443,7 +449,10 @@ private static void passTwo(File file) throws IOException
         String octalvalue   = String.format("%06o", (instructions & 0xFFFF));
 
         //write this to the file
-        writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
+        //writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
+
+        // %-8s creates a left-aligned column exactly 8 characters wide
+        writeToFile.printf("%-8s%-8s%s%n", octaladdress, octalvalue, fileLine);
 
         //increase the location count
         currentLoc = currentLoc + 1;
