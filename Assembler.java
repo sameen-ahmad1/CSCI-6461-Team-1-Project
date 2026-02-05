@@ -9,7 +9,7 @@ import java.util.*;
 // Pass 1:
 // 1. Set code location to 0
 // 2. Read a line of the file
-// 3. Use the split command to break the line into its parts
+// 3. Use the split command to break the line into its splitByParts
 // 4. Process the line, if it is a label, add the label to a dictionary with the code location. Process
 // the rest of the line (it could be blank, if so no code is generated). Check for errors in the
 // code.
@@ -19,7 +19,7 @@ import java.util.*;
 // Pass 2:
 // 1. Set code location to 0
 // 2. Read a line of the file
-// 3. Use the split command to break the line into it parts
+// 3. Use the split command to break the line into it splitByParts
 // 4. Convert the code according to the second field.
 // 5. Add line to listing file and to load file.
 // 6. If code or data generated, increment the code counter, and go to step2 until termination.
@@ -65,7 +65,7 @@ public class Assembler
                 //if the line has a colon
                 if (fileLine.contains(":")) 
                 {
-                    //splits the line into two parts
+                    //splits the line into two splitByParts
                     //everything before the colon is the label name
                     //everything after the colon are the instruction
                     String[] labelSplit = fileLine.split(":");
@@ -99,7 +99,7 @@ public class Assembler
                     //set the location counter to that value 
                     locCounter = Integer.parseInt(instructionParts[1]);
                 } 
-                else if (!line.isEmpty()) 
+                else if (!fileLine.isEmpty()) 
                 {
                     //increase by 1
                     locCounter += 1;
@@ -111,11 +111,172 @@ public class Assembler
 
 
 
-    //pass TWO will go here
+    //pass TWO will go here, coverts into 16-bit octal 
     private static void passTwo(File file) throws IOException 
     {
+        //current location counter
+        int currentLoc = 0;
 
+        //read the files
+        BufferedReader readFile = new BufferedReader(new FileReader(file));
+
+        //create the new file to write the output to
+        PrintWriter writeToFile = new PrintWriter(new FileWriter("output.txt"));
+
+        //read each line from the file
+        String fileLine;
+        while ((fileLine = readFile.readLine()) != null) 
+        {
+            //split by the ; so it reads each line
+            String line = fileLine.split(";")[0].trim();
+            
+            
+            //if its a blank line or just labels after continue over it
+            if (line.isEmpty() || (line.contains(":") && line.split(":").length <= 1)) 
+            {
+                //write to the file, \t is for tabs for spacing purposes
+                writeToFile.println("\t\t\t" + fileLine);
+                continue;
+            }
+
+            //if the line starts with LOC
+            if (line.toUpperCase().startsWith("LOC")) 
+            {
+                //split into parts by the spaces
+                String[] splitByParts = line.split("\\s+");
+
+                //set the current location to the value
+                currentLoc = Integer.parseInt(splitByParts[1]);
+                //write to the file to keep track
+                writeToFile.println("\t\t\t" + fileLine);
+                continue;
+            }
+
+            
+            //this checks if the line contains a colon, which means there is a label
+            if (line.contains(":")) 
+            {
+                // [1] is the actual instruction
+                line = line.split(":")[1].trim();
+            }
+
+            
+
+            //parse now for binary conversions
+            String[] binaryParts = line.split("\\s+"); 
+            //get the operation name
+            String operationName = binaryParts[0].toUpperCase();
+
+            //set the instruction for the conversion
+            int instructions = 0;
+
+            if (operationName.equals("DATA")) 
+            {
+                
+                //if its the data, then get the value of it
+                String val = binaryParts[1];
+
+                //check to see if the value is a label thats already in the table
+                if (table.containsKey(val)) 
+                {
+                    //get the memory address if its already there
+                    instructions = table.get(val);
+                } 
+                else 
+                {
+                    //convert it into the int
+                    instructions = Integer.parseInt(val);
+                }
+            } 
+            else 
+            {
+                
+                //map the opcode to octal, find it from Isa.java file
+                //it gets all the information stored for that specific instruction
+                Isa.Instruction instr = Isa.Instruction.valueOf(operationName);
+
+
+                //the ppcode must be the first 6 bits of the 16-bit word
+                //in Java, an integer is 32 bits
+                //to move the 6-bit opcode into the correct position for a 16-bit word, we need to shift it 10 spaces to the left
+                //10 bits will be filled with Register (2 bits), Index Register (2 bits), Indirect bit (1 bit), and Address (5 bits)
+                instructions = (instr.opcode << 10); 
+
+
+                //if there are instructions
+                if (binaryParts.length > 1) 
+                {
+                    //finds the operands and splits them 
+                    String[] operands = binaryParts[1].split(",");
+                    
+                    //if it matches the format
+                    if (instr.format == Isa.Format.R_X_ADDR_I) 
+                    {
+                        int memAddr;
+
+                        // [Op:6][R:2][IX:2][I:1][memAddr:5] 
+                        //gets the first operand
+                        int r = Integer.parseInt(operands[0].trim());
+                        //gets the second operand
+                        int ix = Integer.parseInt(operands[1].trim());
+                        
+                        //memory address
+                        //gets the memory address
+                        String memaddstring = operands[2].trim();
+
+                        
+                        //if the table has it
+                        if (table.containsKey(memaddstring)) 
+                        {
+                            //get the memory address
+                            memAddr = table.get(memaddstring);
+                        } 
+                        else 
+                        {
+                            //parse to get the int
+                            memAddr = Integer.parseInt(memaddstring);
+                        }
+
+                        
+
+                        //get the indirect bit
+                        int indirectBit = 0;
+                        if (operands.length == 4) 
+                        {
+                            indirectBit = Integer.parseInt(operands[3].trim());
+                        }
+
+                        //everything has a Left-Shift 
+                        //register is shifted by 8 since it is 2 bits
+                        instructions = instructions | (r << 8);     
+                        //index is shifted by 6 since it is 2 bits
+                        instructions = instructions | (ix << 6);  
+                        //indirect bit is shifted by 5 since it is only one bit
+                        instructions = instructions | (indirectBit << 5); 
+                        //memory address is remaining 5 bits
+                        //0x1F (binary 11111) makes sure that the address doesn't go above the 5-bit limit
+                        instructions = instructions | (memAddr & 0x1F);
+                    }
+                }
+            }
+
+            //convert them
+            //%06o is for making it an octal number (o), make it 6 characters wide (6), fill any empty spaces with zeros
+            String octaladdress = String.format("%06o", currentLoc);
+            String octalvalue = String.format("%06o", instructions);
+
+            //write this to the file 
+            writeToFile.printf("%s\t%s\t%s%n", octaladdress, octalvalue, fileLine);
+
+            //increase the location count
+            currentLoc = currentLoc + 1;
+        }
+
+        //close the files
+        writeToFile.close();
+        readFile.close();
     }
+
 
 
     //take the file path from the terminal and run the two functions
@@ -139,7 +300,7 @@ public class Assembler
             //pass 2 so convert the instructions to octal
             passTwo(file);
             //if everything works as intended, it'll print that its successful 
-            System.out.println("Assembler successful!! Created listing.txt");
+            System.out.println("Assembler successful!!");
         }
         //if there is an error, it'll output the error 
         catch (Exception e) 
