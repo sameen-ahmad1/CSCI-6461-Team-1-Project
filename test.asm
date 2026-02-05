@@ -1,10 +1,18 @@
-; --- Test Program for C6461 Assembler ---
-LOC 10          ; Start the program at memory address 10
-Begin:  LDR 3,0,15    ; Load Register 3 with value at address 15
-        STR 2,1,20,1  ; Store R2 using IX 1, Address 20, Indirect 1
-        JZ  0,0,End   ; Jump to the "End" label if R0 is zero
-
-LOC 20          ; Jump the location counter to address 20
-Data    500           ; Store the number 500 in this memory slot
-End:    HLT           ; Halt instruction (usually Opcode 0)
-Data    Begin         ; Store the address of "Begin" (should be 000012 octal)
+        LOC     6           ;BEGIN AT LOCATION 6
+        Data    10          ;PUT 10 AT LOCATION 6
+        Data    3           ;PUT 3 AT LOCATION 7
+        Data    End         ;PUT 1024 AT LOCATION 8
+        Data    0
+        Data    12
+        Data    9
+        Data    18
+        Data    12
+        LDX     2,7         ;X2 GETS 3
+        LDR     3,0,10      ;R3 GETS 12
+        LDR     2,2,10      ;R2 GETS 12
+        LDR     1,2,10,1    ;R1 GETS 18
+        LDA     0,0,0       ;R0 GETS 0 to set CONDITION CODE
+        LDX     1,8         ;X1 GETS 1024
+        JZ      0,1,0       ;JUMP TO End IF R0 = 0
+        LOC     1024
+End:    HLT                         ;STOP
