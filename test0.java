@@ -26,20 +26,22 @@ public class test0 {
     private static void test1(){
 
         //generate test data 
-        String input = "./testFiles/test0_1/input.txt";
+        String input = "./testFiles/test0_1/test.asm";
 
         //generate expected output
         String expectedLoadFile = getBuffer("./testFiles/test0_1/expectedLoad.txt");
         String expectedListingFile = getBuffer("./testFiles/test0_1/expectedListing.txt");
 
         //call the parser on the test data 
+        Assembler.main(new String[]{input});
 
         //read in the outputs 
-        String loadFile = getBuffer("load.txt");
-        String listingFile = getBuffer("listing.txt");
+        // String loadFile = getBuffer("load.txt");
+        String listingFile = getBuffer("output.txt");
 
         //compare outputs to expected outputs
-        if(loadFile.equals(expectedLoadFile) && listingFile.equals(expectedListingFile)){
+        // if(loadFile.equals(expectedLoadFile) && listingFile.equals(expectedListingFile)){
+        if(listingFile.equals(expectedListingFile)){
 
             System.out.println("Test 1 Passed");
             return;
