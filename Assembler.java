@@ -445,8 +445,7 @@ private static void passTwo(File file) throws IOException
 
         // %-8s creates a left-aligned column exactly 8 characters wide
         loadWriter.println(octaladdress + "\t" + octalvalue);
-        String cleanLine = line.replaceAll("\\s+", " ");
-        listingWriter.println(octaladdress + "\t" + octalvalue + "\t" + cleanLine);
+        listingWriter.println(octaladdress + "\t" + octalvalue + "\t" + fileLine);
 
 
 
