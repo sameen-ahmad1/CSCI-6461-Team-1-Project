@@ -1,0 +1,181 @@
+commit 2b14e760d79127b1baaa60093754ce27f9bc5862
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 9 12:44:12 2026 -0500
+
+    testing updates
+
+commit 45bab4113cb3c05098749b71fb31795b2c48cf7a
+Merge: 61bdb83 3f0b967
+Author: Wesamabu <wesamabu100@gmail.com>
+Date:   Mon Feb 9 10:13:59 2026 -0500
+
+    Merge pull request #8 from sameen-ahmad1/output-files
+    
+    listing and load files
+
+commit 3f0b967baf297f5dc248450347aab6a7d75b9148
+Merge: 34b965a 61bdb83
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Mon Feb 9 10:12:30 2026 -0500
+
+    up to date main
+
+commit 61bdb83f54ca136921e0eced254ab9278bf063c0
+Merge: e0a3843 2b314c0
+Author: zackrahbar <112402228+zackrahbar@users.noreply.github.com>
+Date:   Mon Feb 9 09:33:53 2026 -0500
+
+    Merge pull request #6 from sameen-ahmad1/Testing
+    
+    Testing
+
+commit 2b314c06486627a0cba68adfc30cf8cc7e719eb6
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 13:39:36 2026 -0500
+
+    2nd test
+
+commit f5317b90c234a3aa661b9a9f9d06d213ac89a6a3
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 09:52:36 2026 -0500
+
+    test listing
+
+commit b503156db69a1a1ee30162c861d7f1e108ca496c
+Merge: 27bec03 e0a3843
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 09:45:39 2026 -0500
+
+    Merge branch 'main' into Testing
+
+commit 34b965a8ea6a1b6c476dd682aeec54ae9db06ff3
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 5 19:52:44 2026 -0500
+
+    Listing file + comments
+
+commit 14884225822699cdf2b1adb7cb21904d67b56d7d
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 5 18:40:17 2026 -0500
+
+    Write listing.txt and load.txt
+
+commit e0a384395e2c4e6449156ff76073406e40975658
+Merge: 1baaded 9855a53
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 17:18:16 2026 -0500
+
+    Merge pull request #4 from sameen-ahmad1/errorchecks
+    
+    Errorchecks
+
+commit 9855a53219b306f25488052a900fdfcad8603711
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 17:17:25 2026 -0500
+
+    fixed formatting
+
+commit 5ed9a91e082b5cb25049f81d131fcda8a57d0e8d
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:39:04 2026 -0500
+
+    added error checks
+
+commit 095f269041e4fd64977c54d6c41040594c73090c
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:36:50 2026 -0500
+
+    added error checks
+
+commit 1baaded991d98b9c261169bd1a6c6933002dc31d
+Merge: a767003 3f6e43e
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:17:20 2026 -0500
+
+    Merge pull request #3 from sameen-ahmad1/adding-parser-InstrFormats
+    
+    added cases for each instruction format type in pass 2
+
+commit 3f6e43ef56e70e9475f3ab61b678d5d2325be8ba
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 5 14:37:52 2026 -0500
+
+    added cases for each instruction format type in pass 2
+
+commit a767003d6c56ca3ad8e678956aa2f993a4352c64
+Merge: 049c94a 84c5232
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:47:37 2026 -0500
+
+    Merge pull request #2 from sameen-ahmad1/parse
+    
+    parser done
+
+commit 84c5232ff4469dd295a568b3048618d247123d56
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:46:11 2026 -0500
+
+    parser done
+
+commit c07eff6bc05c7a99e75f4e054a47a74bd4f807de
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:45:34 2026 -0500
+
+    parser done
+
+commit 27bec03e8669aaf1c8e41cd4112f74112a2515d6
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Wed Feb 4 15:00:35 2026 -0500
+
+    sample data
+
+commit 9df3ab680bdf8ce407f35a443cb72ba034945a8a
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 16:08:44 2026 -0500
+
+    did pass one functin
+
+commit 4b3d0b9a10045275e0e347e853b98802d8d60b93
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 16:04:01 2026 -0500
+
+    did pass one functin
+
+commit 049c94aba78909f78160038ce2810a198abf4456
+Merge: cbc7b0f 9974e09
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 14:53:42 2026 -0500
+
+    Merge pull request #1 from sameen-ahmad1/opcodes
+    
+    Added opcode mapping in Isa.java class
+
+commit 4a2f98ac0da19da5abda1029fdd9ced90cf87eb9
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 2 14:34:29 2026 -0500
+
+    framework
+
+commit 9974e092e29702478aef881702035edc158d671e
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Mon Feb 2 14:15:33 2026 -0500
+
+    Added opcode mapping in Isa.java class
+
+commit cbc7b0fef8f083d33f7132e304ca5369f6498ca1
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 16:09:51 2026 -0500
+
+    Created part0.java
+
+commit 65970b7d288e5818eefee135b6a5d5c474667a0b
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 16:01:12 2026 -0500
+
+    README.md
+
+commit e58ec2ab8f3f66b751d1c67fd78f489a1ae3cf8d
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 15:55:42 2026 -0500
+
+    README.md
