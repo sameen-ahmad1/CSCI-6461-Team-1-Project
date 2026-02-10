@@ -3,24 +3,32 @@ Basic Design Notes
 The assembler is designed as a Two-Pass Assembler to ensure all labels are resolved before the final machine code is generated.
 
 ## Core Components & Functions
-1. rangeCheck(int val, int max, String name)
+1. `rangeCheck(int val, int max, String name)`
      - Purpose: Validates that numerical inputs (registers, addresses, immediate values) fit within their designated bit-field limits
      - Logic: Compares the input val against the allowed max. If the value is out of bounds, it throws an IllegalArgumentException to prevent corrupted instructions
 
-2. passOne(File file)
+2. `passOne(File file)`
      - Purpose: Scans the source file to build a Symbol Table and calculate memory locations
      - Logic: Sets the initial locCounter to 0. Reads each line, strips comments (anything after a ;), and identifies labels (anything before a :).
      - Symbol Table: Stores unique labels and their current locCounter in a HashMap. It throws an error if a duplicate label is detected.
      - Location Counter: Increments the locCounter for every instruction or data line found. It also handles the LOC to jump the counter to a specific memory address.
 
-3. passTwo(File file)
-     - Purpose: 
-     - Logic:
-
-
-4. main(String[] args)
+3. `passTwo(File file)`
+     - Purpose: takes the symbol table and memory locations and prcosses bit shifting for each instruction format to get registers and values ready to be used when storing values inside of memory and registers
+     - Logic: Switch statement that contains a case for each instruction format defined in `Isa.java` 
+          - provides the parsing and bit shift for operands in each instruction provided by source file
+            
+4. `main(String[] args)` in `Assembler.java`
      - Purpose: Acts as the entry point for the application
      - Logic: Takes the assembly file path from the command line, creates a File object, and executes passOne followed by passTwo. It includes a global try-catch block to report any assembly errors to the user.
+
+5. `Isa.java`
+     - Purpose: To define opcodes for each instruction in the ISA and provide defitions for each type of instruction
+     - Enums:
+          - `Format`: each possible format of instruction defind to be used in `passTwo()`.
+          - `Instruction`: Defines opcode mapping and instruction format for each Instruction.
+       
+    
 
 
 ## Design Principles
