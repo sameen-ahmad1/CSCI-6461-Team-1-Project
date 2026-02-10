@@ -14,7 +14,8 @@ The assembler is designed as a Two-Pass Assembler to ensure all labels are resol
      - Location Counter: Increments the locCounter for every instruction or data line found. It also handles the LOC to jump the counter to a specific memory address.
 
 3. `passTwo(File file)`
-     - Purpose: takes the symbol table and memory locations and prcosses bit shifting for each instruction format to get registers and values ready to be used when storing values inside of memory and registers
+     - Purpose: processes bit shifting for each instruction format to get values associated to registers
+          - to be used when storing values inside of memory and registers
      - Logic: Switch statement that contains a case for each instruction format defined in `Isa.java` 
           - provides the parsing and bit shift for operands in each instruction provided by source file
             
