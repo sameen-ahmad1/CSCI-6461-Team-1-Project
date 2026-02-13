@@ -1,3 +1,6 @@
+Group #1
+Members: Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia, Sameen Ahmad
+
 ## Part 0: Assembler Design & Documentation
 Basic Design Notes
 The assembler is designed as a Two-Pass Assembler to ensure all labels are resolved before the final machine code is generated.
