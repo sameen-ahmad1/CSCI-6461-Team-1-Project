@@ -93,7 +93,7 @@ public class CPU
         if (opcode == 0x01) 
         { 
             //set the MAR to the effective address
-            MAR = effectiveAddress;
+            MAR = effectiveAddress & MASK_12;
             //start the 2-cycle red
             memoryCycles = 1; 
             curState = State.LDR_FINISH;
@@ -101,7 +101,7 @@ public class CPU
         else if (opcode == 0x02) 
         { 
             //store the register to memory
-            MAR = effectiveAddress;
+            MAR = effectiveAddress & MASK_12;
             //put the data in the register in MBR for memory
             MBR = GPR[r] & MASK_16; 
             //start teh 2-cycle write
@@ -145,24 +145,7 @@ public class CPU
 
             case DECODE:
                 //get the first 6 bits which is the opcde
-                int opcode = (IR >> 10) & 0x3F;
-                
-                if (opcode == 0) 
-                { 
-                    //if the opcode is 0, then HALT
-                    curState = State.HALT;
-                } 
-                else if (!isValidOpcode(opcode)) 
-                {
-                    //if illegal opcode
-                    setMFR(1); 
-                    curState = State.HALT;
-                } 
-                //else its fine, then compute the effective address
-                else 
-                {
-                    curState = State.COMPUTE_EA;
-                }
+                decodeAndExecute(); 
                 break;
 
             //computer the effective address
@@ -208,9 +191,33 @@ public class CPU
     private boolean isValidOpcode(int opcode) 
     {
         // make sure that the opcode is correct
-        return opcode >= 0 && opcode <= 0x3F;
+        return (opcode >= 0 && opcode <= 2);
     }
 
+    private void decodeAndExecute() 
+    {
+        int opcode = (IR >> 10) & 0x3F;
+        //int r = (IR >> 8) & 0x03;
+    
+        // Debug print to see what is happening inside the CPU
+        //System.out.println("DEBUG: Decoding Opcode " + opcode + " for Register " + r);
+
+        if (!isValidOpcode(opcode)) 
+        {
+            setMFR(1); 
+            curState = State.HALT;
+        } 
+        else if (opcode == 0) 
+        { // HLT
+            curState = State.HALT;
+        } 
+        else 
+        {
+            curState = State.COMPUTE_EA;
+        }
+    }
+
+    //ALL GETTERS AND SETTERS ARE BELOW
     //set the MFR
     public void setMFR(int faultID) 
     {
@@ -223,15 +230,33 @@ public class CPU
         this.MBR = value & MASK_16; 
     }
 
-    //get the MAR
+  
     public int getMAR() 
     {
-        return this.MAR; 
+        return this.MAR & MASK_12;
     }
 
     //get teh MBR
     public int getMBR() 
     {
-        return this.MBR; 
+        return this.MBR & MASK_16;
+    }
+
+
+    public int getGPR(int i) 
+    {
+        //returns 16-bit value of the specified GPR
+        return this.GPR[i]; 
+    }
+
+    public int getPC() 
+    {
+        //returns 12 bit PC
+        return this.PC; 
+    }
+
+    public int getMFR() 
+    {
+        return this.MFR; 
     }
 }
