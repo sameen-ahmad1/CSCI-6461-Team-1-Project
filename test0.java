@@ -36,12 +36,11 @@ public class test0 {
         Assembler.main(new String[]{input});
 
         //read in the outputs 
-        // String loadFile = getBuffer("load.txt");
-        String listingFile = getBuffer("output.txt");
+        String loadFile = getBuffer("load.txt");
+        String listingFile = getBuffer("listing.txt");
 
         //compare outputs to expected outputs
-        // if(loadFile.equals(expectedLoadFile) && listingFile.equals(expectedListingFile)){
-        if(listingFile.equals(expectedListingFile)){
+        if(loadFile.equals(expectedLoadFile) && listingFile.equals(expectedListingFile)){
 
             System.out.println("Test 1 Passed");
             return;
@@ -65,12 +64,11 @@ public class test0 {
         Assembler.main(new String[]{input});
 
         //read in the outputs 
-        // String loadFile = getBuffer("load.txt");
-        String listingFile = getBuffer("output.txt");
+        String loadFile = getBuffer("load.txt");
+        String listingFile = getBuffer("listing.txt");
 
         //compare outputs to expected outputs
-        // if(loadFile.equals(expectedLoadFile) && listingFile.equals(expectedListingFile)){
-        if(!listingFile.equals(expectedListingFile)){
+        if(!loadFile.equals(expectedLoadFile) && !listingFile.equals(expectedListingFile)){
 
             System.out.println("Test 1 Passed");
             return;
