@@ -12,3 +12,6 @@ A test case for the assembler is provided in /testFiles/test0_1 where test.asm i
 input and expectedListing.txt is the copy of the expected listing file for the test case <br>
 <br>
 Part 0 Design Document is located under docs/part0 
+
+
+## Part 1 Instructions
