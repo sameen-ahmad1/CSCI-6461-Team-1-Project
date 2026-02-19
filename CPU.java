@@ -258,4 +258,19 @@ public class CPU
     {
         return this.MFR; 
     }
+
+    public void setGPR(int i, int value) 
+    {
+        GPR[i] = value & 0xFFFF;
+    }
+
+    public int getIX(int i) 
+    {
+        return IX[i] & 0xFFFF;
+    }
+
+    public void setIX(int i, int value) 
+    {
+        IX[i] = value & 0xFFFF;
+    }
 }
