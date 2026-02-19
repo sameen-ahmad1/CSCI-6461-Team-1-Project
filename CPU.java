@@ -230,7 +230,6 @@ public class CPU
         this.MBR = value & MASK_16; 
     }
 
-  
     public int getMAR() 
     {
         return this.MAR & MASK_12;

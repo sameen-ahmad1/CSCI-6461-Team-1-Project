@@ -37,6 +37,7 @@ public final class Memory {
         checkAddr(mar);
 
         switch (pendingOp) {
+            case NONE -> throw new IllegalStateException("No pending memory operation");
             case READ -> cpu.setMBR(u16(mem[mar]));
             case WRITE -> mem[mar] = (short) (cpu.getMBR() & 0xFFFF);
         }
