@@ -43,8 +43,11 @@ public class CPU
         INDIRECT_2, 
         EXECUTE, 
         LDR_FINISH, 
+        LDX_FINISH, 
         HALT
     }
+
+    private Decoder.Decoded decoded;
 
     private State curState = State.FETCH_1;
 
@@ -186,36 +189,35 @@ public class CPU
     }
 
 
+    // function to decode and execute the instruction in IR
+    private void decodeAndExecute() {
+        try {
+            //using global decoded variable to store the decoded instruction for use in execute
+            decoded = Decoder.decode(IR);
+            //check for HALT first since it doesnt follow the normal execution path
+            if (decoded.ins == Isa.Instruction.HLT) {
+                curState = State.HALT;
+                return;
+            }
 
-    //helper function for invalid opcode
-    private boolean isValidOpcode(int opcode) 
-    {
-        // make sure that the opcode is correct
-        return (opcode >= 0 && opcode <= 2);
-    }
+            // Load/store family routes into EA computation
+            switch (decoded.ins) {
+                case LDR, STR, LDA, LDX, STX -> curState = State.COMPUTE_EA;
 
-    private void decodeAndExecute() 
-    {
-        int opcode = (IR >> 10) & 0x3F;
-        //int r = (IR >> 8) & 0x03;
-    
-        // Debug print to see what is happening inside the CPU
-        //System.out.println("DEBUG: Decoding Opcode " + opcode + " for Register " + r);
+                // TODO: Other instructions will have their own execution paths (not implemented yet)
+                default -> {
+                    // Not implemented yet - have a test instruction that triggers this for now
+                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
+                    curState = State.HALT;
+                }
+            }
 
-        if (!isValidOpcode(opcode)) 
-        {
-            setMFR(1); 
+        } catch (MachineFault mf) {
+            setMFR(mf.code().value);
             curState = State.HALT;
-        } 
-        else if (opcode == 0) 
-        { // HLT
-            curState = State.HALT;
-        } 
-        else 
-        {
-            curState = State.COMPUTE_EA;
         }
-    }
+}
+
 
     //ALL GETTERS AND SETTERS ARE BELOW
     //set the MFR
