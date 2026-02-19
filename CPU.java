@@ -58,12 +58,10 @@ public class CPU
 
     private void calculateEA() 
     {
-        //5 bit address
-        int address = IR & 0x1F;      // 5-bit address field
-        //2 bit IX 
-        int ixBits = (IR >> 6) & 0x03; // 2-bit IX field
-        //1 bit indirect
-        int iBit = (IR >> 5) & 0x01;   // 1-bit Indirect field
+        // have already been bit shifted in decoder, so just need to mask
+        int address = decoded.addr; // 0..31 (5 bits)
+        int ixBits  = decoded.x;    // 0..3
+        int iBit    = decoded.i;    // 0/1
 
         //handle the indexing
         if (ixBits > 0 && ixBits < 4) 
@@ -89,33 +87,68 @@ public class CPU
 
     private void handleExecute() 
     {
-        int opcode = (IR >> 10) & 0x3F;
-        int r = (IR >> 8) & 0x03;
+        int r = decoded.r & 0x03;
+        int x = decoded.x & 0x03;
 
         //load the register from memory
-        if (opcode == 0x01) 
-        { 
-            //set the MAR to the effective address
-            MAR = effectiveAddress & MASK_12;
-            //start the 2-cycle red
-            memoryCycles = 1; 
-            curState = State.LDR_FINISH;
-        } 
-        else if (opcode == 0x02) 
-        { 
-            //store the register to memory
-            MAR = effectiveAddress & MASK_12;
-            //put the data in the register in MBR for memory
-            MBR = GPR[r] & MASK_16; 
-            //start teh 2-cycle write
-            memoryCycles = 1;
-            //the next cycle will be fetch
-            curState = State.FETCH_1; 
-        }
-        else 
-        {
-            //if there are other instructions
-            curState = State.FETCH_1;
+        switch (decoded.ins) {
+            case LDR: 
+                //set the MAR to the effective address
+                MAR = effectiveAddress & MASK_12;
+                //start the 2-cycle red
+                memoryCycles = 1; 
+                curState = State.LDR_FINISH;
+                break;
+        
+            case STR: 
+                //store the register to memory
+                MAR = effectiveAddress & MASK_12;
+                //put the data in the register in MBR for memory
+                MBR = GPR[r] & MASK_16; 
+                //start teh 2-cycle write
+                memoryCycles = 1;
+                //the next cycle will be fetch
+                curState = State.FETCH_1; 
+                break;
+
+            case LDA:
+                //load the effective address into the register
+                GPR[r] = effectiveAddress & MASK_16;
+                curState = State.FETCH_1;
+                break;
+
+            case LDX:
+                if (x == 0) 
+                {
+                    // IX=0 is not allowed for LDX
+                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
+                    curState = State.HALT;
+                    return;
+                }
+                //set the MAR to the effective address
+                MAR = effectiveAddress & MASK_12;
+                memoryCycles = 1;                 // stall for memory read
+                curState = State.LDX_FINISH;
+                break;
+
+            case STX:
+                if (x == 0) 
+                {
+                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
+                    curState = State.HALT;
+                    return;
+                }
+                MAR = effectiveAddress & MASK_12;
+                MBR = IX[x] & MASK_16;
+                memoryCycles = 1;                 // stall for memory write
+                curState = State.FETCH_1;
+                break;
+
+            //Implement other instructions here (not implemented yet)
+            default:
+                curState = State.FETCH_1;
+                break;
+            
         }
     }
 
@@ -130,7 +163,7 @@ public class CPU
         }
 
         switch (curState) 
-        {
+        {   
             case FETCH_1:
                 //start the fethc and move the PC to MAR
                 MAR = PC & MASK_12;
@@ -174,12 +207,12 @@ public class CPU
                 break;
 
             case LDR_FINISH:
-                //last step, move the data from MBR to GPR
-                int last_ldr = (IR >> 8) & 0x03;
-                GPR[last_ldr] = MBR & MASK_16;
-
-                //go back to the next instruction
-                curState = State.FETCH_1; 
+                GPR[decoded.r & 0x03] = MBR & MASK_16;
+                curState = State.FETCH_1;
+                break;
+            case LDX_FINISH:
+                IX[decoded.x & 0x03] = MBR & MASK_16;
+                curState = State.FETCH_1;
                 break;
 
             case HALT:
