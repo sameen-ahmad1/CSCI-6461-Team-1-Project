@@ -308,7 +308,7 @@ public class CPU
     public int getPC() 
     {
         //returns 12 bit PC
-        return this.PC; 
+        return this.PC & MASK_12;
     }
 
     public int getMFR() 
