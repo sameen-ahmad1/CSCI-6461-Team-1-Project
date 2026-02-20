@@ -330,4 +330,32 @@ public class CPU
     {
         IX[i] = value & 0xFFFF;
     }
+
+    public void listRegisters() 
+    {
+    System.out.println("\n================ REGISTER LISTS ================");
+    // PC and MAR are 12-bit, so we format for 4 octal digits
+    System.out.printf("PC :  %04o (Oct) | %04X (Hex) | %d (Dec)\n", getPC(), getPC(), getPC());
+    System.out.printf("MAR:  %04o (Oct) | %04X (Hex)\n", getMAR(), getMAR());
+    
+    // MBR and IR are 16-bit, so we format for 6 octal digits
+    System.out.printf("MBR:  %06o (Oct) | %04X (Hex)\n", getMBR(), getMBR());
+    System.out.printf("IR :  %06o (Oct) | %04X (Hex)\n", IR, IR);
+    
+    // Status registers
+    System.out.printf("MFR:  %d (ID)    | CC: %d\n", getMFR(), CC);
+    System.out.println("-----------------------------------------------");
+    
+    // General Purpose Registers
+    for (int i = 0; i < 4; i++) {
+        System.out.printf("GPR[%d]: %06o (Oct) | %04X (Hex) | %d\n", i, getGPR(i), getGPR(i), getGPR(i));
+    }
+    
+    // Index Registers (starting from 1 as IX[0] is usually not used for indexing)
+    for (int i = 1; i < 4; i++) 
+    {
+        System.out.printf("IX [%d]: %06o (Oct) | %04X (Hex) | %d\n", i, getIX(i), getIX(i), getIX(i));
+    }
+    System.out.println("===============================================\n");
+    }
 }
