@@ -1,6 +1,12 @@
 // Handles Fetch/Decode/Execute with 2-cycle memory timing
 public class CPU 
 {
+    //memory 
+    private final Memory memory;
+    public CPU(Memory memory) 
+    {
+        this.memory = memory;
+    }
     //CPU registers
     //program counter (12 bit)
     private int PC;           
@@ -103,6 +109,7 @@ public class CPU
             case LDR: 
                 //set the MAR to the effective address
                 MAR = effectiveAddress & MASK_12;
+                memory.requestRead(MAR);
                 //start the 2-cycle red
                 memoryCycles = 1; 
                 curState = State.LDR_FINISH;
@@ -113,6 +120,7 @@ public class CPU
                 MAR = effectiveAddress & MASK_12;
                 //put the data in the register in MBR for memory
                 MBR = GPR[r] & MASK_16; 
+                memory.requestWrite(MAR);
                 //start teh 2-cycle write
                 memoryCycles = 1;
                 //the next cycle will be fetch
@@ -135,6 +143,7 @@ public class CPU
                 }
                 //set the MAR to the effective address
                 MAR = effectiveAddress & MASK_12;
+                memory.requestRead(MAR);
                 memoryCycles = 1;                 // stall for memory read
                 curState = State.LDX_FINISH;
                 break;
@@ -148,6 +157,7 @@ public class CPU
                 }
                 MAR = effectiveAddress & MASK_12;
                 MBR = IX[x] & MASK_16;
+                memory.requestWrite(MAR);
                 memoryCycles = 1;                 // stall for memory write
                 curState = State.FETCH_1;
                 break;
@@ -163,6 +173,8 @@ public class CPU
     //cpu tick
     public void cycle() 
     {
+        //memory process any requests from the previous cycle
+        memory.tick(this);
         //for memory timing
         if (memoryCycles > 0) 
         {
@@ -175,6 +187,8 @@ public class CPU
             case FETCH_1:
                 //start the fetch and move the PC to MAR
                 MAR = PC & MASK_12;
+                //tell memory to read
+                memory.requestRead(MAR);
                 //hold for the 2-cycle memory red
                 memoryCycles = 1; 
                 curState = State.FETCH_2;
@@ -199,7 +213,7 @@ public class CPU
 
             //get the actual address from the memory 
             case INDIRECT_1:
-                
+                memory.requestRead(MAR);
                 memoryCycles = 1; 
                 curState = State.INDIRECT_2;
                 break;
@@ -288,7 +302,7 @@ public class CPU
     public int getGPR(int i) 
     {
         //returns 16-bit value of the specified GPR
-        return this.GPR[i]; 
+        return this.GPR[i] & MASK_16;
     }
 
     public int getPC() 
@@ -309,7 +323,7 @@ public class CPU
 
     public int getIX(int i) 
     {
-        return IX[i] & 0xFFFF;
+        return this.IX[i] & MASK_16;
     }
 
     public void setIX(int i, int value) 
