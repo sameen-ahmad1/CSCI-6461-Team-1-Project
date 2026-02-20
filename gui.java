@@ -9,6 +9,8 @@ public class gui extends JFrame{
 
         JPanel outer = new JPanel(new BorderLayout(10,10));
 
+        outer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         JPanel firstNorth = new JPanel(new BorderLayout(10,10));
         JPanel firstCenter = new JPanel(new BorderLayout(10,10));
         JPanel firstEast = new JPanel(new BorderLayout(10,10));
@@ -17,7 +19,7 @@ public class gui extends JFrame{
         outer.add(firstCenter, BorderLayout.CENTER);
         outer.add(firstEast, BorderLayout.EAST);
 
-        JLabel title = new JLabel("CSCI 6461 Machine SImulator");
+        JLabel title = new JLabel("CSCI 6461 Machine Simulator");
         JLabel names = new JLabel("Group 1: Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia, Sameen Ahmad");
 
         firstNorth.add(title, BorderLayout.NORTH);
@@ -47,7 +49,6 @@ public class gui extends JFrame{
 
         JLabel consoleInputLabel = new JLabel("Console Input");
         JTextField consoleInput = new JTextField("", 20);
-        consoleInput.setEditable(false);
 
         firstEastSouth.add(consoleInputLabel, BorderLayout.NORTH);
         firstEastSouth.add(consoleInput, BorderLayout.SOUTH);
@@ -61,8 +62,7 @@ public class gui extends JFrame{
         firstCenter.add(firstCenterSouth, BorderLayout.SOUTH);
 
         JLabel programFileLabel = new JLabel("Program File");
-        JTextField programFile = new JTextField("");
-        programFile.setEditable(false);
+        JTextField programFile = new JTextField("", 50);
 
         firstCenterSouth.add(programFileLabel);
         firstCenterSouth.add(programFile);
@@ -89,7 +89,32 @@ public class gui extends JFrame{
         firstCenterCenterWestNorth.add(binary, BorderLayout.SOUTH);
 
         JLabel octalInputLabel = new JLabel("Octal Input");
-        JTextField octalInput = new JTextField("", 5);
+        JTextField octalInput = new JTextField("", 8);
+
+        octalInput.addKeyListener(new KeyListener(){
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String octal = octalInput.getText();
+
+                if(!octal.isEmpty()) {
+
+                    int decimalNum = Integer.parseInt(octal, 8);
+                    String binaryString = Integer.toBinaryString(decimalNum);
+
+                    binary.setText(binaryString);
+
+                } 
+                else{
+
+                    binary.setText("");
+
+                }
+            }            
+        });
 
         firstCenterCenterWestSouth.add(octalInputLabel);
         firstCenterCenterWestSouth.add(octalInput);
@@ -97,6 +122,8 @@ public class gui extends JFrame{
         JPanel loadRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton loadButton = new JButton();
         JLabel loadLabel = new JLabel("Load");
+
+        loadButton.setPreferredSize(new Dimension(20, 18));
 
         loadRow.add(loadButton);
         loadRow.add(loadLabel);
@@ -109,6 +136,8 @@ public class gui extends JFrame{
         JButton loadPlusButton = new JButton();
         JLabel loadPlusLabel = new JLabel("Load+");
 
+        loadPlusButton.setPreferredSize(new Dimension(20, 18));
+
         loadPlusRow.add(loadPlusButton);
         loadPlusRow.add(loadPlusLabel);
 
@@ -120,6 +149,8 @@ public class gui extends JFrame{
         JButton storeButton = new JButton();
         JLabel storeLabel = new JLabel("Store");
 
+        storeButton.setPreferredSize(new Dimension(20, 18));
+
         storeRow.add(storeButton);
         storeRow.add(storeLabel);
 
@@ -130,6 +161,8 @@ public class gui extends JFrame{
         JPanel storePlusRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton storePlusButton = new JButton();
         JLabel storePlusLabel = new JLabel("Store+");
+
+        storePlusButton.setPreferredSize(new Dimension(20, 18));
 
         storePlusRow.add(storePlusButton);
         storePlusRow.add(storePlusLabel);
@@ -147,6 +180,8 @@ public class gui extends JFrame{
         JButton runButton = new JButton();
         JLabel runLabel = new JLabel("Run");
 
+        runButton.setPreferredSize(new Dimension(20, 18));
+
         runRow.add(runButton);
         runRow.add(runLabel);
 
@@ -157,6 +192,8 @@ public class gui extends JFrame{
         JPanel stepRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton stepButton = new JButton();
         JLabel stepLabel = new JLabel("Step");
+
+        stepButton.setPreferredSize(new Dimension(20, 18));
 
         stepRow.add(stepButton);
         stepRow.add(stepLabel);
@@ -169,6 +206,8 @@ public class gui extends JFrame{
         JButton haltButton = new JButton();
         JLabel haltLabel = new JLabel("Halt");
 
+        haltButton.setPreferredSize(new Dimension(20, 18));
+
         haltRow.add(haltButton);
         haltRow.add(haltLabel);
 
@@ -179,6 +218,8 @@ public class gui extends JFrame{
         JPanel IPLRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton IPLButton = new JButton();
         JLabel IPLLabel = new JLabel("IPL");
+
+        IPLButton.setPreferredSize(new Dimension(20, 18));
 
         IPLRow.add(IPLButton);
         IPLRow.add(IPLLabel);
@@ -200,12 +241,18 @@ public class gui extends JFrame{
         firstCenterNorth.add(firstCenterNorthCenter, BorderLayout.CENTER);
         firstCenterNorth.add(firstCenterNorthEast, BorderLayout.EAST);
 
+        JPanel gprLabelRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel gprLabel = new JLabel("GPR");
+
+        gprLabelRow.add(gprLabel);
 
         JPanel zeroRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel zeroLabelGPR = new JLabel("0");
         JTextField zeroTextGPR = new JTextField("",10);
         JButton zeroButtonGPR = new JButton();
+
+        zeroButtonGPR.setPreferredSize(new Dimension(20, 18));
+        zeroTextGPR.setEditable(false);
 
         zeroRowGPR.add(zeroLabelGPR);
         zeroRowGPR.add(zeroTextGPR);
@@ -220,6 +267,9 @@ public class gui extends JFrame{
         JTextField oneTextGPR = new JTextField("",10);
         JButton oneButtonGPR = new JButton();
 
+        oneButtonGPR.setPreferredSize(new Dimension(20, 18));
+        oneTextGPR.setEditable(false);
+
         oneRowGPR.add(oneLabelGPR);
         oneRowGPR.add(oneTextGPR);
         oneRowGPR.add(oneButtonGPR);
@@ -232,6 +282,9 @@ public class gui extends JFrame{
         JLabel twoLabelGPR = new JLabel("2");
         JTextField twoTextGPR = new JTextField("",10);
         JButton twoButtonGPR = new JButton();
+
+        twoButtonGPR.setPreferredSize(new Dimension(20, 18));
+        twoTextGPR.setEditable(false);
 
         twoRowGPR.add(twoLabelGPR);
         twoRowGPR.add(twoTextGPR);
@@ -246,6 +299,9 @@ public class gui extends JFrame{
         JTextField threeTextGPR = new JTextField("",10);
         JButton threeButtonGPR = new JButton();
 
+        threeButtonGPR.setPreferredSize(new Dimension(20, 18));
+        threeTextGPR.setEditable(false);
+
         threeRowGPR.add(threeLabelGPR);
         threeRowGPR.add(threeTextGPR);
         threeRowGPR.add(threeButtonGPR);
@@ -254,13 +310,16 @@ public class gui extends JFrame{
 
         });
 
-        firstCenterNorthWest.add(gprLabel);
+        firstCenterNorthWest.add(gprLabelRow);
         firstCenterNorthWest.add(zeroRowGPR);
         firstCenterNorthWest.add(oneRowGPR);
         firstCenterNorthWest.add(twoRowGPR);
         firstCenterNorthWest.add(threeRowGPR);
 
+        JPanel ixrLabelRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel ixrLabel = new JLabel("IXR");
+
+        ixrLabelRow.add(ixrLabel);
 
         JPanel zeroRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
 
@@ -268,6 +327,9 @@ public class gui extends JFrame{
         JLabel oneLabelIXR = new JLabel("1");
         JTextField oneTextIXR = new JTextField("",10);
         JButton oneButtonIXR = new JButton();
+
+        oneButtonIXR.setPreferredSize(new Dimension(20, 18));
+        oneTextIXR.setEditable(false);
 
         oneRowIXR.add(oneLabelIXR);
         oneRowIXR.add(oneTextIXR);
@@ -282,6 +344,9 @@ public class gui extends JFrame{
         JTextField twoTextIXR= new JTextField("",10);
         JButton twoButtonIXR = new JButton();
 
+        twoButtonIXR.setPreferredSize(new Dimension(20, 18));
+        twoTextIXR.setEditable(false);
+
         twoRowIXR.add(twoLabelIXR);
         twoRowIXR.add(twoTextIXR);
         twoRowIXR.add(twoButtonIXR);
@@ -295,6 +360,9 @@ public class gui extends JFrame{
         JTextField threeTextIXR = new JTextField("",10);
         JButton threeButtonIXR = new JButton();
 
+        threeButtonIXR.setPreferredSize(new Dimension(20, 18));
+        threeTextIXR.setEditable(false);
+
         threeRowIXR.add(threeLabelIXR);
         threeRowIXR.add(threeTextIXR);
         threeRowIXR.add(threeButtonIXR);
@@ -303,7 +371,7 @@ public class gui extends JFrame{
 
         });
 
-        firstCenterNorthCenter.add(ixrLabel);
+        firstCenterNorthCenter.add(ixrLabelRow);
         firstCenterNorthCenter.add(zeroRowIXR);
         firstCenterNorthCenter.add(oneRowIXR);
         firstCenterNorthCenter.add(twoRowIXR);
@@ -313,6 +381,9 @@ public class gui extends JFrame{
         JLabel pcLabel = new JLabel("PC");
         JTextField pcText = new JTextField("",10);
         JButton pcButton = new JButton();
+
+        pcButton.setPreferredSize(new Dimension(20, 18));
+        pcText.setEditable(false);
 
         pcRow.add(pcLabel);
         pcRow.add(pcText);
@@ -327,6 +398,9 @@ public class gui extends JFrame{
         JTextField marText = new JTextField("",10);
         JButton marButton = new JButton();
 
+        marButton.setPreferredSize(new Dimension(20, 18));
+        marText.setEditable(false);
+
         marRow.add(marLabel);
         marRow.add(marText);
         marRow.add(marButton);
@@ -340,6 +414,9 @@ public class gui extends JFrame{
         JTextField mbrText = new JTextField("",10);
         JButton mbrButton = new JButton();
 
+        mbrButton.setPreferredSize(new Dimension(20, 18));
+        mbrText.setEditable(false);
+
         mbrRow.add(mbrLabel);
         mbrRow.add(mbrText);
         mbrRow.add(mbrButton);
@@ -352,6 +429,9 @@ public class gui extends JFrame{
         JLabel irLabel = new JLabel("IR");
         JTextField irText = new JTextField("",10);
         JButton irButton = new JButton();
+
+        irButton.setPreferredSize(new Dimension(20, 18));
+        irText.setEditable(false);
 
         irRow.add(irLabel);
         irRow.add(irText);
@@ -367,6 +447,8 @@ public class gui extends JFrame{
         JLabel oudeText = new JLabel("OUDE");
         JTextField ccText = new JTextField("",5);
 
+        ccText.setEditable(false);
+
         ccTexts.add(ccText, BorderLayout.NORTH);
         ccTexts.add(oudeText, BorderLayout.SOUTH);
         ccRow.add(ccLabel);
@@ -377,6 +459,8 @@ public class gui extends JFrame{
         JPanel mfrTexts = new JPanel(new BorderLayout(5,5));
         JLabel mortText = new JLabel("MOTR");
         JTextField mfrText = new JTextField("",5);
+
+        mfrText.setEditable(false);
 
         mfrTexts.add(mfrText, BorderLayout.NORTH);
         mfrTexts.add(mortText, BorderLayout.SOUTH);
