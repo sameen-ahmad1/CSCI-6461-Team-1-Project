@@ -56,31 +56,39 @@ public class CPU
     private static final int MASK_12 = 0xFFF;
     private static final int MASK_16 = 0xFFFF;
 
-    private void calculateEA() 
-    {
-        // have already been bit shifted in decoder, so just need to mask
-        int address = decoded.addr; // 0..31 (5 bits)
-        int ixBits  = decoded.x;    // 0..3
-        int iBit    = decoded.i;    // 0/1
+    private void calculateEA() {
+        // address is 5-bit field per assembler/spec
+        int address = decoded.addr & 0x1F;
+        // x field from instruction
+        int xField = decoded.x & 0x03;
+        // indirect bit
+        int iBit = decoded.i & 0x01;
+        // EA base is always the address field from the instruction
+        int ea = address;
 
-        //handle the indexing
-        if (ixBits > 0 && ixBits < 4) 
-        {
-            effectiveAddress = (IX[ixBits] + address) & MASK_12;
-        } 
-        else 
-        {
-            effectiveAddress = address & MASK_12;
+        // LDR/STR/LDA use indexing LDX/STX do NOT (per the spec you pasted)
+        if (decoded.ins == Isa.Instruction.LDR ||
+            decoded.ins == Isa.Instruction.STR ||
+            decoded.ins == Isa.Instruction.LDA) {
+
+            if (xField > 0 && xField < 4) {
+                ea = (ea + IX[xField]) & MASK_12;
+            } else {
+                ea = ea & MASK_12;
+            }
+
+        } else {
+            // do not add IX[x] for LDX/STX
+            ea = ea & MASK_12;
         }
 
-        //handle indirect
-        if (iBit == 1) 
-        {
+        effectiveAddress = ea;
+
+        // indirect addressing
+        if (iBit == 1) {
             MAR = effectiveAddress;
             curState = State.INDIRECT_1;
-        } 
-        else 
-        {
+        } else {
             curState = State.EXECUTE;
         }
     }
@@ -165,7 +173,7 @@ public class CPU
         switch (curState) 
         {   
             case FETCH_1:
-                //start the fethc and move the PC to MAR
+                //start the fetch and move the PC to MAR
                 MAR = PC & MASK_12;
                 //hold for the 2-cycle memory red
                 memoryCycles = 1; 
@@ -180,7 +188,7 @@ public class CPU
                 break;
 
             case DECODE:
-                //get the first 6 bits which is the opcde
+                //get the first 6 bits which is the opcode
                 decodeAndExecute(); 
                 break;
 
@@ -216,7 +224,7 @@ public class CPU
                 break;
 
             case HALT:
-                //cpu works becuase of HALT or Fault
+                //cpu works because of HALT or Fault
                 break;
         }
     }
