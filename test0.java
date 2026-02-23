@@ -1,5 +1,7 @@
 import java.io.*;
 
+import assembler.Assembler;
+
 public class test0 {
 
     public static String getBuffer(String filePath){
@@ -25,11 +27,11 @@ public class test0 {
     private static void test1(){
 
         //generate test data 
-        String input = "./testFiles/test0_1/test.asm";
+        String input = "./testFiles/part0/test0_1/test.asm";
 
         //generate expected output
-        String expectedLoadFile = getBuffer("./testFiles/test0_1/expectedLoad.txt");
-        String expectedListingFile = getBuffer("./testFiles/test0_1/expectedListing.txt");
+        String expectedLoadFile = getBuffer("./testFiles/part0/test0_1/expectedLoad.txt");
+        String expectedListingFile = getBuffer("./testFiles/part0/test0_1/expectedListing.txt");
 
         //call the parser on the test data 
         Assembler.main(new String[]{input});
@@ -53,11 +55,11 @@ public class test0 {
     private static void test2(){
 
         //generate test data 
-        String input = "./testFiles/test0_1/test.asm";
+        String input = "./testFiles/part0/test0_2/test.asm";
 
         //generate expected output
-        String expectedLoadFile = getBuffer("./testFiles/test0_2/expectedLoad.txt");
-        String expectedListingFile = getBuffer("./testFiles/test0_2/expectedListing.txt");
+        String expectedLoadFile = getBuffer("./testFiles/part0/test0_2/expectedLoad.txt");
+        String expectedListingFile = getBuffer("./testFiles/part0/test0_2/expectedListing.txt");
 
         //call the parser on the test data 
         Assembler.main(new String[]{input});
@@ -69,12 +71,12 @@ public class test0 {
         //compare outputs to expected outputs
         if(!loadFile.equals(expectedLoadFile) && !listingFile.equals(expectedListingFile)){
 
-            System.out.println("Test 1 Passed");
+            System.out.println("Test 2 Passed");
             return;
 
         }
 
-        System.out.println("Test 1 Failed");
+        System.out.println("Test 2 Failed");
 
     }
     

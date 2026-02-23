@@ -1,3 +1,4 @@
+package memory;
 public class MachineFault extends RuntimeException {
 
     public enum Code {

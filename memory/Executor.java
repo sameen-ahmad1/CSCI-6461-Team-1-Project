@@ -1,3 +1,6 @@
+package memory;
+import memory.simple.Memory;
+
 /**
  * Executor Class: executes a subset of instructions on CPU+Memory state.
  * This is where we implement the core logic of load/store instructions.

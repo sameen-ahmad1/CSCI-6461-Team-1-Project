@@ -1,4 +1,9 @@
+package memory;
 // Handles Fetch/Decode/Execute with 2-cycle memory timing
+
+import assembler.Isa;
+import memory.simple.Memory;
+
 public class CPU 
 {
     //memory 

@@ -1,3 +1,7 @@
+package testFiles.part1.test1_2;
+import memory.MachineFault;
+import memory.simple.Memory;
+
 public class MemoryTest {
     public static void main(String[] args) {
         Memory mem = new Memory();

@@ -1,4 +1,9 @@
+package memory.simple;
 import java.util.Arrays;
+
+import memory.CPU;
+import memory.MachineFault;
+import memory.MachineFault.Code;
 
 public final class Memory {
     public static final int SIZE = 2048;

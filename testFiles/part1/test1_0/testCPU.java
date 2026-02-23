@@ -1,3 +1,7 @@
+package testFiles.part1.test1_0;
+import memory.CPU;
+import memory.simple.Memory;
+
 public class testCPU {
     public static void main(String[] args) {
         

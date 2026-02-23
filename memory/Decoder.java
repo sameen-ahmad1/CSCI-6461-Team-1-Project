@@ -1,5 +1,8 @@
+package memory;
 import java.util.HashMap;
 import java.util.Map;
+
+import assembler.Isa;
 
 /**
  * Decoder class: converts a 16-bit instruction word into structured fields.

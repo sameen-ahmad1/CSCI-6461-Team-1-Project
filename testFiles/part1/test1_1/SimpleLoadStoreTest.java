@@ -1,3 +1,8 @@
+package testFiles.part1.test1_1;
+import assembler.Isa;
+import memory.Decoder;
+import memory.simple.Memory;
+
 public class SimpleLoadStoreTest {
 
     private static void check(boolean ok, String msg) {

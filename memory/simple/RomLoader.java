@@ -1,4 +1,8 @@
+package memory.simple;
 import java.io.*;
+
+import memory.MachineFault;
+import memory.MachineFault.Code;
 
 public final class RomLoader {
 

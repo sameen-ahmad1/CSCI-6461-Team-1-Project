@@ -1,7 +1,12 @@
+package testFiles.part1.test1_2;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import memory.CPU;
+import memory.simple.Memory;
+import memory.simple.RomLoader;
 
 public class RunLoadFileTest {
     // Default file 
