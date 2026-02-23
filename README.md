@@ -8,7 +8,7 @@ To run the assembler, you must call the test case in test0.java. This can be don
 jar using the command “java -cp part0.jar test0”. This can also be done on the unpacked
 files using the command “java test0”. <br>
 
-A test case for the assembler is provided in /testFiles/test0_1 where test.asm is the
+A test case for the assembler is provided in /testFiles/part0/test0_1 where test.asm is the
 input and expectedListing.txt is the copy of the expected listing file for the test case <br>
 <br>
 Part 0 Design Document is located under docs/part0 
