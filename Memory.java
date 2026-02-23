@@ -33,7 +33,7 @@ public final class Memory {
     public void tick(CPU cpu) {
         if (pendingOp == Op.NONE) return;
 
-        int mar = cpu.getMAR();  
+        int mar = pendingAddr;  
         checkAddr(mar);
 
         switch (pendingOp) {

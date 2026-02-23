@@ -59,7 +59,7 @@ public class CPU
 
     //bit masks
     private static final int MASK_4  = 0xF;
-    private static final int MASK_12 = 0xFFF;
+    private static final int MASK_12 = 0x7FF;
     private static final int MASK_16 = 0xFFFF;
 
     private void calculateEA() {
