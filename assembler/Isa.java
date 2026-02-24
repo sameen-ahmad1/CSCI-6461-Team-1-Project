@@ -1,9 +1,6 @@
+package assembler;
 // Isa.java
-import java.util.HashMap;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 
 public final class Isa {
     private Isa() {}

@@ -1,0 +1,31 @@
+000000	002024	LDR 0,0,20     ; R0 = Mem[20] = 5
+000001	004030	STR 0,0,24     ; Mem[24] = 5
+000002	002430	LDR 1,0,24     ; R1 = Mem[24] = 5
+000003	003025	LDR 2,0,21     ; R2 = Mem[21] = 3
+000004	005031	STR 2,0,25     ; Mem[25] = 3
+000005	102131	LDX 1,25       ; IX1 = Mem[25] = 3      (LDX x,address)
+000006	002026	LDR 0,0,22     ; R0 = Mem[22] = 7
+000007	004132	STR 0,1,26     ; Mem[26 + IX1] = 7  -> Mem[29]
+000010	003532	LDR 3,1,26     ; R3 = Mem[26 + IX1] -> should be 7
+000011	104136	STX 1,30       ; Mem[30] = IX1 = 3
+000012	102236	LDX 2,30       ; IX2 = Mem[30] = 3
+000013	002027	LDR 0,0,23     ; R0 = Mem[23] = 99
+000014	004022	STR 0,0,18     ; Mem[18] = 99     (VAL at 18)
+000015	006422	LDA 1,0,18     ; R1 = 18          (address of VAL)
+000016	004423	STR 1,0,19     ; Mem[19] = 18     (PTR at 19)
+000017	003063	LDR 2,0,19,1   ; R2 = Mem[ Mem[19] ] = Mem[18] = 99
+000020	000000	HLT
+000022	000000	DATA 0           ; [18] VAL (will become 99)
+000023	000000	DATA 0           ; [19] PTR (will become 18)
+000024	000005	DATA 5           ; [20] constant 5
+000025	000003	DATA 3           ; [21] constant 3
+000026	000007	DATA 7           ; [22] constant 7
+000027	000143	DATA 99          ; [23] constant 99
+000030	000000	DATA 0           ; [24] OUT1 (should become 5)
+000031	000000	DATA 0           ; [25] TMP  (used for IX load)
+000032	000000	DATA 0           ; [26] BASE
+000033	000000	DATA 0           ; [27]
+000034	000000	DATA 0           ; [28]
+000035	000000	DATA 0           ; [29] BASE+3 (should become 7)
+000036	000000	DATA 0           ; [30] IXSAVE (should become 3)
+000037	000000	DATA 0           ; [31] unused
