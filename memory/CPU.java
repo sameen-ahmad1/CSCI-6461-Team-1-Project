@@ -336,6 +336,16 @@ public class CPU
         IX[i] = value & 0xFFFF;
     }
 
+    public int getIR() 
+    {
+        return this.IR & MASK_16;
+    }
+
+    public int getCC() 
+    {
+        return this.CC & MASK_4;
+    }
+
     public void listRegisters() 
     {
         System.out.println("\n================ REGISTER LISTS ================");

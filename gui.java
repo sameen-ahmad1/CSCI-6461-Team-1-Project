@@ -1,9 +1,32 @@
 import javax.swing.*;
+
+import memory.CPU;
+import memory.simple.Memory;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.Flow;
+import java.lang.reflect.Field;
 
 public class gui extends JFrame{
+
+    private boolean isRunning = false;
+    private CPU cpu;
+    private Memory memory = new Memory();
+
+    // GPR displays
+    private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
+
+    // IXR displays
+    private JTextField oneTextIXR, twoTextIXR, threeTextIXR;
+
+    // Other register displays
+    private JTextField pcText, marText, mbrText, irText, ccText, mfrText;
+
+    // Misc
+    private JTextField binary, octalInput, programFile;
+    private JTextArea cacheContent, printer;
+    private JTextField consoleInput;
 
     public gui(){
 
@@ -34,21 +57,21 @@ public class gui extends JFrame{
         firstEast.add(firstEastSouth, BorderLayout.SOUTH);
 
         JLabel cacheContentLabel = new JLabel("Cache Content");
-        JTextArea cacheContent = new JTextArea("",20,30);
+        cacheContent = new JTextArea("",20,30);
         cacheContent.setEditable(false);
 
         firstEastNorth.add(cacheContentLabel, BorderLayout.NORTH);
         firstEastNorth.add(cacheContent, BorderLayout.SOUTH);
 
         JLabel printerLabel = new JLabel("Printer");
-        JTextArea printer = new JTextArea("",10,20);
+        printer = new JTextArea("",10,20);
         printer.setEditable(false);
 
         firstEastCenter.add(printerLabel, BorderLayout.NORTH);
         firstEastCenter.add(printer, BorderLayout.SOUTH);
 
         JLabel consoleInputLabel = new JLabel("Console Input");
-        JTextField consoleInput = new JTextField("", 20);
+        consoleInput = new JTextField("", 20);
 
         firstEastSouth.add(consoleInputLabel, BorderLayout.NORTH);
         firstEastSouth.add(consoleInput, BorderLayout.SOUTH);
@@ -62,7 +85,7 @@ public class gui extends JFrame{
         firstCenter.add(firstCenterSouth, BorderLayout.SOUTH);
 
         JLabel programFileLabel = new JLabel("Program File");
-        JTextField programFile = new JTextField("", 50);
+        programFile = new JTextField("", 50);
 
         firstCenterSouth.add(programFileLabel);
         firstCenterSouth.add(programFile);
@@ -82,14 +105,14 @@ public class gui extends JFrame{
         firstCenterCenterWest.add(firstCenterCenterWestSouth, BorderLayout.SOUTH);
 
         JLabel binaryLabel = new JLabel("Binary");
-        JTextField binary = new JTextField("", 10);
+        binary = new JTextField("", 10);
         binary.setEditable(false);
 
         firstCenterCenterWestNorth.add(binaryLabel, BorderLayout.NORTH);
         firstCenterCenterWestNorth.add(binary, BorderLayout.SOUTH);
 
         JLabel octalInputLabel = new JLabel("Octal Input");
-        JTextField octalInput = new JTextField("", 8);
+        octalInput = new JTextField("", 8);
 
         octalInput.addKeyListener(new KeyListener(){
             @Override
@@ -129,7 +152,15 @@ public class gui extends JFrame{
         loadRow.add(loadLabel);
 
         loadButton.addActionListener((e) -> {
-
+            try {
+                int octalVal = Integer.parseInt(octalInput.getText(), 8);
+                int marAddr = Integer.parseInt(marText.getText(), 8);
+                memory.directWrite(marAddr, octalVal);
+                mbrText.setText(String.format("%06o", octalVal));
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel loadPlusRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -142,7 +173,16 @@ public class gui extends JFrame{
         loadPlusRow.add(loadPlusLabel);
 
         loadPlusButton.addActionListener((e) -> {
-
+            try {
+                int octalVal = Integer.parseInt(octalInput.getText(), 8);
+                int marAddr = Integer.parseInt(marText.getText(), 8);
+                memory.directWrite(marAddr, octalVal);
+                mbrText.setText(String.format("%06o", octalVal));
+                marText.setText(String.format("%06o", marAddr + 1));
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel storeRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -155,7 +195,14 @@ public class gui extends JFrame{
         storeRow.add(storeLabel);
 
         storeButton.addActionListener((e) -> {
-
+            try {
+                int marAddr = Integer.parseInt(marText.getText(), 8);
+                int mbrVal = Integer.parseInt(mbrText.getText(), 8);
+                memory.directWrite(marAddr, mbrVal);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
+            }
         });
 
         JPanel storePlusRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -168,7 +215,15 @@ public class gui extends JFrame{
         storePlusRow.add(storePlusLabel);
 
         storePlusButton.addActionListener((e) -> {
-
+            try {
+                int marAddr = Integer.parseInt(marText.getText(), 8);
+                int mbrVal = Integer.parseInt(mbrText.getText(), 8);
+                memory.directWrite(marAddr, mbrVal);
+                marText.setText(String.format("%06o", marAddr + 1));
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
+            }
         });
 
         firstCenterCenterCenter.add(loadRow);
@@ -199,7 +254,10 @@ public class gui extends JFrame{
         stepRow.add(stepLabel);
 
         stepButton.addActionListener((e) -> {
-
+            if (!isCpuHalted(cpu) && cpu.getMFR() == 0) {
+                cpu.cycle();
+                updateDisplays();
+            }
         });
 
         JPanel haltRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -212,7 +270,7 @@ public class gui extends JFrame{
         haltRow.add(haltLabel);
 
         haltButton.addActionListener((e) -> {
-
+            
         });
 
         JPanel IPLRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -248,7 +306,7 @@ public class gui extends JFrame{
 
         JPanel zeroRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel zeroLabelGPR = new JLabel("0");
-        JTextField zeroTextGPR = new JTextField("",10);
+        zeroTextGPR = new JTextField("",10);
         JButton zeroButtonGPR = new JButton();
 
         zeroButtonGPR.setPreferredSize(new Dimension(20, 18));
@@ -259,12 +317,18 @@ public class gui extends JFrame{
         zeroRowGPR.add(zeroButtonGPR);
 
         zeroButtonGPR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setGPR(0, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel oneRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel oneLabelGPR = new JLabel("1");
-        JTextField oneTextGPR = new JTextField("",10);
+        oneTextGPR = new JTextField("",10);
         JButton oneButtonGPR = new JButton();
 
         oneButtonGPR.setPreferredSize(new Dimension(20, 18));
@@ -275,12 +339,18 @@ public class gui extends JFrame{
         oneRowGPR.add(oneButtonGPR);
 
         oneButtonGPR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setGPR(1, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel twoRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel twoLabelGPR = new JLabel("2");
-        JTextField twoTextGPR = new JTextField("",10);
+        twoTextGPR = new JTextField("",10);
         JButton twoButtonGPR = new JButton();
 
         twoButtonGPR.setPreferredSize(new Dimension(20, 18));
@@ -291,12 +361,18 @@ public class gui extends JFrame{
         twoRowGPR.add(twoButtonGPR);
 
         twoButtonGPR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setGPR(2, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel threeRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel threeLabelGPR = new JLabel("3");
-        JTextField threeTextGPR = new JTextField("",10);
+        threeTextGPR = new JTextField("",10);
         JButton threeButtonGPR = new JButton();
 
         threeButtonGPR.setPreferredSize(new Dimension(20, 18));
@@ -307,7 +383,13 @@ public class gui extends JFrame{
         threeRowGPR.add(threeButtonGPR);
 
         threeButtonGPR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setGPR(3, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         firstCenterNorthWest.add(gprLabelRow);
@@ -325,7 +407,7 @@ public class gui extends JFrame{
 
         JPanel oneRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel oneLabelIXR = new JLabel("1");
-        JTextField oneTextIXR = new JTextField("",10);
+        oneTextIXR = new JTextField("",10);
         JButton oneButtonIXR = new JButton();
 
         oneButtonIXR.setPreferredSize(new Dimension(20, 18));
@@ -336,12 +418,18 @@ public class gui extends JFrame{
         oneRowIXR.add(oneButtonIXR);
 
         oneButtonIXR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setIX(1, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel twoRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel twoLabelIXR = new JLabel("2");
-        JTextField twoTextIXR= new JTextField("",10);
+        twoTextIXR= new JTextField("",10);
         JButton twoButtonIXR = new JButton();
 
         twoButtonIXR.setPreferredSize(new Dimension(20, 18));
@@ -352,12 +440,18 @@ public class gui extends JFrame{
         twoRowIXR.add(twoButtonIXR);
 
         twoButtonIXR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setIX(2, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel threeRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel threeLabelIXR = new JLabel("3");
-        JTextField threeTextIXR = new JTextField("",10);
+        threeTextIXR = new JTextField("",10);
         JButton threeButtonIXR = new JButton();
 
         threeButtonIXR.setPreferredSize(new Dimension(20, 18));
@@ -368,7 +462,13 @@ public class gui extends JFrame{
         threeRowIXR.add(threeButtonIXR);
 
         threeButtonIXR.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                cpu.setIX(3, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         firstCenterNorthCenter.add(ixrLabelRow);
@@ -379,7 +479,7 @@ public class gui extends JFrame{
 
         JPanel pcRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel pcLabel = new JLabel("PC");
-        JTextField pcText = new JTextField("",10);
+        pcText = new JTextField("",10);
         JButton pcButton = new JButton();
 
         pcButton.setPreferredSize(new Dimension(20, 18));
@@ -390,12 +490,18 @@ public class gui extends JFrame{
         pcRow.add(pcButton);
 
         pcButton.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                forceSetPC(cpu, val);
+                updateDisplays();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel marRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel marLabel = new JLabel("MAR");
-        JTextField marText = new JTextField("",10);
+        marText = new JTextField("",10);
         JButton marButton = new JButton();
 
         marButton.setPreferredSize(new Dimension(20, 18));
@@ -406,12 +512,19 @@ public class gui extends JFrame{
         marRow.add(marButton);
 
         marButton.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                marText.setText(String.format("%06o", val));
+                int memVal = memory.peek(val);
+                mbrText.setText(String.format("%06o", memVal & 0xFFFF));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel mbrRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel mbrLabel = new JLabel("MBR");
-        JTextField mbrText = new JTextField("",10);
+        mbrText = new JTextField("",10);
         JButton mbrButton = new JButton();
 
         mbrButton.setPreferredSize(new Dimension(20, 18));
@@ -422,30 +535,28 @@ public class gui extends JFrame{
         mbrRow.add(mbrButton);
 
         mbrButton.addActionListener((e) -> {
-
+            try {
+                int val = Integer.parseInt(octalInput.getText(), 8);
+                mbrText.setText(String.format("%06o", val));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid octal input");
+            }
         });
 
         JPanel irRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel irLabel = new JLabel("IR");
-        JTextField irText = new JTextField("",10);
-        JButton irButton = new JButton();
+        irText = new JTextField("",10);
 
-        irButton.setPreferredSize(new Dimension(20, 18));
         irText.setEditable(false);
 
         irRow.add(irLabel);
         irRow.add(irText);
-        irRow.add(irButton);
-
-        irButton.addActionListener((e) -> {
-
-        });
 
         JPanel ccRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel ccLabel = new JLabel("CC");
         JPanel ccTexts = new JPanel(new BorderLayout(5,5));
         JLabel oudeText = new JLabel("OUDE");
-        JTextField ccText = new JTextField("",5);
+        ccText = new JTextField("",5);
 
         ccText.setEditable(false);
 
@@ -458,7 +569,7 @@ public class gui extends JFrame{
         JLabel mfrLabel = new JLabel("MFR");
         JPanel mfrTexts = new JPanel(new BorderLayout(5,5));
         JLabel mortText = new JLabel("MOTR");
-        JTextField mfrText = new JTextField("",5);
+        mfrText = new JTextField("",5);
 
         mfrText.setEditable(false);
 
@@ -478,6 +589,46 @@ public class gui extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
 
+    }
+
+    private void updateDisplays() {
+    SwingUtilities.invokeLater(() -> {
+        zeroTextGPR.setText(String.format("%06o", cpu.getGPR(0) & 0xFFFF));
+        oneTextGPR.setText(String.format("%06o", cpu.getGPR(1) & 0xFFFF));
+        twoTextGPR.setText(String.format("%06o", cpu.getGPR(2) & 0xFFFF));
+        threeTextGPR.setText(String.format("%06o", cpu.getGPR(3) & 0xFFFF));
+        oneTextIXR.setText(String.format("%06o", cpu.getIX(1) & 0xFFFF));
+        twoTextIXR.setText(String.format("%06o", cpu.getIX(2) & 0xFFFF));
+        threeTextIXR.setText(String.format("%06o", cpu.getIX(3) & 0xFFFF));
+        pcText.setText(String.format("%06o", cpu.getPC() & 0xFFFF));
+        marText.setText(String.format("%06o", cpu.getMAR() & 0xFFFF));
+        mbrText.setText(String.format("%06o", cpu.getMBR() & 0xFFFF));
+        irText.setText(String.format("%06o", cpu.getIR() & 0xFFFF));
+        ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
+        mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
+    });
+
+    }
+
+    private void forceSetPC(CPU cpu, int value) {
+        try {
+            Field f = CPU.class.getDeclaredField("PC");
+            f.setAccessible(true);
+            f.setInt(cpu, value);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not set PC: " + e.getMessage());
+        }
+    }
+
+    private boolean isCpuHalted(CPU cpu) {
+        try {
+            Field f = CPU.class.getDeclaredField("curState");
+            f.setAccessible(true);
+            Object state = f.get(cpu);
+            return state != null && state.toString().equals("HALT");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static void main(String args[]){
