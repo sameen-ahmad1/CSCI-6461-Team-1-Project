@@ -10,7 +10,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
     -  Functionality: This is the initialization phase. It connects the CPU into the Memory unit
     - Role: It stores a reference to the Memory object and sets the initial state to FETCH_1. Without this, the CPU would have no "storage" to read instructions from
 
-- public void cycle()
+- public void cycle()    
     - Functionality: This is the System Clock of the simulation
     - Role:
         - It calls memory.tick(this) to finalize any pending memory transfers
@@ -51,6 +51,21 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
 - handleExecute() moves the data
 - listRegisters() shows you the result
 
+### Decoder and Executor
+- Decoder class: `public Decoded(int raw, Isa.Instruction ins, int opcode,
+                       int r, int x, int i, int addr,
+                       int al, int lr, int count)`
+    - functionality: stores a reference to a 16-bit instruction word
+    - Role: contains all fields extracted from the instruction word
+          
+ - `decode()` 
+    - Functionality: Decodes a 16-bit instruction word by using masking and bit shifting for each field included in the Decoded class
+    - Role: called in CPU.java function `decodeAndExecute()`
+
+- Executor class:
+    - Functionality:
+    - Role
+          
 
 ## Design Principles
 ### CPU
