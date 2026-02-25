@@ -24,7 +24,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
         - Indirection: If the I bit is set, it redirects the CPU to the INDIRECT_1 state to fetch the real address from memory
         - Masking: It ensures the resulting address fits within the 11 or 12-bit memory limit using MASK_12
 
-- private void decodeAndExecute()
+- private void decode()
     - Functionality: This is the Control Unit
     - Role: It passes the 16-bit IR to the Decoder to divide it into Opcode, Register, Index, and Address fields
         - It determines the Routing based on the Opcode, it decides if the CPU needs to go to COMPUTE_EA (for Loads/Stores) or HALT (for errors/end of program).
@@ -46,7 +46,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
 - memory.requestRead() is called using the PC
 - cycle() stalls for one tick
 - memory.tick() puts the instruction in the MBR
-- decodeAndExecute() identifies the command
+- decode() identifies the instruction
 - calculateEA() finds the target address
 - handleExecute() moves the data
 - listRegisters() shows you the result
@@ -64,7 +64,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
 
 - Executor class:
     - Functionality:
-    - Role
+    - Role:
           
 
 ## Design Principles
