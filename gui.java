@@ -277,7 +277,7 @@ public class gui extends JFrame{
                         updateDisplays();
 
                         try { 
-                            Thread.sleep(10); 
+                            Thread.sleep(2000); 
                         } 
                         catch (InterruptedException ex) {
                             break;
@@ -358,8 +358,10 @@ public class gui extends JFrame{
 
                     String line;
                     int startAddress = -1;
+                    String fileContent = new String();
 
                     while ((line = reader.readLine()) != null) {
+                        fileContent = fileContent + line + "\n";
                         if (line.isEmpty()) continue;
 
                         String[] parts = line.split("\\s+");
@@ -373,9 +375,13 @@ public class gui extends JFrame{
                     }
                     reader.close();
 
+                    cacheContent.setText(fileContent);
+
                     if (startAddress != -1) {
                         cpu.setPC(startAddress);
                     }
+
+
 
                     updateDisplays();
 
