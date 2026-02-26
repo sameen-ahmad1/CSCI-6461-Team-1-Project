@@ -16,16 +16,12 @@ public class gui extends JFrame{
     private int cycleCount = 0;
     private String printerText = "";
 
-    // GPR displays
     private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
 
-    // IXR displays
     private JTextField oneTextIXR, twoTextIXR, threeTextIXR;
 
-    // Other register displays
     private JTextField pcText, marText, mbrText, irText, ccText, mfrText;
 
-    // Misc
     private JTextField binary, octalInput, programFile;
     private JTextArea cacheContent, printer;
     private JTextField consoleInput;
@@ -164,7 +160,7 @@ public class gui extends JFrame{
                 int marAddr = cpu.getMAR();
                 memory.directWrite(marAddr, octalVal);
                 cpu.setMBR(octalVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -190,7 +186,7 @@ public class gui extends JFrame{
                 memory.directWrite(marAddr, octalVal);
                 cpu.setMBR(octalVal); 
                 cpu.setMAR(marAddr + 1);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -214,7 +210,7 @@ public class gui extends JFrame{
                 int marAddr = cpu.getMAR();
                 int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
             }
@@ -239,7 +235,7 @@ public class gui extends JFrame{
                 int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
                 cpu.setMAR(marAddr + 1);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
             }
@@ -277,7 +273,7 @@ public class gui extends JFrame{
                         cpu.cycle();
                         cycleCount = cycleCount + 1;
                         printerText = "running cycle " + Integer.toString(cycleCount) + "\n" + printerText;
-                        updateDisplays();
+                        updateTexts();
                         if (cpu.isHalted() || cpu.getMFR() != 0) {
                             isRunning = false;
                             break;
@@ -318,7 +314,7 @@ public class gui extends JFrame{
             cpu.listRegisters();
             cycleCount = cycleCount + 1;
             printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
-            updateDisplays();
+            updateTexts();
             
         });
 
@@ -336,7 +332,7 @@ public class gui extends JFrame{
             isRunning = false;
             cpu.listRegisters();
             printerText = "halting run\n" + printerText;
-            updateDisplays();
+            updateTexts();
             
         });
 
@@ -366,7 +362,7 @@ public class gui extends JFrame{
                 String actualLoadFile;
                 if (filePath.endsWith(".asm")) {
                     printerText = "assembling file\n" + printerText;
-                    updateDisplays();
+                    updateTexts();
                     Assembler.main(new String[]{filePath});
                     actualLoadFile = "load.txt";
                 } else {
@@ -403,7 +399,7 @@ public class gui extends JFrame{
 
                 printerText = "file loaded\n" + printerText;
                 cycleCount = 0;
-                updateDisplays();
+                updateTexts();
 
             } catch (java.io.FileNotFoundException ex) {
                 JOptionPane.showMessageDialog(this, "File not found: " + filePath);
@@ -452,7 +448,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(0, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -478,7 +474,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(1, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -504,7 +500,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(2, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -530,7 +526,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(3, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -569,7 +565,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(1, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -595,7 +591,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(2, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -621,7 +617,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(3, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -653,7 +649,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setPC(val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -681,7 +677,7 @@ public class gui extends JFrame{
                 cpu.setMAR(val);
                 int memVal = memory.peek(val);
                 cpu.setMBR(memVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -707,7 +703,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setMBR(val); 
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -761,7 +757,7 @@ public class gui extends JFrame{
 
     }
 
-    private void updateDisplays() {
+    private void updateTexts() {
     if (cpu == null) return;
     SwingUtilities.invokeLater(() -> {
         zeroTextGPR.setText(String.format("%06o", cpu.getGPR(0) & 0xFFFF));
