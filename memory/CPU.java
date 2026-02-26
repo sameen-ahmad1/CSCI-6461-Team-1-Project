@@ -44,7 +44,7 @@ public class CPU
     private int memoryCycles = 0; 
     
     //state machines
-    private enum State 
+    public enum State 
     {
         FETCH_1, 
         FETCH_2, 
@@ -67,67 +67,36 @@ public class CPU
     private static final int MASK_12 = 0x7FF;
     private static final int MASK_16 = 0xFFFF;
 
-    private void calculateEA() {
-        // address is 5-bit field per assembler/spec
-        int address = decoded.addr & 0x1F;
-        // x field from instruction
-        int xField = decoded.x & 0x03;
-        // indirect bit
-        int iBit = decoded.i & 0x01;
-        // EA base is always the address field from the instruction
-        int ea = address;
-
-        // LDR/STR/LDA use indexing LDX/STX do NOT (per the spec you pasted)
-        if (decoded.ins == Isa.Instruction.LDR ||
-            decoded.ins == Isa.Instruction.STR ||
-            decoded.ins == Isa.Instruction.LDA) {
-
-            if (xField > 0 && xField < 4) {
-                ea = (ea + IX[xField]) & MASK_12;
-            } else {
-                ea = ea & MASK_12;
-            }
-
-        } else {
-            // do not add IX[x] for LDX/STX
-            ea = ea & MASK_12;
-        }
-
-        effectiveAddress = ea;
-
-        // indirect addressing
-        if (iBit == 1) {
+    private void calculateEA() 
+    {
+        this.effectiveAddress = Executor.calculateEA(decoded, this);
+        if ((decoded.i & 0x01) == 1) 
+        {
             MAR = effectiveAddress;
             curState = State.INDIRECT_1;
-        } else {
+        } 
+        else 
+        {
             curState = State.EXECUTE;
         }
     }
 
     // function to decode and execute the instruction in IR
-    private void decode() {
+    private void decode() 
+    {
         try {
-            //using global decoded variable to store the decoded instruction for use in execute
             decoded = Decoder.decode(IR);
-            //check for HALT first since it doesnt follow the normal execution path
-            if (decoded.ins == Isa.Instruction.HLT) {
+            if (decoded.ins == Isa.Instruction.HLT) 
+            {
                 curState = State.HALT;
-                return;
+            } 
+            else 
+            {
+                curState = State.COMPUTE_EA;
             }
-
-            // Load/store family routes into EA computation
-            switch (decoded.ins) {
-                case LDR, STR, LDA, LDX, STX -> curState = State.COMPUTE_EA;
-
-                // TODO: Other instructions will have their own execution paths (not implemented yet)
-                default -> {
-                    // Not implemented yet - have a test instruction that triggers this for now
-                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
-                    curState = State.HALT;
-                }
-            }
-
-        } catch (MachineFault mf) {
+        } 
+        catch (MachineFault mf) 
+        {
             setMFR(mf.code().value);
             curState = State.HALT;
         }
@@ -135,72 +104,53 @@ public class CPU
 
     private void handleExecute() 
     {
-        int r = decoded.r & 0x03;
-        int x = decoded.x & 0x03;
-
-        //load the register from memory
+        System.out.println("DEBUG: handleExecute finished. New State is: " + curState);
+        MAR = effectiveAddress & MASK_12;
         switch (decoded.ins) {
-            case LDR: 
-                //set the MAR to the effective address
-                MAR = effectiveAddress & MASK_12;
+            case LDR:
                 memory.requestRead(MAR);
-                //start the 2-cycle red
-                memoryCycles = 1; 
+                memoryCycles = 1;
                 curState = State.LDR_FINISH;
                 break;
-        
-            case STR: 
-                //store the register to memory
-                MAR = effectiveAddress & MASK_12;
-                //put the data in the register in MBR for memory
-                MBR = GPR[r] & MASK_16; 
-                memory.requestWrite(MAR);
-                //start teh 2-cycle write
-                memoryCycles = 1;
-                //the next cycle will be fetch
-                curState = State.FETCH_1; 
-                break;
-
-            case LDA:
-                //load the effective address into the register
-                GPR[r] = effectiveAddress & MASK_16;
-                curState = State.FETCH_1;
-                break;
-
+            
             case LDX:
-                if (x == 0) 
-                {
-                    // IX=0 is not allowed for LDX
-                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
-                    curState = State.HALT;
-                    return;
-                }
-                //set the MAR to the effective address
-                MAR = effectiveAddress & MASK_12;
                 memory.requestRead(MAR);
-                memoryCycles = 1;                 // stall for memory read
+                memoryCycles = 1;
                 curState = State.LDX_FINISH;
                 break;
+            
+            case STR, STX:
+                // 1. Check for Illegal STX (X=0)
+                if (decoded.ins == Isa.Instruction.STX && decoded.x == 0) 
+                    {
+                        setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
+                        curState = State.HALT;
+                        break;
+                    }
 
-            case STX:
-                if (x == 0) 
-                {
-                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
-                    curState = State.HALT;
-                    return;
-                }
-                MAR = effectiveAddress & MASK_12;
-                MBR = IX[x] & MASK_16;
+                // 2. Select the Source Register 
+                MBR = (decoded.ins == Isa.Instruction.STR) ? getGPR(decoded.r) : getIX(decoded.x);
+
+                // 3. Initiate the Write
                 memory.requestWrite(MAR);
-                memoryCycles = 1;                 // stall for memory write
-                curState = State.FETCH_1;
-                break;
-
-            //Implement other instructions here (not implemented yet)
-            default:
+                memoryCycles = 1;
                 curState = State.FETCH_1;
                 break;
             
+            case LDA:
+                setGPR(decoded.r, effectiveAddress);
+                curState = State.FETCH_1;
+                break;
+            
+            default:
+                System.out.printf("FAULT: Unhandled instruction %s (Opcode: %o) Raw: %06o\n", 
+                      decoded.ins, decoded.opcode, decoded.raw);
+    
+                // Set the Machine Fault Register for Illegal Opcode (ID 2)
+                setMFR(2); 
+                curState = State.HALT;
+                break;
+        
         }
     }
 
@@ -213,7 +163,11 @@ public class CPU
         if (memoryCycles > 0) 
         {
             memoryCycles--;
-            return;
+            if (memoryCycles > 0) 
+            { 
+                return;
+            }
+            //return;
         }
 
         switch (curState) 
@@ -263,11 +217,14 @@ public class CPU
                 break;
 
             case LDR_FINISH:
-                GPR[decoded.r & 0x03] = MBR & MASK_16;
+                //GPR[decoded.r & 0x03] = MBR & MASK_16;
+                Executor.finishLoad(decoded, this);
                 curState = State.FETCH_1;
                 break;
+
             case LDX_FINISH:
-                IX[decoded.x & 0x03] = MBR & MASK_16;
+                //IX[decoded.x & 0x03] = MBR & MASK_16;
+                Executor.finishLoad(decoded, this);
                 curState = State.FETCH_1;
                 break;
 
@@ -275,20 +232,30 @@ public class CPU
                 //cpu works because of HALT or Fault
                 break;
         }
+    System.out.println("Cycle End - State: " + curState + " | PC: " + Integer.toString(PC, 8));
     }
 
 
 
-    //ALL GETTERS AND SETTERS ARE BELOW
-    //set the MFR
+    //ALL GETTERS AND SETTERS
     public void setMFR(int faultID) 
     {
         this.MFR = faultID & MASK_4; 
     }
 
+    public void setMAR(int value)
+    {
+
+        this.MAR = value & MASK_12;
+
+    }
+
     //set the MBR
     public void setMBR(int value) 
     {
+        if (value != 0) {
+        System.out.printf(">>> CPU BUS: Data %06o just landed in MBR!\n", value);
+    }
         this.MBR = value & MASK_16; 
     }
     
@@ -312,6 +279,7 @@ public class CPU
     //get teh MBR
     public int getMBR() 
     {
+        
         return this.MBR & MASK_16;
     }
 
@@ -325,27 +293,42 @@ public class CPU
     public int getPC() 
     {
         //returns 12 bit PC
-        return this.PC & MASK_12;
+        return PC & MASK_12;
+    }
+
+    public void setPC(int v) 
+    { 
+        this.PC = v & MASK_12; 
     }
 
     public int getMFR() 
     {
-        return this.MFR; 
+        return MFR;
     }
 
     public void setGPR(int i, int value) 
     {
-        GPR[i] = value & 0xFFFF;
+        GPR[i] = value & MASK_16;
     }
 
     public int getIX(int i) 
     {
-        return this.IX[i] & MASK_16;
+        return IX[i] & MASK_16;
     }
 
     public void setIX(int i, int value) 
     {
-        IX[i] = value & 0xFFFF;
+        IX[i] = value & MASK_16;
+    }
+
+    public int getIR() 
+    {
+        return this.IR & MASK_16;
+    }
+
+    public int getCC() 
+    {
+        return this.CC & MASK_4;
     }
 
     public int getIR() 
@@ -385,5 +368,36 @@ public class CPU
             System.out.printf("IX [%d]: %06o (Oct) | %04X (Hex) | %d\n", i, getIX(i), getIX(i), getIX(i));
         }
         System.out.println("===============================================\n");
+    }
+
+
+
+    public void ipl() 
+    {
+        memory.reset();
+
+        // 2. Clear Registers (Crucial!)
+        for (int i = 0; i < 4; i++) setGPR(i, 0);
+        for (int i = 1; i < 4; i++) setIX(i, 0);
+        this.PC = 010;
+        this.MAR = 0;
+        this.MBR = 0;
+        this.IR = 0;
+        this.MFR = 0; // Clear the fault code
+        this.CC = 0;
+        
+        // 3. Load the instructions
+        memory.directWrite(010, 002020); // Instruction 1
+        memory.directWrite(011, 0102220);
+        memory.directWrite(020, 000100); // Data
+
+
+        this.curState = State.FETCH_1;
+        System.out.println("IPL: Program loaded with correct opcodes.");
+    }
+
+    public State getCurState() 
+    {
+        return this.curState;
     }
 }

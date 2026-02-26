@@ -1,5 +1,5 @@
 package memory;
-import memory.simple.Memory;
+import assembler.Isa;
 
 /**
  * Executor Class: executes a subset of instructions on CPU+Memory state.
@@ -10,86 +10,48 @@ import memory.simple.Memory;
 
  */
 
-// TODO: This version of the exectuor uses Memory.peek and is not tied to 2 cycle memory yet
 
-public final class Executor {
+public final class Executor 
+{
     private Executor() {}
 
-    /**
-     * Compute effective address for formats that use (x, i, addr).
-     * Mirrors CPU EA logic and assembler's 5-bit addr field.
-     *
-     * If machine memory is 2048 words, consider masking EA with 0x7FF.
-     */
-    public static int computeEA(Decoder.Decoded decoded, CPU cpu, Memory mem) {
-        int ea = decoded.addr; // 5-bit address field (0..31)
-
-        // indexing: X0 means no indexing
-        if (decoded.x != 0) {
-            ea = (ea + (cpu.getIX(decoded.x) & 0xFFFF)) & 0xFFFF;
+    //to determine if an instruction should use Index Registers
+    private static boolean indexAllowed(Isa.Instruction ins) 
+    {
+        return ins == Isa.Instruction.LDR || 
+               ins == Isa.Instruction.STR || 
+               ins == Isa.Instruction.LDA;
+    }
+    public static int calculateEA(Decoder.Decoded decoded, CPU cpu) 
+    {
+        int ea = decoded.addr & 0x1F; // 5-bit address field
+        // LDX/STX do NOT use indexing for the EA calculation
+        if (indexAllowed(decoded.ins)) 
+        {
+            int x = decoded.x & 0x03;
+            if (x > 0 && x < 4) 
+            {
+                ea += cpu.getIX(x);
+            }
         }
-
-        // If you want EA constrained to 2048 memory locations:
-        // ea &= 0x7FF;
-
-        // indirect: EA <- M[EA]
-        if (decoded.i == 1) {
-            ea = mem.peek(ea);
-            // ea &= 0x7FF; // optional clamp again
-        }
-
-        return ea;
+        return ea & 0x7FF;
     }
 
-    /**
-     * Execute load/store instructions using already computed EA
-     */
-    public static void execLoadStore(Decoder.Decoded decoded, int ea, CPU cpu, Memory mem) {
-        // uses the decoded instruction to determine which load/store to execute
-        switch (decoded.ins) {
-            case LDR -> {
-                int value = mem.peek(ea);
-                cpu.setGPR(decoded.r, value);
-            }
 
-            case STR -> {
-                int value = cpu.getGPR(decoded.r);
-                mem.directWrite(ea, value);
-            }
-
-            case LDA -> {
-                cpu.setGPR(decoded.r, ea);
-            }
-
-            case LDX -> {
-                if (decoded.x == 0) {
-                    throw new MachineFault(
-                            MachineFault.Code.ILLEGAL_OPCODE,
-                            decoded.raw,
-                            "LDX requires x != 0"
-                    );
-                }
-                int value = mem.peek(ea);
-                cpu.setIX(decoded.x, value);
-            }
-
-            case STX -> {
-                if (decoded.x == 0) {
-                    throw new MachineFault(MachineFault.Code.ILLEGAL_OPCODE, decoded.raw, "STX requires x != 0"
-                    );
-                }
-                int value = cpu.getIX(decoded.x);
-                mem.directWrite(ea, value);
-            }
-
-            default -> throw new IllegalArgumentException("Not a load/store instruction: " + decoded.ins);
+    // for finishing a Load operation once MBR has been populated by Memory
+    public static void finishLoad(Decoder.Decoded decoded, CPU cpu) 
+    {
+        int value = cpu.getMBR();
+        System.out.printf("DEBUG: finishLoad called. MBR is %06o, target reg index is %d\n", cpu.getMBR(), decoded.r);
+        
+        if (decoded.ins == Isa.Instruction.LDR) 
+        {
+            cpu.setGPR(decoded.r, value);
+        } 
+        else if (decoded.ins == Isa.Instruction.LDX) 
+        {
+            cpu.setIX(decoded.x, value);
         }
     }
 
-    // convenience method compute EA then execute.
-
-    public static void execLoadStore(Decoder.Decoded decoded, CPU cpu, Memory mem) {
-        int ea = computeEA(decoded, cpu, mem);
-        execLoadStore(decoded, ea, cpu, mem);
-    }
 }

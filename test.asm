@@ -13,6 +13,5 @@
         LDR     1,2,10,1    ;R1 GETS 18
         LDA     0,0,0       ;R0 GETS 0 to set CONDITION CODE
         LDX     1,8         ;X1 GETS 1024
-        JZ      0,1,0       ;JUMP TO End IF R0 = 0
         LOC     1024
 End:    HLT                         ;STOP

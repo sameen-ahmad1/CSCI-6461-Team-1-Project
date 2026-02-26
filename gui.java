@@ -1,16 +1,11 @@
-import javax.swing.*;
-
-import memory.CPU;
-import memory.simple.Memory;
-
+import assembler.Assembler;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.concurrent.Flow;
-import java.lang.reflect.Field;
-
-import java.io.*;
-
-import assembler.Assembler;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import javax.swing.*;
+import memory.CPU;
+import memory.simple.Memory;
 
 public class gui extends JFrame{
 
@@ -308,6 +303,7 @@ public class gui extends JFrame{
             }
 
             cpu.cycle();
+            cpu.listRegisters();
             updateDisplays();
             
         });
@@ -324,6 +320,7 @@ public class gui extends JFrame{
         haltButton.addActionListener((e) -> {
 
             isRunning = false;
+            cpu.listRegisters();
             updateDisplays();
             
         });
@@ -370,6 +367,8 @@ public class gui extends JFrame{
                         int addr = Integer.parseInt(parts[0], 8);
                         int val  = Integer.parseInt(parts[1], 8);
                         memory.directWrite(addr, val);
+                        System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n", 
+                  addr, val, (val >>> 10) & 0x3F);
 
                         if (startAddress == -1) startAddress = addr;
                     }
@@ -377,9 +376,10 @@ public class gui extends JFrame{
 
                     cacheContent.setText(fileContent);
 
-                    if (startAddress != -1) {
-                        cpu.setPC(startAddress);
-                    }
+                    // if (startAddress != -1) {
+                    //     cpu.setPC(startAddress);
+                    // }
+                    cpu.setPC(016);
 
 
 
