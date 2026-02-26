@@ -126,5 +126,5 @@ To maintain clean code, logic for bit-parsing and instruction execution has been
 ### System Initialization Flow (IPL)
 - Memory Reset: Clears all memory cells.
 - Register Clear: PC, MAR, MBR, and all GPRs/IXs are zeroed.
-- Bootstrap Load: directWrite is used to inject a small program starting at Octal 010.
+- Bootstrap Load: directWrite is used to insert a small program starting at Octal 010.
 - State Initialization: curState is set to FETCH_1.
