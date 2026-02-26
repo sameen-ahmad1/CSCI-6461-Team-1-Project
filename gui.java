@@ -270,6 +270,10 @@ public class gui extends JFrame{
 
                         cpu.cycle();
                         updateDisplays();
+                        if (cpu.isHalted() || cpu.getMFR() != 0) {
+                            isRunning = false;
+                            break;
+                        }
 
                         try { 
                             Thread.sleep(2000); 
@@ -335,66 +339,64 @@ public class gui extends JFrame{
         IPLRow.add(IPLLabel);
 
         IPLButton.addActionListener((e) -> {
-
-            String filePath = programFile.getText();
+            String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a program file path.");
                 return;
             }
-            else{
 
-                try {
+            try {
+                isRunning = false;
+                memory.reset();
+                cpu = new CPU(memory);
 
-                    isRunning = false;
-                    memory.reset();
-                    cpu = new CPU(memory);
-
+                // Decide: if it's a .asm file, assemble it first
+                // If it's already a load/txt file, skip straight to loading
+                String actualLoadFile;
+                if (filePath.endsWith(".asm")) {
                     Assembler.main(new String[]{filePath});
+                    actualLoadFile = "load.txt";
+                } else {
+                    actualLoadFile = filePath;  // use it directly
+                }
 
-                    BufferedReader reader = new BufferedReader(new FileReader("load.txt"));
+                StringBuilder fileContent = new StringBuilder();
+                int startAddress = -1;
 
+                try (BufferedReader reader = new BufferedReader(new FileReader(actualLoadFile))) {
                     String line;
-                    int startAddress = -1;
-                    String fileContent = new String();
-
                     while ((line = reader.readLine()) != null) {
-                        fileContent = fileContent + line + "\n";
                         if (line.isEmpty()) continue;
-
                         String[] parts = line.split("\\s+");
                         if (parts.length < 2) continue;
 
                         int addr = Integer.parseInt(parts[0], 8);
                         int val  = Integer.parseInt(parts[1], 8);
                         memory.directWrite(addr, val);
-                        System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n", 
-                  addr, val, (val >>> 10) & 0x3F);
+                        fileContent.append(line).append("\n");
+
+                        System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n",
+                                addr, val, (val >>> 10) & 0x3F);
 
                         if (startAddress == -1) startAddress = addr;
                     }
-                    reader.close();
-
-                    cacheContent.setText(fileContent);
-
-                    // if (startAddress != -1) {
-                    //     cpu.setPC(startAddress);
-                    // }
-                    cpu.setPC(016);
-
-
-
-                    updateDisplays();
-
-                } catch (java.io.FileNotFoundException ex) {
-                    JOptionPane.showMessageDialog(this, "File not found: " + filePath);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid format in load file.");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
                 }
 
-            }
+                cacheContent.setText(fileContent.toString());
 
+                if (startAddress != -1) {
+                    cpu.setPC(startAddress);
+                }
+
+                updateDisplays();
+
+            } catch (java.io.FileNotFoundException ex) {
+                JOptionPane.showMessageDialog(this, "File not found: " + filePath);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid format in load file.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+            }
         });
 
         firstCenterCenterEast.add(runRow);

@@ -42,14 +42,15 @@ public final class Executor
     public static void finishLoad(Decoder.Decoded decoded, CPU cpu) 
     {
         int value = cpu.getMBR();
-        System.out.printf("DEBUG: finishLoad called. MBR is %06o, target reg index is %d\n", cpu.getMBR(), decoded.r);
         
         if (decoded.ins == Isa.Instruction.LDR) 
         {
+            System.out.printf("DEBUG: finishLoad LDR - MBR is %06o, writing to GPR[%d]\n", value, decoded.r);
             cpu.setGPR(decoded.r, value);
         } 
         else if (decoded.ins == Isa.Instruction.LDX) 
         {
+            System.out.printf("DEBUG: finishLoad LDX - MBR is %06o, writing to IX[%d]\n", value, decoded.x);
             cpu.setIX(decoded.x, value);
         }
     }
