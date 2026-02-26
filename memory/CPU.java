@@ -366,7 +366,7 @@ public class CPU
         
         // 3. Load the instructions
         memory.directWrite(010, 002020); // Instruction 1
-        memory.directWrite(011, 102220); // Instruction 2 (Corrected)
+        memory.directWrite(011, 0102220);
         memory.directWrite(020, 000100); // Data
 
 
