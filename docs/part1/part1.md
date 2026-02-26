@@ -6,40 +6,36 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 The system is designed as a cycle simulation of a 16-bit processor, emphasizing the separation between instruction decoding, state management, and memory.
 
 ### CPU
-- CPU Constructor: public CPU(Memory memory)
-    -  Functionality: This is the initialization phase. It connects the CPU into the Memory unit
-    - Role: It stores a reference to the Memory object and sets the initial state to FETCH_1. Without this, the CPU would have no "storage" to read instructions from
+The CPU is implemented as a Cycle-Accurate State Machine. It manages the instruction lifecycle through discrete micro-steps, allowing for hardware-accurate timing and future GUI stepping.
 
-- public void cycle()    
-    - Functionality: This is the System Clock of the simulation
+- cycle() (System Clock): Triggers memory.tick().
+    - Manages memoryCycles to simulate hardware latency (waiting 2 cycles for a read).
+    - Advances the curState (FETCH, DECODE, EXECUTE, etc.).
+
+- decode() (Control Unit): Uses the Decoder class to parse the 16-bit IR into Opcode, R, X, I, and Address fields.
+    - Implements Fault Protection; if an illegal opcode is detected, it transitions the machine to HALT and sets the MFR.
+
+- calculateEA() (Address Generation): Delegates logic to the Executor to determine the Effective Address.
+    - Handles Indirect Bit (I): If set, the CPU transitions to INDIRECT_1 to fetch the actual address from memory.
+
+- handleExecute(): The main part for instruction-specific logic.
+    - Loads (LDR, LDX): Sets MAR and requests a memory read.
+    - Stores (STR, STX): Moves register data to MBR and requests a memory write.
+    - LDA: Performs an immediate move of the EA into a register.
+    - listRegisters(): Provides a formatted snapshot of the internal state (PC, MAR, MBR, IR, GPRs, IXs) in Octal, Hex, and Decimal.
+
+### Executor & Decoder
+To maintain clean code, logic for bit-parsing and instruction execution has been separated from the main CPU class.
+
+- Decoder.Decoded: A data structure holding the 16-bit instruction broken into its constituent fields (Opcode, Register, Index, Indirect, Address).
+- Executor.calculateEA()
+    - Applies a 12-bit mask (0x7FF) to ensure the address stays within memory bounds
+- Executor.finishLoad(): 
+    - Handles the writing back phase. Once memory provides data to the MBR, this method updates the target GPR or IX.
+
+- Executor class:
+    - Functionality:
     - Role:
-        - It calls memory.tick(this) to finalize any pending memory transfers
-        - It manages the Timing Stall so if memoryCycles > 0, it decrements the counter and exits, effectively pausing the CPU to wait for the slower memory hardware
-        - It contains the Main State Machine (switch (curState)), which moves the CPU through the small steps of an instruction
-
-- private void calculateEA()
-    - Functionality: This is the Address Generation Unit
-    - Role: It looks at the bit-fields decoded from the instruction to determine exactly where in memory the data is
-        - Indexing: It adds the value of an Index Register (IX) to the base address if required
-        - Indirection: If the I bit is set, it redirects the CPU to the INDIRECT_1 state to fetch the real address from memory
-        - Masking: It ensures the resulting address fits within the 11 or 12-bit memory limit using MASK_12
-
-- private void decode()
-    - Functionality: This is the Control Unit
-    - Role: It passes the 16-bit IR to the Decoder to divide it into Opcode, Register, Index, and Address fields
-        - It determines the Routing based on the Opcode, it decides if the CPU needs to go to COMPUTE_EA (for Loads/Stores) or HALT (for errors/end of program).
-        - Fault Protection: It wraps the decoding in a try-catch to catch illegal opcodes immediately
-
-- private void handleExecute()
-    - Functionality: This is the Execution Stage for memory-access instructions
-    - Role:
-        - For Loads (LDR/LDX): It sets the MAR and calls memory.requestRead()
-        - For Stores (STR/STX): It moves data from a register into the MBR and calls memory.requestWrite()
-        - For LDA: It performs an immediate move of the address value into a register without touching memory
-
-- public void listRegisters()
-    - Functionality: This is the Debugging/Console Output
-    - Role: It prints a snapshot of every register in Octal, Hex, and Decimal. This is essential for the User Console requirement, showing the user exactly what the machine did after a Single Step
 
 ### How they work together (The Flow)
 - cycle() starts in FETCH_1
@@ -50,6 +46,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
 - calculateEA() finds the target address
 - handleExecute() moves the data
 - listRegisters() shows you the result
+
 
 ### Memory
 - Memory Constructor: public Memory(int size)
@@ -114,23 +111,7 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
     - Memory is created
     - ROM Loader loads system routines
     - Program Loader loads user instructions
-    - CPU begins execution at the program start address
-
-### Decoder and Executor
-- Decoder class: `public Decoded(int raw, Isa.Instruction ins, int opcode,
-                       int r, int x, int i, int addr,
-                       int al, int lr, int count)`
-    - functionality: stores a reference to a 16-bit instruction word
-    - Role: contains all fields extracted from the instruction word
-          
- - `decode()` 
-    - Functionality: Decodes a 16-bit instruction word by using masking and bit shifting for each field included in the Decoded class
-    - Role: called in CPU.java function `decodeAndExecute()`
-
-- Executor class:
-    - Functionality:
-    - Role:
-          
+    - CPU begins execution at the program start address     
 
 ## Design Principles
 ### CPU
@@ -141,3 +122,9 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
      - Indirect Addressing: A multi-cycle process where the CPU fetches an address from memory to find the final target data
 - Hardware Masking: All register values are passed through bit-masks. This ensures that if a calculation exceeds the physical bit-width of the register, it "wraps around" exactly as physical transistors would, preventing Java's 32-bit integers from hiding logic errors
 - Error Handling: The design uses MachineFault exception. If the Decoder finds an unknown opcode or the Memory receives an address beyond SIZE, the CPU catches the fault, logs the ID in the MFR, and enters a HALT state to prevent data corruption
+
+### System Initialization Flow (IPL)
+- Memory Reset: Clears all memory cells.
+- Register Clear: PC, MAR, MBR, and all GPRs/IXs are zeroed.
+- Bootstrap Load: directWrite is used to inject a small program starting at Octal 010.
+- State Initialization: curState is set to FETCH_1.
