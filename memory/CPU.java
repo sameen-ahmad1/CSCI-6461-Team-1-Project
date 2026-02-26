@@ -104,6 +104,35 @@ public class CPU
         }
     }
 
+    // function to decode and execute the instruction in IR
+    private void decode() {
+        try {
+            //using global decoded variable to store the decoded instruction for use in execute
+            decoded = Decoder.decode(IR);
+            //check for HALT first since it doesnt follow the normal execution path
+            if (decoded.ins == Isa.Instruction.HLT) {
+                curState = State.HALT;
+                return;
+            }
+
+            // Load/store family routes into EA computation
+            switch (decoded.ins) {
+                case LDR, STR, LDA, LDX, STX -> curState = State.COMPUTE_EA;
+
+                // TODO: Other instructions will have their own execution paths (not implemented yet)
+                default -> {
+                    // Not implemented yet - have a test instruction that triggers this for now
+                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
+                    curState = State.HALT;
+                }
+            }
+
+        } catch (MachineFault mf) {
+            setMFR(mf.code().value);
+            curState = State.HALT;
+        }
+    }
+
     private void handleExecute() 
     {
         int r = decoded.r & 0x03;
@@ -208,7 +237,7 @@ public class CPU
 
             case DECODE:
                 //get the first 6 bits which is the opcode
-                decodeAndExecute(); 
+                decode(); 
                 break;
 
             //computer the effective address
@@ -248,35 +277,6 @@ public class CPU
         }
     }
 
-
-    // function to decode and execute the instruction in IR
-    private void decodeAndExecute() {
-        try {
-            //using global decoded variable to store the decoded instruction for use in execute
-            decoded = Decoder.decode(IR);
-            //check for HALT first since it doesnt follow the normal execution path
-            if (decoded.ins == Isa.Instruction.HLT) {
-                curState = State.HALT;
-                return;
-            }
-
-            // Load/store family routes into EA computation
-            switch (decoded.ins) {
-                case LDR, STR, LDA, LDX, STX -> curState = State.COMPUTE_EA;
-
-                // TODO: Other instructions will have their own execution paths (not implemented yet)
-                default -> {
-                    // Not implemented yet - have a test instruction that triggers this for now
-                    setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
-                    curState = State.HALT;
-                }
-            }
-
-        } catch (MachineFault mf) {
-            setMFR(mf.code().value);
-            curState = State.HALT;
-        }
-}
 
 
     //ALL GETTERS AND SETTERS ARE BELOW
