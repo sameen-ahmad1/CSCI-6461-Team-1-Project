@@ -13,6 +13,9 @@ public class gui extends JFrame{
     private CPU cpu;
     private Memory memory = new Memory();
 
+    private int cycleCount = 0;
+    private String printerText = "";
+
     // GPR displays
     private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
 
@@ -65,9 +68,10 @@ public class gui extends JFrame{
         JLabel printerLabel = new JLabel("Printer");
         printer = new JTextArea("",10,20);
         printer.setEditable(false);
+        JScrollPane printerScroll = new JScrollPane(printer);
 
+        firstEastCenter.add(printerScroll, BorderLayout.SOUTH);
         firstEastCenter.add(printerLabel, BorderLayout.NORTH);
-        firstEastCenter.add(printer, BorderLayout.SOUTH);
 
         JLabel consoleInputLabel = new JLabel("Console Input");
         consoleInput = new JTextField("", 20);
@@ -257,6 +261,8 @@ public class gui extends JFrame{
 
         runButton.addActionListener((e) -> {
 
+            printerText = "running file\n" + printerText;
+
             if (cpu == null) {
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
@@ -269,6 +275,8 @@ public class gui extends JFrame{
                     while (isRunning) {
 
                         cpu.cycle();
+                        cycleCount = cycleCount + 1;
+                        printerText = "running cycle " + Integer.toString(cycleCount) + "\n" + printerText;
                         updateDisplays();
                         if (cpu.isHalted() || cpu.getMFR() != 0) {
                             isRunning = false;
@@ -308,6 +316,8 @@ public class gui extends JFrame{
 
             cpu.cycle();
             cpu.listRegisters();
+            cycleCount = cycleCount + 1;
+            printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
             updateDisplays();
             
         });
@@ -325,6 +335,7 @@ public class gui extends JFrame{
 
             isRunning = false;
             cpu.listRegisters();
+            printerText = "halting run\n" + printerText;
             updateDisplays();
             
         });
@@ -354,6 +365,8 @@ public class gui extends JFrame{
                 // If it's already a load/txt file, skip straight to loading
                 String actualLoadFile;
                 if (filePath.endsWith(".asm")) {
+                    printerText = "assembling file\n" + printerText;
+                    updateDisplays();
                     Assembler.main(new String[]{filePath});
                     actualLoadFile = "load.txt";
                 } else {
@@ -388,6 +401,8 @@ public class gui extends JFrame{
                     cpu.setPC(startAddress);
                 }
 
+                printerText = "file loaded\n" + printerText;
+                cycleCount = 0;
                 updateDisplays();
 
             } catch (java.io.FileNotFoundException ex) {
@@ -762,6 +777,8 @@ public class gui extends JFrame{
         irText.setText(String.format("%06o", cpu.getIR() & 0xFFFF));
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
+        printer.setText(printerText);
+        printer.setCaretPosition(0);
     });
 
     }
