@@ -81,6 +81,10 @@ public class CPU
         }
     }
 
+    public boolean isHalted() {
+        return curState == State.HALT;
+    }
+
     // function to decode and execute the instruction in IR
     private void decode() 
     {
@@ -258,12 +262,6 @@ public class CPU
     }
         this.MBR = value & MASK_16; 
     }
-    
-    public void setMAR(int value){
-
-        this.MAR = value & MASK_12;
-
-    }
 
     public void setPC(int value){
 
@@ -296,11 +294,6 @@ public class CPU
         return PC & MASK_12;
     }
 
-    public void setPC(int v) 
-    { 
-        this.PC = v & MASK_12; 
-    }
-
     public int getMFR() 
     {
         return MFR;
@@ -319,16 +312,6 @@ public class CPU
     public void setIX(int i, int value) 
     {
         IX[i] = value & MASK_16;
-    }
-
-    public int getIR() 
-    {
-        return this.IR & MASK_16;
-    }
-
-    public int getCC() 
-    {
-        return this.CC & MASK_4;
     }
 
     public int getIR() 
