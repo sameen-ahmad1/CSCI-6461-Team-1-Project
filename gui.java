@@ -1,16 +1,11 @@
-import javax.swing.*;
-
-import memory.CPU;
-import memory.simple.Memory;
-
+import assembler.Assembler;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.concurrent.Flow;
-import java.lang.reflect.Field;
-
-import java.io.*;
-
-import assembler.Assembler;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import javax.swing.*;
+import memory.CPU;
+import memory.simple.Memory;
 
 public class gui extends JFrame{
 
