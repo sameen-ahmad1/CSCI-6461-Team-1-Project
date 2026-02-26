@@ -51,6 +51,71 @@ The system is designed as a cycle simulation of a 16-bit processor, emphasizing 
 - handleExecute() moves the data
 - listRegisters() shows you the result
 
+### Memory
+- Memory Constructor: public Memory(int size)
+    - Functionality: Initializes the memory array and prepares it for read/write operations.
+    - Role: Acts as the main storage unit of the system, containing instructions, data, and reserved system locations.
+
+- public void requestRead(int address)
+    - Functionality: Begins a memory read operation.
+    - Role: Stores the requested address and prepares the system to transfer the value during the next memory tick, simulating hardware latency.
+
+- public void requestWrite(int address, int value)
+    - Functionality: Begins a memory write operation.
+    - Role: Stores the value temporarily and schedules it to be written during the next memory tick cycle.
+
+- public void tick(CPU cpu)
+    - Functionality: Finalizes pending memory operations.
+    - Role: If a read was requested, transfers memory[address] into the CPU’s MBR. If a write was requested, updates memory[address] with the MBR value.
+
+- Memory Protection
+    - Functionality: Validates all memory addresses before access.
+    - Role: Prevents illegal memory access outside the valid range (0 – SIZE). If an address exceeds bounds, a MachineFault is triggered.
+
+- Reserved Memory
+    - Functionality: Protects specific low memory addresses reserved for trap tables and fault routines.
+    - Role: Prevents user programs from overwriting system routines. Any illegal write attempt triggers a MachineFault.
+
+
+### Machine Fault
+- MachineFault Exception
+    - Functionality: Custom exception used to signal hardware-level faults.
+    - Role: Allows the CPU to handle illegal operations safely instead of crashing.
+
+- Machine Fault Register (MFR)
+    - Functionality: Stores a numeric fault code identifying the type of failure.
+    - Role: Provides state tracking and debugging information when a fault occurs.
+
+- Fault Conditions
+    - Illegal Memory Address
+    - Memory Protection Violation
+    - Illegal Opcode
+    - Illegal Trap Code
+
+- Fault Handling
+    - Role:
+        - CPU catches the exception
+        - The fault ID is stored in the MFR
+        - The CPU transitions to the HALT state to prevent further corruption
+
+
+### ROM Loader
+- ROM Loader Constructor: public RomLoader(Memory memory)
+    - Functionality: Loads predefined system instructions into reserved memory during initialization.
+    - Role: Simulates power-on behavior by preloading trap handlers and machine fault routines before user programs execute.
+
+- Responsibilities
+    - Populate reserved memory locations
+    - Load trap table entries
+    - Load machine fault handler routine
+    - Ensure protected memory is initialized before user programs load
+
+- System Initialization Flow
+    - Memory is created
+    - ROM Loader loads system routines
+    - Program Loader loads user instructions
+    - CPU begins execution at the program start address
+
 ### Decoder and Executor
 - Decoder class: `public Decoded(int raw, Isa.Instruction ins, int opcode,
                        int r, int x, int i, int addr,
