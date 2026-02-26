@@ -243,6 +243,13 @@ public class CPU
         this.MFR = faultID & MASK_4; 
     }
 
+    public void setMAR(int value)
+    {
+
+        this.MAR = value & MASK_12;
+
+    }
+
     //set the MBR
     public void setMBR(int value) 
     {
@@ -300,6 +307,16 @@ public class CPU
     public void setIX(int i, int value) 
     {
         IX[i] = value & MASK_16;
+    }
+
+    public int getIR() 
+    {
+        return this.IR & MASK_16;
+    }
+
+    public int getCC() 
+    {
+        return this.CC & MASK_4;
     }
 
     public void listRegisters() 
