@@ -291,6 +291,18 @@ public class CPU
     {
         this.MBR = value & MASK_16; 
     }
+    
+    public void setMAR(int value){
+
+        this.MAR = value & MASK_12;
+
+    }
+
+    public void setPC(int value){
+
+        this.PC = value & MASK_12;
+
+    }
 
     public int getMAR() 
     {

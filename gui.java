@@ -8,6 +8,10 @@ import java.awt.event.*;
 import java.util.concurrent.Flow;
 import java.lang.reflect.Field;
 
+import java.io.*;
+
+import assembler.Assembler;
+
 public class gui extends JFrame{
 
     private boolean isRunning = false;
@@ -153,10 +157,14 @@ public class gui extends JFrame{
 
         loadButton.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int octalVal = Integer.parseInt(octalInput.getText(), 8);
-                int marAddr = Integer.parseInt(marText.getText(), 8);
+                int marAddr = cpu.getMAR();
                 memory.directWrite(marAddr, octalVal);
-                mbrText.setText(String.format("%06o", octalVal));
+                cpu.setMBR(octalVal);
                 updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
@@ -174,11 +182,15 @@ public class gui extends JFrame{
 
         loadPlusButton.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int octalVal = Integer.parseInt(octalInput.getText(), 8);
-                int marAddr = Integer.parseInt(marText.getText(), 8);
+                int marAddr = cpu.getMAR(); 
                 memory.directWrite(marAddr, octalVal);
-                mbrText.setText(String.format("%06o", octalVal));
-                marText.setText(String.format("%06o", marAddr + 1));
+                cpu.setMBR(octalVal); 
+                cpu.setMAR(marAddr + 1);
                 updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
@@ -196,8 +208,12 @@ public class gui extends JFrame{
 
         storeButton.addActionListener((e) -> {
             try {
-                int marAddr = Integer.parseInt(marText.getText(), 8);
-                int mbrVal = Integer.parseInt(mbrText.getText(), 8);
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
+                int marAddr = cpu.getMAR();
+                int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
                 updateDisplays();
             } catch (NumberFormatException ex) {
@@ -216,10 +232,14 @@ public class gui extends JFrame{
 
         storePlusButton.addActionListener((e) -> {
             try {
-                int marAddr = Integer.parseInt(marText.getText(), 8);
-                int mbrVal = Integer.parseInt(mbrText.getText(), 8);
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
+                int marAddr = cpu.getMAR();
+                int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
-                marText.setText(String.format("%06o", marAddr + 1));
+                cpu.setMAR(marAddr + 1);
                 updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
@@ -242,6 +262,33 @@ public class gui extends JFrame{
 
         runButton.addActionListener((e) -> {
 
+            if (cpu == null) {
+                JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
+                return;
+            }
+            if (isRunning == false){
+
+                isRunning = true;
+
+                new Thread(() -> {
+                    while (isRunning) {
+
+                        cpu.cycle();
+                        updateDisplays();
+
+                        try { 
+                            Thread.sleep(10); 
+                        } 
+                        catch (InterruptedException ex) {
+                            break;
+                        }
+                    }
+
+                    isRunning = false;
+
+                }).start();
+            }
+
         });
 
         JPanel stepRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -254,10 +301,15 @@ public class gui extends JFrame{
         stepRow.add(stepLabel);
 
         stepButton.addActionListener((e) -> {
-            if (!isCpuHalted(cpu) && cpu.getMFR() == 0) {
-                cpu.cycle();
-                updateDisplays();
+
+            if (cpu == null) {
+                JOptionPane.showMessageDialog(this, "Press IPL first.");
+                return;
             }
+
+            cpu.cycle();
+            updateDisplays();
+            
         });
 
         JPanel haltRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
@@ -270,6 +322,9 @@ public class gui extends JFrame{
         haltRow.add(haltLabel);
 
         haltButton.addActionListener((e) -> {
+
+            isRunning = false;
+            updateDisplays();
             
         });
 
@@ -283,6 +338,56 @@ public class gui extends JFrame{
         IPLRow.add(IPLLabel);
 
         IPLButton.addActionListener((e) -> {
+
+            String filePath = programFile.getText();
+            if (filePath.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a program file path.");
+                return;
+            }
+            else{
+
+                try {
+
+                    isRunning = false;
+                    memory.reset();
+                    cpu = new CPU(memory);
+
+                    Assembler.main(new String[]{filePath});
+
+                    BufferedReader reader = new BufferedReader(new FileReader("load.txt"));
+
+                    String line;
+                    int startAddress = -1;
+
+                    while ((line = reader.readLine()) != null) {
+                        if (line.isEmpty()) continue;
+
+                        String[] parts = line.split("\\s+");
+                        if (parts.length < 2) continue;
+
+                        int addr = Integer.parseInt(parts[0], 8);
+                        int val  = Integer.parseInt(parts[1], 8);
+                        memory.directWrite(addr, val);
+
+                        if (startAddress == -1) startAddress = addr;
+                    }
+                    reader.close();
+
+                    if (startAddress != -1) {
+                        cpu.setPC(startAddress);
+                    }
+
+                    updateDisplays();
+
+                } catch (java.io.FileNotFoundException ex) {
+                    JOptionPane.showMessageDialog(this, "File not found: " + filePath);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid format in load file.");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+                }
+
+            }
 
         });
 
@@ -318,6 +423,10 @@ public class gui extends JFrame{
 
         zeroButtonGPR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(0, val);
                 updateDisplays();
@@ -340,6 +449,10 @@ public class gui extends JFrame{
 
         oneButtonGPR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(1, val);
                 updateDisplays();
@@ -362,6 +475,10 @@ public class gui extends JFrame{
 
         twoButtonGPR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(2, val);
                 updateDisplays();
@@ -384,6 +501,10 @@ public class gui extends JFrame{
 
         threeButtonGPR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(3, val);
                 updateDisplays();
@@ -419,6 +540,10 @@ public class gui extends JFrame{
 
         oneButtonIXR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(1, val);
                 updateDisplays();
@@ -441,6 +566,10 @@ public class gui extends JFrame{
 
         twoButtonIXR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(2, val);
                 updateDisplays();
@@ -463,6 +592,10 @@ public class gui extends JFrame{
 
         threeButtonIXR.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(3, val);
                 updateDisplays();
@@ -491,8 +624,12 @@ public class gui extends JFrame{
 
         pcButton.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
-                forceSetPC(cpu, val);
+                cpu.setPC(val);
                 updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
@@ -513,10 +650,15 @@ public class gui extends JFrame{
 
         marButton.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
-                marText.setText(String.format("%06o", val));
+                cpu.setMAR(val);
                 int memVal = memory.peek(val);
-                mbrText.setText(String.format("%06o", memVal & 0xFFFF));
+                cpu.setMBR(memVal);
+                updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -536,8 +678,13 @@ public class gui extends JFrame{
 
         mbrButton.addActionListener((e) -> {
             try {
+                if (cpu == null) {
+                    JOptionPane.showMessageDialog(this, "Press IPL first.");
+                    return;
+                }
                 int val = Integer.parseInt(octalInput.getText(), 8);
-                mbrText.setText(String.format("%06o", val));
+                cpu.setMBR(val); 
+                updateDisplays();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -592,6 +739,7 @@ public class gui extends JFrame{
     }
 
     private void updateDisplays() {
+    if (cpu == null) return;
     SwingUtilities.invokeLater(() -> {
         zeroTextGPR.setText(String.format("%06o", cpu.getGPR(0) & 0xFFFF));
         oneTextGPR.setText(String.format("%06o", cpu.getGPR(1) & 0xFFFF));
@@ -608,27 +756,6 @@ public class gui extends JFrame{
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
     });
 
-    }
-
-    private void forceSetPC(CPU cpu, int value) {
-        try {
-            Field f = CPU.class.getDeclaredField("PC");
-            f.setAccessible(true);
-            f.setInt(cpu, value);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not set PC: " + e.getMessage());
-        }
-    }
-
-    private boolean isCpuHalted(CPU cpu) {
-        try {
-            Field f = CPU.class.getDeclaredField("curState");
-            f.setAccessible(true);
-            Object state = f.get(cpu);
-            return state != null && state.toString().equals("HALT");
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public static void main(String args[]){
