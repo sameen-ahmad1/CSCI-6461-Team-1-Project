@@ -291,6 +291,18 @@ public class CPU
     {
         this.MBR = value & MASK_16; 
     }
+    
+    public void setMAR(int value){
+
+        this.MAR = value & MASK_12;
+
+    }
+
+    public void setPC(int value){
+
+        this.PC = value & MASK_12;
+
+    }
 
     public int getMAR() 
     {
@@ -334,6 +346,16 @@ public class CPU
     public void setIX(int i, int value) 
     {
         IX[i] = value & 0xFFFF;
+    }
+
+    public int getIR() 
+    {
+        return this.IR & MASK_16;
+    }
+
+    public int getCC() 
+    {
+        return this.CC & MASK_4;
     }
 
     public void listRegisters() 
