@@ -113,6 +113,37 @@ To maintain clean code, logic for bit-parsing and instruction execution has been
     - Program Loader loads user instructions
     - CPU begins execution at the program start address     
 
+### GUI
+- global variables
+    - declare the text fields so they can be modified by the gui and the helper methods
+- updateTexts()
+    - written as a helper method to avoid repeated code
+    - fetches true values of all registers and variables from the CPU to display on the simulator 
+    - called at the end of each cycle (from both step and run) as well as after any updates to register values from input
+- gui()
+    - uses a JFrame, JPanels, JTextAreas, JTextFields, JPuttons, and JLabels to create a layout mathcing the simulator layout in the project documentation
+    - features
+        - converts octal input to binary 
+        - allows for user input of file path of assembly code or load file
+        - allows for user to run a file or step through a file
+        - allows for user to see cache contents
+        - allows for user to see progress through the printer
+        - allows for user to interact with registers + variables
+        - registers
+            - sets clicked register to the value in the octal input
+        - load + store
+            - update MBR and MAR when clicked as neccesary for load, load +, store, and store + operations
+        - IPL
+            - takes in a user input file, determines if it is an assembler or load file, if assembler file it converts it to a load file
+            - create the memory and cpu context
+            - sets the PC to the starting address
+        - run
+            - creates a thread (to preserve GUI functionailty) to run all of the cycles in the program until a halt is reached
+        - step
+            - allows user to step through the program 1 cycle at a time
+        - halt
+            - allows user to halt the running of a program
+
 ## Design Principles
 ### CPU
 - State Machine: The CPU utilizes an enum State to break down instructions into discrete micro-steps (FETCH_1, DECODE, COMPUTE_EA, more.). This allows the simulation to pause (stall) without blocking the entire system thread, enabling future GUI integration and real-time stepping
