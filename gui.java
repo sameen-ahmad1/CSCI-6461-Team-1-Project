@@ -776,7 +776,7 @@ public class gui extends JFrame{
         }
     }
 
-    private void updateDisplays() {
+    private void updateTexts() {
     if (cpu == null) return;
     SwingUtilities.invokeLater(() -> {
         zeroTextGPR.setText(String.format("%06o", cpu.getGPR(0) & 0xFFFF));
