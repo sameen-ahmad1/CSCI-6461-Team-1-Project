@@ -13,16 +13,15 @@ public class gui extends JFrame{
     private CPU cpu;
     private Memory memory = new Memory();
 
-    // GPR displays
+    private int cycleCount = 0;
+    private String printerText = "";
+
     private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
 
-    // IXR displays
     private JTextField oneTextIXR, twoTextIXR, threeTextIXR;
 
-    // Other register displays
     private JTextField pcText, marText, mbrText, irText, ccText, mfrText;
 
-    // Misc
     private JTextField binary, octalInput, programFile;
     private JTextArea cacheContent, printer;
     private JTextField consoleInput;
@@ -65,9 +64,10 @@ public class gui extends JFrame{
         JLabel printerLabel = new JLabel("Printer");
         printer = new JTextArea("",10,20);
         printer.setEditable(false);
+        JScrollPane printerScroll = new JScrollPane(printer);
 
+        firstEastCenter.add(printerScroll, BorderLayout.SOUTH);
         firstEastCenter.add(printerLabel, BorderLayout.NORTH);
-        firstEastCenter.add(printer, BorderLayout.SOUTH);
 
         JLabel consoleInputLabel = new JLabel("Console Input");
         consoleInput = new JTextField("", 20);
@@ -160,7 +160,7 @@ public class gui extends JFrame{
                 int marAddr = cpu.getMAR();
                 memory.directWrite(marAddr, octalVal);
                 cpu.setMBR(octalVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -186,7 +186,7 @@ public class gui extends JFrame{
                 memory.directWrite(marAddr, octalVal);
                 cpu.setMBR(octalVal); 
                 cpu.setMAR(marAddr + 1);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -210,7 +210,7 @@ public class gui extends JFrame{
                 int marAddr = cpu.getMAR();
                 int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
             }
@@ -235,7 +235,7 @@ public class gui extends JFrame{
                 int mbrVal = cpu.getMBR();
                 memory.directWrite(marAddr, mbrVal);
                 cpu.setMAR(marAddr + 1);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
             }
@@ -257,6 +257,8 @@ public class gui extends JFrame{
 
         runButton.addActionListener((e) -> {
 
+            printerText = "running file\n" + printerText;
+
             if (cpu == null) {
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
@@ -269,7 +271,9 @@ public class gui extends JFrame{
                     while (isRunning) {
 
                         cpu.cycle();
-                        updateDisplays();
+                        cycleCount = cycleCount + 1;
+                        printerText = "running cycle " + Integer.toString(cycleCount) + "\n" + printerText;
+                        updateTexts();
                         if (cpu.isHalted() || cpu.getMFR() != 0) {
                             isRunning = false;
                             break;
@@ -308,7 +312,9 @@ public class gui extends JFrame{
 
             cpu.cycle();
             cpu.listRegisters();
-            updateDisplays();
+            cycleCount = cycleCount + 1;
+            printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
+            updateTexts();
             
         });
 
@@ -325,7 +331,8 @@ public class gui extends JFrame{
 
             isRunning = false;
             cpu.listRegisters();
-            updateDisplays();
+            printerText = "halting run\n" + printerText;
+            updateTexts();
             
         });
 
@@ -337,67 +344,6 @@ public class gui extends JFrame{
 
         IPLRow.add(IPLButton);
         IPLRow.add(IPLLabel);
-
-        // IPLButton.addActionListener((e) -> {
-        //     String filePath = programFile.getText().trim();
-        //     if (filePath.isEmpty()) {
-        //         JOptionPane.showMessageDialog(this, "Please enter a program file path.");
-        //         return;
-        //     }
-
-        //     try {
-        //         isRunning = false;
-        //         memory.reset();
-        //         cpu = new CPU(memory);
-
-        //         // Decide: if it's a .asm file, assemble it first
-        //         // If it's already a load/txt file, skip straight to loading
-        //         String actualLoadFile;
-        //         if (filePath.endsWith(".asm")) {
-        //             Assembler.main(new String[]{filePath});
-        //             actualLoadFile = "load.txt";
-        //         } else {
-        //             actualLoadFile = filePath;  // use it directly
-        //         }
-
-        //         StringBuilder fileContent = new StringBuilder();
-        //         int startAddress = -1;
-
-        //         try (BufferedReader reader = new BufferedReader(new FileReader(actualLoadFile))) {
-        //             String line;
-        //             while ((line = reader.readLine()) != null) {
-        //                 if (line.isEmpty()) continue;
-        //                 String[] parts = line.split("\\s+");
-        //                 if (parts.length < 2) continue;
-
-        //                 int addr = Integer.parseInt(parts[0], 8);
-        //                 int val  = Integer.parseInt(parts[1], 8);
-        //                 memory.directWrite(addr, val);
-        //                 fileContent.append(line).append("\n");
-
-        //                 System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n",
-        //                         addr, val, (val >>> 10) & 0x3F);
-
-        //                 if (startAddress == -1) startAddress = addr;
-        //             }
-        //         }
-
-        //         cacheContent.setText(fileContent.toString());
-
-        //         if (startAddress != -1) {
-        //             cpu.setPC(readStartAddress("start.txt", startAddress));
-        //         }
-
-        //         updateDisplays();
-
-        //     } catch (java.io.FileNotFoundException ex) {
-        //         JOptionPane.showMessageDialog(this, "File not found: " + filePath);
-        //     } catch (NumberFormatException ex) {
-        //         JOptionPane.showMessageDialog(this, "Invalid format in load file.");
-        //     } catch (Exception ex) {
-        //         JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
-        //     }
-        // });
 
         IPLButton.addActionListener((e) -> {
             String filePath = programFile.getText().trim();
@@ -458,7 +404,9 @@ public class gui extends JFrame{
                     cpu.setPC(pc);
                 }
 
-                updateDisplays();
+                printerText = "file loaded\n" + printerText;
+                cycleCount = 0;
+                updateTexts();
 
             } catch (java.io.FileNotFoundException ex) {
                 JOptionPane.showMessageDialog(this, "File not found: " + filePath);
@@ -507,7 +455,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(0, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -533,7 +481,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(1, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -559,7 +507,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(2, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -585,7 +533,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setGPR(3, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -624,7 +572,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(1, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -650,7 +598,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(2, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -676,7 +624,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setIX(3, val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -708,7 +656,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setPC(val);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -736,7 +684,7 @@ public class gui extends JFrame{
                 cpu.setMAR(val);
                 int memVal = memory.peek(val);
                 cpu.setMBR(memVal);
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -762,7 +710,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setMBR(val); 
-                updateDisplays();
+                updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid octal input");
             }
@@ -844,6 +792,8 @@ public class gui extends JFrame{
         irText.setText(String.format("%06o", cpu.getIR() & 0xFFFF));
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
+        printer.setText(printerText);
+        printer.setCaretPosition(0);
     });
 
     }
