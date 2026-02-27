@@ -357,44 +357,51 @@ public class gui extends JFrame{
                 memory.reset();
                 cpu = new CPU(memory);
 
-                // Decide: if it's a .asm file, assemble it first
-                // If it's already a load/txt file, skip straight to loading
-                String actualLoadFile;
-                if (filePath.endsWith(".asm")) {
-                    printerText = "assembling file\n" + printerText;
-                    updateTexts();
+                // Decide input type
+                boolean assembled = false;
+                String actualLoadFile = filePath;
+
+                if (filePath.toLowerCase().endsWith(".asm")) {
                     Assembler.main(new String[]{filePath});
+                    // load.txt is written by your assembler (in current working dir)
                     actualLoadFile = "load.txt";
-                } else {
-                    actualLoadFile = filePath;  // use it directly
+                    assembled = true;
                 }
 
                 StringBuilder fileContent = new StringBuilder();
-                int startAddress = -1;
+                int firstAddrInFile = -1;
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(actualLoadFile))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
+                        line = line.trim();
                         if (line.isEmpty()) continue;
+                        if (line.startsWith(";")) continue;
+
                         String[] parts = line.split("\\s+");
                         if (parts.length < 2) continue;
 
                         int addr = Integer.parseInt(parts[0], 8);
-                        int val  = Integer.parseInt(parts[1], 8);
+                        int val  = Integer.parseInt(parts[1], 8) & 0xFFFF;
+
                         memory.directWrite(addr, val);
                         fileContent.append(line).append("\n");
 
-                        System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n",
-                                addr, val, (val >>> 10) & 0x3F);
-
-                        if (startAddress == -1) startAddress = addr;
+                        if (firstAddrInFile == -1) firstAddrInFile = addr;
                     }
                 }
 
                 cacheContent.setText(fileContent.toString());
 
-                if (startAddress != -1) {
-                    cpu.setPC(startAddress);
+                if (firstAddrInFile != -1) {
+                    int pc = firstAddrInFile;
+
+                    if (assembled) {
+                        // Prefer start.txt if we assembled (fallback is first address)
+                        pc = readStartAddressIfPresent("start.txt", firstAddrInFile);
+                    }
+
+                    cpu.setPC(pc);
                 }
 
                 printerText = "file loaded\n" + printerText;
@@ -757,7 +764,19 @@ public class gui extends JFrame{
 
     }
 
-    private void updateTexts() {
+    private static int readStartAddressIfPresent(String startFilePath, int fallbackAddr) {
+        try (BufferedReader br = new BufferedReader(new FileReader(startFilePath))) {
+            String s = br.readLine();
+            if (s == null) return fallbackAddr;
+            s = s.trim();
+            if (s.isEmpty()) return fallbackAddr;
+            return Integer.parseInt(s); // decimal
+        } catch (Exception e) {
+            return fallbackAddr;
+        }
+    }
+
+    private void updateDisplays() {
     if (cpu == null) return;
     SwingUtilities.invokeLater(() -> {
         zeroTextGPR.setText(String.format("%06o", cpu.getGPR(0) & 0xFFFF));
