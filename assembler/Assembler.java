@@ -133,6 +133,9 @@ private static void passTwo(File file) throws IOException
     //current location counter
     int currentLoc = 0;
 
+    // store the address for where to start execution (first non-DATA instruction)
+    Integer entryAddr = null;
+
     //read the files
     BufferedReader readFile = new BufferedReader(new FileReader(file));
 
@@ -448,7 +451,10 @@ private static void passTwo(File file) throws IOException
         loadWriter.println(octaladdress + "\t" + octalvalue);
         listingWriter.println(octaladdress + "\t" + octalvalue + "\t" + fileLine);
 
-
+        // record entry point = first NON-DATA instruction emitted
+        if (entryAddr == null && !operationName.equals("DATA")) {
+            entryAddr = currentLoc;
+        }
 
         //increase the location count
         currentLoc = currentLoc + 1;
@@ -458,6 +464,13 @@ private static void passTwo(File file) throws IOException
     listingWriter.close();
     loadWriter.close();
     readFile.close();
+
+    if (entryAddr == null) entryAddr = 0;  // fallback if file had only DATA/LOC
+
+    // printing the entry point to a separate file for the CPU to read and know where to start execution from
+    try (PrintWriter startWriter = new PrintWriter(new FileWriter("start.txt"))) {
+        startWriter.println(entryAddr); // DECIMAL is easiest
+    }
 
 }
 

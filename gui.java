@@ -338,6 +338,67 @@ public class gui extends JFrame{
         IPLRow.add(IPLButton);
         IPLRow.add(IPLLabel);
 
+        // IPLButton.addActionListener((e) -> {
+        //     String filePath = programFile.getText().trim();
+        //     if (filePath.isEmpty()) {
+        //         JOptionPane.showMessageDialog(this, "Please enter a program file path.");
+        //         return;
+        //     }
+
+        //     try {
+        //         isRunning = false;
+        //         memory.reset();
+        //         cpu = new CPU(memory);
+
+        //         // Decide: if it's a .asm file, assemble it first
+        //         // If it's already a load/txt file, skip straight to loading
+        //         String actualLoadFile;
+        //         if (filePath.endsWith(".asm")) {
+        //             Assembler.main(new String[]{filePath});
+        //             actualLoadFile = "load.txt";
+        //         } else {
+        //             actualLoadFile = filePath;  // use it directly
+        //         }
+
+        //         StringBuilder fileContent = new StringBuilder();
+        //         int startAddress = -1;
+
+        //         try (BufferedReader reader = new BufferedReader(new FileReader(actualLoadFile))) {
+        //             String line;
+        //             while ((line = reader.readLine()) != null) {
+        //                 if (line.isEmpty()) continue;
+        //                 String[] parts = line.split("\\s+");
+        //                 if (parts.length < 2) continue;
+
+        //                 int addr = Integer.parseInt(parts[0], 8);
+        //                 int val  = Integer.parseInt(parts[1], 8);
+        //                 memory.directWrite(addr, val);
+        //                 fileContent.append(line).append("\n");
+
+        //                 System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n",
+        //                         addr, val, (val >>> 10) & 0x3F);
+
+        //                 if (startAddress == -1) startAddress = addr;
+        //             }
+        //         }
+
+        //         cacheContent.setText(fileContent.toString());
+
+        //         if (startAddress != -1) {
+        //             cpu.setPC(readStartAddress("start.txt", startAddress));
+        //         }
+
+        //         updateDisplays();
+
+        //     } catch (java.io.FileNotFoundException ex) {
+        //         JOptionPane.showMessageDialog(this, "File not found: " + filePath);
+        //     } catch (NumberFormatException ex) {
+        //         JOptionPane.showMessageDialog(this, "Invalid format in load file.");
+        //     } catch (Exception ex) {
+        //         JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+        //     }
+        // });
+
         IPLButton.addActionListener((e) -> {
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
@@ -350,42 +411,51 @@ public class gui extends JFrame{
                 memory.reset();
                 cpu = new CPU(memory);
 
-                // Decide: if it's a .asm file, assemble it first
-                // If it's already a load/txt file, skip straight to loading
-                String actualLoadFile;
-                if (filePath.endsWith(".asm")) {
+                // Decide input type
+                boolean assembled = false;
+                String actualLoadFile = filePath;
+
+                if (filePath.toLowerCase().endsWith(".asm")) {
                     Assembler.main(new String[]{filePath});
+                    // load.txt is written by your assembler (in current working dir)
                     actualLoadFile = "load.txt";
-                } else {
-                    actualLoadFile = filePath;  // use it directly
+                    assembled = true;
                 }
 
                 StringBuilder fileContent = new StringBuilder();
-                int startAddress = -1;
+                int firstAddrInFile = -1;
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(actualLoadFile))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
+                        line = line.trim();
                         if (line.isEmpty()) continue;
+                        if (line.startsWith(";")) continue;
+
                         String[] parts = line.split("\\s+");
                         if (parts.length < 2) continue;
 
                         int addr = Integer.parseInt(parts[0], 8);
-                        int val  = Integer.parseInt(parts[1], 8);
+                        int val  = Integer.parseInt(parts[1], 8) & 0xFFFF;
+
                         memory.directWrite(addr, val);
                         fileContent.append(line).append("\n");
 
-                        System.out.printf("Loading Addr: %06o | Val: %06o | Decoded Op: %o\n",
-                                addr, val, (val >>> 10) & 0x3F);
-
-                        if (startAddress == -1) startAddress = addr;
+                        if (firstAddrInFile == -1) firstAddrInFile = addr;
                     }
                 }
 
                 cacheContent.setText(fileContent.toString());
 
-                if (startAddress != -1) {
-                    cpu.setPC(startAddress);
+                if (firstAddrInFile != -1) {
+                    int pc = firstAddrInFile;
+
+                    if (assembled) {
+                        // Prefer start.txt if we assembled (fallback is first address)
+                        pc = readStartAddressIfPresent("start.txt", firstAddrInFile);
+                    }
+
+                    cpu.setPC(pc);
                 }
 
                 updateDisplays();
@@ -744,6 +814,18 @@ public class gui extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
 
+    }
+
+    private static int readStartAddressIfPresent(String startFilePath, int fallbackAddr) {
+        try (BufferedReader br = new BufferedReader(new FileReader(startFilePath))) {
+            String s = br.readLine();
+            if (s == null) return fallbackAddr;
+            s = s.trim();
+            if (s.isEmpty()) return fallbackAddr;
+            return Integer.parseInt(s); // decimal
+        } catch (Exception e) {
+            return fallbackAddr;
+        }
     }
 
     private void updateDisplays() {
