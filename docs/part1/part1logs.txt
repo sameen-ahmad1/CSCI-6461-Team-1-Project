@@ -1,0 +1,677 @@
+commit bf51fa8e04ea519b53c0904f6e68c86320ba165f
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 27 23:12:43 2026 -0500
+
+    Updated documentation
+
+commit 681db5bee4a95ca93f46c09408a8665c19a8f1cf
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Fri Feb 27 11:38:49 2026 -0500
+
+    indentation issue in Assembler.java
+
+commit 42e26457cf094e0e3691bbe31e3ebd4dc1423dc3
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Fri Feb 27 11:23:29 2026 -0500
+
+    updateTexts function rename
+
+commit f5056f3d293f44f19c2b75360ff34429085e2e31
+Merge: 62c20ac c34dad9
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Fri Feb 27 11:12:22 2026 -0500
+
+    Merge pull request #20 from sameen-ahmad1/GUI
+    
+    G UI
+
+commit c34dad99834d71c3547a111af18439148df10140
+Merge: 12cd1df 62c20ac
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Fri Feb 27 11:06:49 2026 -0500
+
+    Merge branch 'main' into GUI
+
+commit 12cd1df340d8ebe17454b4f5ceeea06080452c03
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 26 23:44:15 2026 -0500
+
+    documentation
+
+commit 62c20ac8bda81012d08208ccbbd913aea5dc9fe1
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 26 22:39:10 2026 -0500
+
+    stopped HALT on DATA from load.txt, can think about how we want to modify this later
+
+commit 21f9b952c4eacbcbf5cdb76a2dd6c6c043a93753
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 26 18:38:33 2026 -0500
+
+    variable update
+
+commit 0e5415c46419422c7d33951551738289fd4acd47
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 26 18:09:48 2026 -0500
+
+    add stuff to printer
+
+commit 39488987a59d955650909c31f85fbbd0a37245c6
+Merge: 8340b74 14116e6
+Author: Wesamabu <wesamabu100@gmail.com>
+Date:   Thu Feb 26 17:18:19 2026 -0500
+
+    Merge pull request #19 from sameen-ahmad1/gui-fixes
+    
+    Fix GUI run loop halt detection and IPL loader
+
+commit 14116e6a3c429cc587ab9d2387df09d2f216bad1
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 26 15:32:22 2026 -0500
+
+    Fix GUI run loop halt detection and IPL loader
+
+commit 8340b74f371e1500518f1c40a2471bd787c383cc
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 26 14:42:03 2026 -0500
+
+    ignoring class files
+
+commit 38cdc69d4f4c3fbdbaa5597ddf6484b1ecc771da
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 14:34:46 2026 -0500
+
+    Update part1.md
+
+commit a24e209bbbf1d3192368b45995e283898b19c623
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 14:33:54 2026 -0500
+
+    Updated design doc
+
+commit 1cf3bb8f038d3339ea76dcd0329adc73102b0a3c
+Merge: 42ef1c6 b558cb5
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 13:48:24 2026 -0500
+
+    made changes to cpu, executor, gui
+    
+    Cpu changes
+
+commit b558cb5416c70654215f2ddf6730e416242e0afb
+Merge: 3952bb2 42ef1c6
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 13:48:03 2026 -0500
+
+    Merge branch 'main' into cpu-changes
+
+commit 3952bb25d44f340b2c1b90c745853cf592e66a8c
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 13:34:48 2026 -0500
+
+    changes
+
+commit 59bfd9bbed982ce48b937a3da10432176bc02703
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 13:04:10 2026 -0500
+
+    changes
+
+commit 9504b439b63447895488dd41093ed3f9aeb4c93f
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 12:40:42 2026 -0500
+
+    merged main to cpu branch
+
+commit cef1f802bc99836d1df1ab6042ef1e69773a66f3
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 26 11:39:33 2026 -0500
+
+    updates
+
+commit 42ef1c6a73e8743b507ba846ec9fe0f237b80866
+Merge: 9fbf5c5 f0d82e1
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Thu Feb 26 10:08:50 2026 -0500
+
+    Merge pull request #17 from sameen-ahmad1/GUI
+    
+    G UI
+
+commit 9fbf5c508bf0b8a647b4e273d1a58cc92ced1cc5
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 26 09:28:39 2026 -0500
+
+    Added documentation for Memory, Machine Fault, and ROM Loader
+
+commit f0d82e1ba187425017cacb3a5619ce77026fa149
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 26 08:56:14 2026 -0500
+
+    sleep induced changes
+
+commit c2401a60dd2dc305fc2c49ec50c366f3fc6d97c4
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Wed Feb 25 23:48:19 2026 -0500
+
+    changed cpu and executor, added simulator and ipl for testing
+
+commit 48b2c0848f83c28d744cab68eec94b07b81cadeb
+Merge: 6cc9852 fcd0e94
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Wed Feb 25 22:34:15 2026 -0500
+
+    Merge branch 'main' into GUI
+
+commit 6cc9852f16b44fd121c7519e4b9bd2b175ffe158
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Wed Feb 25 22:33:52 2026 -0500
+
+    fixes???
+
+commit fcd0e94fd4acd279150d37bcb16570854bc07f6e
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Wed Feb 25 15:23:23 2026 -0500
+
+    removing unused import
+
+commit 95866fb4a38084f4d2a540f90c83283815b003e9
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Wed Feb 25 15:21:15 2026 -0500
+
+    renamed function decode for clarity, tests failing on storing set values by user
+
+commit 5e7320b21fedfcf16eed4ec65152317690b02cd4
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Wed Feb 25 14:49:59 2026 -0500
+
+    Refactor decodeAndExecute method to decode
+    
+    Renamed method 'decodeAndExecute' to 'decode' for clarity.
+
+commit 934b1cf821447a906a71e3c835bad07a5ea2d0f1
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Wed Feb 25 14:48:00 2026 -0500
+
+    Enhance documentation for Decoder and classes
+    
+    Added details about the Decoder class including its functionality and roles
+
+commit 87aa8d6283b76a1a86be289cf0e22bf28e0b6587
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Wed Feb 25 13:38:07 2026 -0500
+
+    added documentation for CPU
+
+commit 82cd34163d1b8808027d3f8eeb2a772edc5444e1
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Wed Feb 25 11:55:08 2026 -0500
+
+    added desgin doc
+
+commit 41d467dcdfe2764c7e1d3b87a0f10549cea099df
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Wed Feb 25 11:53:47 2026 -0500
+
+    added desgin doc
+
+commit f8fac254fcedbd5b677d1555d539fdfe63b7b90a
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Wed Feb 25 11:48:15 2026 -0500
+
+    added desgin doc
+
+commit 34554c62e45a7da94a3bfe60e4bba2ff644ba1b6
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 23 23:44:46 2026 -0500
+
+    all buttons except IPL, RUN, and HALT
+
+commit 3edea524ee6ffc5132053fe33cd2b0b3fa464921
+Merge: a30966f 9df85ac
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 23 22:47:25 2026 -0500
+
+    Merge branch 'main' into GUI
+
+commit 9df85ac10a4242a234590f36c91fd34282453511
+Merge: 036a95e 1ebee5f
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Mon Feb 23 15:28:09 2026 -0500
+
+    Merge pull request #15 from sameen-ahmad1/repo-organization
+    
+    Repo Organization
+
+commit 1ebee5fc8fd0a04f3802da433e57e6cc1428b0c0
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Mon Feb 23 15:01:34 2026 -0500
+
+    moved some more files
+
+commit 75c5c6551e24bd1dbc7ed7eecc48a832bdc53b0b
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Mon Feb 23 15:01:21 2026 -0500
+
+    moved files for organziaiton
+
+commit 036a95e53497323e48138b51a625f133039a8169
+Merge: 5cc84af 64d4b41
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Mon Feb 23 14:26:19 2026 -0500
+
+    Merge pull request #14 from sameen-ahmad1/Memory-Loader
+    
+    Tested the load files with our integrated backend, merging into main for integration testing with front end and back end
+
+commit 64d4b41a3973f57d89b3f20b8bedabba21055cac
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Mon Feb 23 00:10:45 2026 -0500
+
+    Fixed CPU address masking, corrected assembler operand format, added generic RunLoadFileTest with PASS/FAIL checks, verified full backend test
+
+commit 8960597dc38e355852da9a9ab08088af70828a72
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Sun Feb 22 15:32:15 2026 -0500
+
+    Ignore compiled .class files
+
+commit a30966f3f7ebf06146a16d79ac9cb63e33ef12e5
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 20 15:42:19 2026 -0500
+
+    aesthetic changes + binary to octal converter
+
+commit 5cc84af8b0db7409ae6deb8411e24d41a3985698
+Merge: 1a7be08 28d6961
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 15:40:49 2026 -0500
+
+    Merge pull request #12 from sameen-ahmad1/Memory-Loader
+    
+    merge memory, CPU to main
+
+commit 28d69614bfb7bbff1020c8ca37a1f610c00fc4f6
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 15:38:43 2026 -0500
+
+    connected CPU to memory
+
+commit 456a43b8a07e4ace43b80003bd68c6ce3350eaeb
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 14:52:08 2026 -0500
+
+    updated test to have memory
+
+commit 4937a9830d6c14dfcecd16aa99dbb5d34a81f277
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 14:50:50 2026 -0500
+
+    Updated the CPU
+
+commit ec3034f1ddbdc61f1368cbf558ab4caeb9c09381
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 14:45:48 2026 -0500
+
+    connect CPU with memory
+
+commit 8369a663f8ba35ef0f172c5717512857484c067e
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Fri Feb 20 14:42:26 2026 -0500
+
+    connect CPU to memory
+
+commit e81d486b9d1910aef572f021f48992aa034f704c
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Fri Feb 20 13:26:40 2026 -0500
+
+    test for all load and store instruction plus update for EA calculcation for LDX and STX
+
+commit 7915de860ac529ddeabc17f9b9562f34618cd73c
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 19 19:00:31 2026 -0500
+
+    fix sizing and add empty action listeners for buttons
+
+commit 0ce038d9f5feede4ab24b56a52ce425655edec97
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 17:27:14 2026 -0500
+
+    added execution for three remaining load/store instructions
+
+commit a1f6809de64a8734a9884db1130f1bf9c5bb4ef4
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Thu Feb 19 17:20:19 2026 -0500
+
+    all componentws exist
+
+commit d2f10ef2755e1999544f4d02dcac843a9875d3bb
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 17:07:27 2026 -0500
+
+    decode and execute instruction function in CPU.java
+
+commit 6bf072e12b9729cfd7814dc047f2717202da6b23
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 16:22:51 2026 -0500
+
+    Added Decoder and Executor classes to decode instruction and to execute instructions, need to add logic in CPU to call the decoder and executor for instructions
+
+commit 34316da8c421d6b72d6a18f2457eeae557d7e074
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 16:05:06 2026 -0500
+
+    added getters and setters in CPU.java for setGPR, getIX and setIX
+
+commit 52eee0ed9b8af44e902a2a96fb3174e328620891
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 15:59:22 2026 -0500
+
+    added none case for pending op in Memory.java
+
+commit 4cb4174d7215fa23dd1c0d462453e12873bfebaf
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 19 15:53:41 2026 -0500
+
+    deleting Class files
+
+commit a8e06b85b214890fbc402df4c607c555edccd18f
+Merge: c142a2e af3fe7f
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Thu Feb 19 15:48:55 2026 -0500
+
+    Merge pull request #11 from sameen-ahmad1/cpu
+    
+    Merging CPU into Memory Loader
+
+commit c142a2eb0219df09118b36f4f745353122cb1820
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Wed Feb 18 13:25:23 2026 -0500
+
+    Add gitignore to ignore bin and class files
+
+commit 603bb65dcc66fc3c45dd64c81dde9838233df24e
+Merge: a479a37 1a7be08
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Wed Feb 18 13:06:48 2026 -0500
+
+    Merge branch 'Memory-Loader' of https://github.com/sameen-ahmad1/CSCI-6461-Team-1-Project into Memory-Loader
+
+commit a479a378721959545e9620eb203aac2dfd02eaf2
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Wed Feb 18 12:55:01 2026 -0500
+
+    Added Memory, MachineFault, RomLoader and tests
+
+commit af3fe7fa8efdcb2048b428663f278a301fb827fc
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 17 18:14:17 2026 -0500
+
+    fixed CPU errors and added test cases
+
+commit 3c50d5409ffbd60a255844c40e92afd006b8afbd
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 17 17:37:03 2026 -0500
+
+    cpu
+
+commit 1a7be08f39d0a884ca140a1034b56496eddca893
+Author: zackrahbar <112402228+zackrahbar@users.noreply.github.com>
+Date:   Thu Feb 12 19:48:24 2026 -0500
+
+    Update part0.md
+
+commit 984548298695c4013b4189992eec86a614ff005b
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Tue Feb 10 16:52:04 2026 -0500
+
+    Refine description of passTwo function
+
+commit 70a7ab05f153c125a1620541a21e90b7f0a99e9d
+Author: Liza Mozolyuk <35519843+lizamozy@users.noreply.github.com>
+Date:   Tue Feb 10 16:48:54 2026 -0500
+
+    addition for pass2 implementation
+
+commit e989f0e142138a537844020dcf44bcdd2c7f1427
+Merge: b4c2dfc 0b59381
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 10 13:25:06 2026 -0500
+
+    updated readme and added basic design documentation
+    
+    Added Basic Design Document
+
+commit 0b593817959639e8d076830b217bce6f8787f490
+Merge: 33a9cc2 b4c2dfc
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 10 13:24:37 2026 -0500
+
+    Merge branch 'main' into designdoc
+
+commit 33a9cc2af126573ca9fdd993e27f9f64d77dd897
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 10 13:22:15 2026 -0500
+
+    updated design document
+
+commit 7b25b3854ef66f92204f20303b699b4e3687803a
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 10 13:20:15 2026 -0500
+
+    updated design document
+
+commit a88ad38d3ae4e1029d0f54bbc7bb2e39b291f12c
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Tue Feb 10 11:45:24 2026 -0500
+
+    Updated README.md
+
+commit b4c2dfc05e7ca23c51f3bfb1e5aa50f06d9fa389
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 9 18:01:33 2026 -0500
+
+    Updated README.md
+
+commit 4490a663e769a10be9491bd9d16b48982cda1581
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 9 18:00:58 2026 -0500
+
+    Updated README.md
+
+commit e655399b9584d8eafa896529acde8166c88706aa
+Merge: 45bab41 323c6f9
+Author: zackrahbar <112402228+zackrahbar@users.noreply.github.com>
+Date:   Mon Feb 9 13:07:58 2026 -0500
+
+    Merge pull request #9 from sameen-ahmad1/Testing
+    
+    Testing
+
+commit 323c6f9468ec7bbf12e1913ff2df45f6892931d7
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 9 13:07:35 2026 -0500
+
+    submission stuff
+
+commit 2b14e760d79127b1baaa60093754ce27f9bc5862
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 9 12:44:12 2026 -0500
+
+    testing updates
+
+commit 45bab4113cb3c05098749b71fb31795b2c48cf7a
+Merge: 61bdb83 3f0b967
+Author: Wesamabu <wesamabu100@gmail.com>
+Date:   Mon Feb 9 10:13:59 2026 -0500
+
+    Merge pull request #8 from sameen-ahmad1/output-files
+    
+    listing and load files
+
+commit 3f0b967baf297f5dc248450347aab6a7d75b9148
+Merge: 34b965a 61bdb83
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Mon Feb 9 10:12:30 2026 -0500
+
+    up to date main
+
+commit 61bdb83f54ca136921e0eced254ab9278bf063c0
+Merge: e0a3843 2b314c0
+Author: zackrahbar <112402228+zackrahbar@users.noreply.github.com>
+Date:   Mon Feb 9 09:33:53 2026 -0500
+
+    Merge pull request #6 from sameen-ahmad1/Testing
+    
+    Testing
+
+commit 2b314c06486627a0cba68adfc30cf8cc7e719eb6
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 13:39:36 2026 -0500
+
+    2nd test
+
+commit f5317b90c234a3aa661b9a9f9d06d213ac89a6a3
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 09:52:36 2026 -0500
+
+    test listing
+
+commit b503156db69a1a1ee30162c861d7f1e108ca496c
+Merge: 27bec03 e0a3843
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Fri Feb 6 09:45:39 2026 -0500
+
+    Merge branch 'main' into Testing
+
+commit 34b965a8ea6a1b6c476dd682aeec54ae9db06ff3
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 5 19:52:44 2026 -0500
+
+    Listing file + comments
+
+commit 14884225822699cdf2b1adb7cb21904d67b56d7d
+Author: Wesam Abu Rabia <wesamabu100@gmail.com>
+Date:   Thu Feb 5 18:40:17 2026 -0500
+
+    Write listing.txt and load.txt
+
+commit e0a384395e2c4e6449156ff76073406e40975658
+Merge: 1baaded 9855a53
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 17:18:16 2026 -0500
+
+    Merge pull request #4 from sameen-ahmad1/errorchecks
+    
+    Errorchecks
+
+commit 9855a53219b306f25488052a900fdfcad8603711
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 17:17:25 2026 -0500
+
+    fixed formatting
+
+commit 5ed9a91e082b5cb25049f81d131fcda8a57d0e8d
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:39:04 2026 -0500
+
+    added error checks
+
+commit 095f269041e4fd64977c54d6c41040594c73090c
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:36:50 2026 -0500
+
+    added error checks
+
+commit 1baaded991d98b9c261169bd1a6c6933002dc31d
+Merge: a767003 3f6e43e
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 16:17:20 2026 -0500
+
+    Merge pull request #3 from sameen-ahmad1/adding-parser-InstrFormats
+    
+    added cases for each instruction format type in pass 2
+
+commit 3f6e43ef56e70e9475f3ab61b678d5d2325be8ba
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Thu Feb 5 14:37:52 2026 -0500
+
+    added cases for each instruction format type in pass 2
+
+commit a767003d6c56ca3ad8e678956aa2f993a4352c64
+Merge: 049c94a 84c5232
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:47:37 2026 -0500
+
+    Merge pull request #2 from sameen-ahmad1/parse
+    
+    parser done
+
+commit 84c5232ff4469dd295a568b3048618d247123d56
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:46:11 2026 -0500
+
+    parser done
+
+commit c07eff6bc05c7a99e75f4e054a47a74bd4f807de
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Feb 5 12:45:34 2026 -0500
+
+    parser done
+
+commit 27bec03e8669aaf1c8e41cd4112f74112a2515d6
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Wed Feb 4 15:00:35 2026 -0500
+
+    sample data
+
+commit 9df3ab680bdf8ce407f35a443cb72ba034945a8a
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 16:08:44 2026 -0500
+
+    did pass one functin
+
+commit 4b3d0b9a10045275e0e347e853b98802d8d60b93
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 16:04:01 2026 -0500
+
+    did pass one functin
+
+commit 049c94aba78909f78160038ce2810a198abf4456
+Merge: cbc7b0f 9974e09
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Mon Feb 2 14:53:42 2026 -0500
+
+    Merge pull request #1 from sameen-ahmad1/opcodes
+    
+    Added opcode mapping in Isa.java class
+
+commit 4a2f98ac0da19da5abda1029fdd9ced90cf87eb9
+Author: Zack rahbar <zackrahbar@gwu.edu>
+Date:   Mon Feb 2 14:34:29 2026 -0500
+
+    framework
+
+commit 9974e092e29702478aef881702035edc158d671e
+Author: lizamozy <lizamozolyuk@gwu.edu>
+Date:   Mon Feb 2 14:15:33 2026 -0500
+
+    Added opcode mapping in Isa.java class
+
+commit cbc7b0fef8f083d33f7132e304ca5369f6498ca1
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 16:09:51 2026 -0500
+
+    Created part0.java
+
+commit 65970b7d288e5818eefee135b6a5d5c474667a0b
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 16:01:12 2026 -0500
+
+    README.md
+
+commit e58ec2ab8f3f66b751d1c67fd78f489a1ae3cf8d
+Author: Sameen Ahmad <112405957+sameen-ahmad1@users.noreply.github.com>
+Date:   Thu Jan 29 15:55:42 2026 -0500
+
+    README.md
