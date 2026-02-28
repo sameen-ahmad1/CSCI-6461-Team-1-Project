@@ -33,9 +33,6 @@ To maintain clean code, logic for bit-parsing and instruction execution has been
 - Executor.finishLoad(): 
     - Handles the writing back phase. Once memory provides data to the MBR, this method updates the target GPR or IX.
 
-- Executor class:
-    - Functionality:
-    - Role:
 
 ### How they work together (The Flow)
 - cycle() starts in FETCH_1
