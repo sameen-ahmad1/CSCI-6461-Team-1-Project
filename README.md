@@ -19,7 +19,7 @@ To unpack the jar file run the command “jar xf part1.jar”.
 
 To run the gui/simulator, use the command “java -cp part1.jar gui”. This can also be done on the unpacked files using the command “java gui”.
 
-A test case for the gui is provided in runFullBackend.txt, which you can put into the gui in the program file input and then hit IPL then either run or step. 
+A test case for the gui is provided in load_full_backend2.txt, which you can put into the gui in the program file input and then hit IPL then either run or step. 
 
 Test cases for the backend are provided in /testfiles/part1/test1_0 to __ /testfiles/part1/test1_1 to __ and /testfiles/part1/test1_2 to __.
 
