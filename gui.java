@@ -5,13 +5,17 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import javax.swing.*;
 import memory.CPU;
+import memory.simple.CacheTest;
 import memory.simple.Memory;
+import memory.simple.MemorySystem;
 
 public class gui extends JFrame{
 
     private boolean isRunning = false;
     private CPU cpu;
-    private Memory memory = new Memory();
+
+    //updated here
+    private MemorySystem memory;
 
     private int cycleCount = 0;
     private String printerText = "";
@@ -354,8 +358,20 @@ public class gui extends JFrame{
 
             try {
                 isRunning = false;
-                memory.reset();
-                cpu = new CPU(memory);
+
+                // Create the hardware first
+                Memory hardware = new Memory();
+        
+                // Initialize the cache layer
+                MemorySystem cacheLayer = new CacheTest(hardware); 
+
+                // Assign to the class-level variable and CPU
+                this.memory = cacheLayer;
+                this.cpu = new CPU(this.memory);
+
+                // call reset
+                this.memory.reset();
+                
 
                 // Decide input type
                 boolean assembled = false;
@@ -384,7 +400,7 @@ public class gui extends JFrame{
                         int addr = Integer.parseInt(parts[0], 8);
                         int val  = Integer.parseInt(parts[1], 8) & 0xFFFF;
 
-                        memory.directWrite(addr, val);
+                        this.memory.directWrite(addr, val);
                         fileContent.append(line).append("\n");
 
                         if (firstAddrInFile == -1) firstAddrInFile = addr;
@@ -792,6 +808,20 @@ public class gui extends JFrame{
         irText.setText(String.format("%06o", cpu.getIR() & 0xFFFF));
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
+
+
+        // Sameen's Integration: Update the Cache Text Area
+
+        if (this.memory != null) 
+        {
+            // Clearing and re-setting the text forces the UI to redraw the block
+            cacheContent.setText(""); 
+            cacheContent.setText(this.memory.getCacheStatus());
+            
+            // Ensure the font is consistent for table alignment
+            cacheContent.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        }
+
         printer.setText(printerText);
         printer.setCaretPosition(0);
     });
