@@ -269,13 +269,13 @@ public final class Executor
             // -----------------------------------------------------------------
             // I/O  (devid carried in decoded.addr)
             // -----------------------------------------------------------------
-            case IN:
-                cpu.setGPR(decoded.r, memory.inputDevice(decoded.addr) & MASK_16);
-                return ExecuteResult.done();
+            // case IN:
+            //     cpu.setGPR(decoded.r, memory.inputDevice(decoded.addr) & MASK_16);
+            //     return ExecuteResult.done();
 
-            case OUT:
-                memory.outputDevice(decoded.addr, cpu.getGPR(decoded.r) & MASK_16);
-                return ExecuteResult.done();
+            // case OUT:
+            //     memory.outputDevice(decoded.addr, cpu.getGPR(decoded.r) & MASK_16);
+            //     return ExecuteResult.done();
 
             // -----------------------------------------------------------------
             // Unimplemented / illegal
