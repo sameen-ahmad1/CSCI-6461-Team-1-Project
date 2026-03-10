@@ -278,14 +278,6 @@ public final class Executor
                 return ExecuteResult.done();
 
             // -----------------------------------------------------------------
-            // TRAP
-            // -----------------------------------------------------------------
-            case TRAP:
-                System.out.printf("TRAP: code=%d\n", decoded.addr);
-                // TODO: add vector table dispatch when OS layer is ready
-                return ExecuteResult.fault();
-
-            // -----------------------------------------------------------------
             // Unimplemented / illegal
             // -----------------------------------------------------------------
             default:
@@ -390,9 +382,7 @@ public final class Executor
         return ExecuteResult.done();
     }
 
-    private static ExecuteResult executeJCC(Decoder.Decoded decoded,
-                                             CPU cpu,
-                                             int effectiveAddress)
+    private static ExecuteResult executeJCC(Decoder.Decoded decoded,CPU cpu,int effectiveAddress)
     {
         // decoded.r carries the cc field (0..3)
         int cc = decoded.r;
