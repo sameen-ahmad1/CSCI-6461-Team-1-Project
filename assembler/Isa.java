@@ -1,5 +1,4 @@
 package assembler;
-// Isa.java
 import java.util.Locale;
 
 public final class Isa {
