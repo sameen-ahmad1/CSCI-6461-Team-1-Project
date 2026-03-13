@@ -49,6 +49,7 @@ public class Assembler
     //first pass
     private static void passOne(File file) throws IOException 
     {
+        table.clear(); // clear the symbol table before starting pass one
         //location is set to 0, from his instructions 
         int locCounter = 0;
 

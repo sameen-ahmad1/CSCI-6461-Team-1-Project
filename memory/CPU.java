@@ -55,6 +55,8 @@ public class CPU
         EXECUTE, 
         LDR_FINISH, 
         LDX_FINISH, 
+        AMR_FINISH,
+        SMR_FINISH,       
         HALT
     }
 
@@ -108,54 +110,14 @@ public class CPU
 
     private void handleExecute() 
     {
+        // calls the executor to perform the actual operation and get the memory cycles needed
+        Executor.ExecuteResult result = Executor.execute(decoded, this, effectiveAddress, memory);
+
+        memoryCycles = result.memoryCycles;
+        curState     = result.nextState;
+
         System.out.println("DEBUG: handleExecute finished. New State is: " + curState);
-        MAR = effectiveAddress & MASK_12;
-        switch (decoded.ins) {
-            case LDR:
-                memory.requestRead(MAR);
-                memoryCycles = 1;
-                curState = State.LDR_FINISH;
-                break;
-            
-            case LDX:
-                memory.requestRead(MAR);
-                memoryCycles = 1;
-                curState = State.LDX_FINISH;
-                break;
-            
-            case STR, STX:
-                // 1. Check for Illegal STX (X=0)
-                if (decoded.ins == Isa.Instruction.STX && decoded.x == 0) 
-                    {
-                        setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
-                        curState = State.HALT;
-                        break;
-                    }
-
-                // 2. Select the Source Register 
-                MBR = (decoded.ins == Isa.Instruction.STR) ? getGPR(decoded.r) : getIX(decoded.x);
-
-                // 3. Initiate the Write
-                memory.requestWrite(MAR);
-                memoryCycles = 1;
-                curState = State.FETCH_1;
-                break;
-            
-            case LDA:
-                setGPR(decoded.r, effectiveAddress);
-                curState = State.FETCH_1;
-                break;
-            
-            default:
-                System.out.printf("FAULT: Unhandled instruction %s (Opcode: %o) Raw: %06o\n", 
-                      decoded.ins, decoded.opcode, decoded.raw);
-    
-                // Set the Machine Fault Register for Illegal Opcode (ID 2)
-                setMFR(2); 
-                curState = State.HALT;
-                break;
         
-        }
     }
 
     //cpu tick
@@ -220,6 +182,7 @@ public class CPU
                 handleExecute();
                 break;
 
+            // these four states need to wait for the memory operation to complete before writing back to the register, so we wait for the memory cycle in the main loop and then write back here
             case LDR_FINISH:
                 //GPR[decoded.r & 0x03] = MBR & MASK_16;
                 Executor.finishLoad(decoded, this);
@@ -229,6 +192,18 @@ public class CPU
             case LDX_FINISH:
                 //IX[decoded.x & 0x03] = MBR & MASK_16;
                 Executor.finishLoad(decoded, this);
+                curState = State.FETCH_1;
+                break;
+
+            case AMR_FINISH:
+                //GPR[decoded.r & 0x03] = (GPR[decoded.r & 0x03] + MBR) & MASK_16;
+                Executor.finishAMR(decoded, this);
+                curState = State.FETCH_1;
+                break;
+
+            case SMR_FINISH:
+                //GPR[decoded.r & 0x03] = (GPR[decoded.r & 0x03] - MBR) & MASK_16;
+                Executor.finishSMR(decoded, this);
                 curState = State.FETCH_1;
                 break;
 
@@ -319,6 +294,10 @@ public class CPU
         return this.IR & MASK_16;
     }
 
+    public void setCC(int cc2) {
+        this.CC = cc2 & MASK_4;
+    }
+
     public int getCC() 
     {
         return this.CC & MASK_4;
@@ -383,4 +362,5 @@ public class CPU
     {
         return this.curState;
     }
+
 }
