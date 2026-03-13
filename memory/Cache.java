@@ -10,7 +10,7 @@ import memory.simple.Memory;
  * on a write: always write to memory, update the cache line too if its already there
  * when all 16 lines are full: kick out the oldest one using FIFO
  */
-public class Cache {
+public class Cache implements MemoryBus {
     private static final int NUM_LINES = 16; //number of lines in the cache
  
     private final CacheLine[] lines; //array of cache lines
@@ -36,7 +36,8 @@ public class Cache {
     }
  
     // read from cache, if its not there go fetch it from memory
-    public int read(int address) {
+    @Override
+    public int readWord(int address) {
         int hitIndex = findLine(address);
  
         if (hitIndex != -1) { //found it in cache, return it
@@ -45,18 +46,19 @@ public class Cache {
                     address, lines[hitIndex].data, hitIndex);
             return lines[hitIndex].data;
         }
-
+ 
         totalMisses++; //not in cache, go get it from memory
         int value = memory.peek(address);
         System.out.printf("[CACHE MISS] addr=%04o  data=%06o  fetched from memory\n",
                 address, value);
-
+ 
         loadLine(address, value);// store it in cache so next time is a hit
         return value;
     }
  
     // write always goes to memory, update cache too if the address is already there
-    public void write(int address, int value) {
+    @Override
+    public void writeWord(int address, int value) {
         memory.directWrite(address, value); //write through to memory
         System.out.printf("[CACHE WRITE] addr=%04o  data=%06o\n", address, value);
  

@@ -16,8 +16,8 @@ public class CacheTest {
         System.out.println("===== TEST 1: Miss then Hit =====");
  
         memory.directWrite(010, 01234);
-        int val1 = cache.read(010);     // miss
-        int val2 = cache.read(010);     // hit
+        int val1 = cache.readWord(010);     // miss
+        int val2 = cache.readWord(010);     // hit
  
         System.out.println("read 1 (expect MISS): " + Integer.toOctalString(val1));
         System.out.println("read 2 (expect HIT):  " + Integer.toOctalString(val2));
@@ -26,8 +26,8 @@ public class CacheTest {
         // test 2: write a new value then read it back, should be a hit with the updated value
         System.out.println("===== TEST 2: Write then Read =====");
  
-        cache.write(010, 05677);
-        int val3 = cache.read(010);     // should hit and return new value
+        cache.writeWord(010, 05677);
+        int val3 = cache.readWord(010);     // should hit and return new value
  
         System.out.println("read after write (expect HIT + new value): " + Integer.toOctalString(val3));
         cache.dump();
@@ -41,7 +41,7 @@ public class CacheTest {
         for (int i = 0; i < 16; i++) {
             int addr = 020 + i;
             memory.directWrite(addr, addr * 2);
-            cache.read(addr);   // all misses, fills up the cache
+            cache.readWord(addr);   // all misses, fills up the cache
         }
  
         System.out.println("cache is full now:");
@@ -50,12 +50,12 @@ public class CacheTest {
         // reading a 17th address should evict address 020 since it was loaded first
         memory.directWrite(040, 0777);
         System.out.println("reading new address 040 - should evict addr=020:");
-        cache.read(040);
+        cache.readWord(040);
         cache.dump();
  
         // reading 020 again should be a miss now since it got evicted
         System.out.println("reading 020 again - should be a MISS since it was evicted:");
-        cache.read(020);
+        cache.readWord(020);
         cache.dump();
     }
 }
