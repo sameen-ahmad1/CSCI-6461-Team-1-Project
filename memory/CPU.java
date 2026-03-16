@@ -2,13 +2,12 @@ package memory;
 // Handles Fetch/Decode/Execute with 2-cycle memory timing
 
 import assembler.Isa;
-import memory.simple.Memory;
 
 public class CPU 
 {
     //memory 
-    private final Memory memory;
-    public CPU(Memory memory) 
+    private final MemoryBus memory;
+    public CPU(MemoryBus memory) 
     {
         this.memory = memory;
     }
@@ -349,9 +348,9 @@ public class CPU
         this.CC = 0;
         
         // 3. Load the instructions
-        memory.directWrite(010, 002020); // Instruction 1
-        memory.directWrite(011, 0102220);
-        memory.directWrite(020, 000100); // Data
+        memory.writeWord(010, 002020); // Instruction 1
+        memory.writeWord(011, 0102220);
+        memory.writeWord(020, 000100); // Data
 
 
         this.curState = State.FETCH_1;

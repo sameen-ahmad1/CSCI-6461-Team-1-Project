@@ -5,13 +5,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import javax.swing.*;
 import memory.CPU;
+import memory.Cache;
+import memory.MemoryBus;
 import memory.simple.Memory;
 
 public class gui extends JFrame{
 
     private boolean isRunning = false;
     private CPU cpu;
-    private Memory memory = new Memory();
+    private MemoryBus memory;
 
     private int cycleCount = 0;
     private String printerText = "";
@@ -158,7 +160,7 @@ public class gui extends JFrame{
                 }
                 int octalVal = Integer.parseInt(octalInput.getText(), 8);
                 int marAddr = cpu.getMAR();
-                memory.directWrite(marAddr, octalVal);
+                memory.writeWord(marAddr, octalVal);
                 cpu.setMBR(octalVal);
                 updateTexts();
             } catch (NumberFormatException ex) {
@@ -183,7 +185,7 @@ public class gui extends JFrame{
                 }
                 int octalVal = Integer.parseInt(octalInput.getText(), 8);
                 int marAddr = cpu.getMAR(); 
-                memory.directWrite(marAddr, octalVal);
+                memory.writeWord(marAddr, octalVal);
                 cpu.setMBR(octalVal); 
                 cpu.setMAR(marAddr + 1);
                 updateTexts();
@@ -209,7 +211,7 @@ public class gui extends JFrame{
                 }
                 int marAddr = cpu.getMAR();
                 int mbrVal = cpu.getMBR();
-                memory.directWrite(marAddr, mbrVal);
+                memory.writeWord(marAddr, mbrVal);
                 updateTexts();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid value in MBR or MAR");
@@ -233,7 +235,7 @@ public class gui extends JFrame{
                 }
                 int marAddr = cpu.getMAR();
                 int mbrVal = cpu.getMBR();
-                memory.directWrite(marAddr, mbrVal);
+                memory.writeWord(marAddr, mbrVal);
                 cpu.setMAR(marAddr + 1);
                 updateTexts();
             } catch (NumberFormatException ex) {
@@ -354,8 +356,18 @@ public class gui extends JFrame{
 
             try {
                 isRunning = false;
-                memory.reset();
-                cpu = new CPU(memory);
+                // memory.reset();
+                // cpu = new CPU(memory);
+
+                 // The physical RAM
+                Memory rawMem = new Memory();  
+                // The Cache layer   
+                this.memory = new Cache(rawMem);  
+                // Connect CPU to the Bus 
+                this.cpu = new CPU(this.memory);   
+
+                
+                this.memory.reset();
 
                 // Decide input type
                 boolean assembled = false;
@@ -384,7 +396,7 @@ public class gui extends JFrame{
                         int addr = Integer.parseInt(parts[0], 8);
                         int val  = Integer.parseInt(parts[1], 8) & 0xFFFF;
 
-                        memory.directWrite(addr, val);
+                        memory.writeWord(addr, val);
                         fileContent.append(line).append("\n");
 
                         if (firstAddrInFile == -1) firstAddrInFile = addr;
@@ -416,6 +428,31 @@ public class gui extends JFrame{
                 JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
             }
         });
+
+        //ADDED CLEAR CACHE BUTTON
+        JPanel clearCacheRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        JButton clearCacheButton = new JButton();
+        JLabel clearCacheLabel = new JLabel("Clear Cache");
+
+        
+        clearCacheButton.setPreferredSize(new Dimension(20, 18));
+
+        clearCacheRow.add(clearCacheButton);
+        clearCacheRow.add(clearCacheLabel);
+
+        clearCacheButton.addActionListener((e) -> {
+            if (cpu == null) {
+                JOptionPane.showMessageDialog(this, "Press IPL first.");
+                return;
+            }
+            
+            memory.reset(); 
+            printerText = "Cache Cleared Manually\n" + printerText;
+            updateTexts(); 
+        });
+
+        // Add it to the East column of the Center panel
+        firstCenterCenterEast.add(clearCacheRow);
 
         firstCenterCenterEast.add(runRow);
         firstCenterCenterEast.add(stepRow);
@@ -682,7 +719,7 @@ public class gui extends JFrame{
                 }
                 int val = Integer.parseInt(octalInput.getText(), 8);
                 cpu.setMAR(val);
-                int memVal = memory.peek(val);
+                int memVal = memory.readWord(val);
                 cpu.setMBR(memVal);
                 updateTexts();
             } catch (NumberFormatException ex) {
@@ -792,6 +829,10 @@ public class gui extends JFrame{
         irText.setText(String.format("%06o", cpu.getIR() & 0xFFFF));
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
+        
+        //added cache update
+        cacheContent.setText(memory.getCacheStatus());
+
         printer.setText(printerText);
         printer.setCaretPosition(0);
     });

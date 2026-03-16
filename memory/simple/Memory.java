@@ -1,10 +1,11 @@
 package memory.simple;
 import java.util.Arrays;
-
 import memory.CPU;
 import memory.MachineFault;
+import memory.MemoryBus;
 
-public final class Memory {
+public final class Memory implements MemoryBus 
+{
     public static final int SIZE = 2048;
 
     private final short[] mem = new short[SIZE];
@@ -13,12 +14,14 @@ public final class Memory {
     private Op pendingOp = Op.NONE;
     private int pendingAddr = 0;
 
+    @Override
     public void reset() {
         Arrays.fill(mem, (short) 0);
         pendingOp = Op.NONE;
         pendingAddr = 0;
     }
 
+    @Override
     public void requestRead(int mar) {
         checkAddr(mar);
         checkNotBusy();
@@ -26,6 +29,7 @@ public final class Memory {
         pendingOp = Op.READ;
     }
 
+    @Override
     public void requestWrite(int mar) {
         checkAddr(mar);
         checkNotBusy();
@@ -33,7 +37,7 @@ public final class Memory {
         pendingOp = Op.WRITE;
     }
 
-    
+    @Override
     public void tick(CPU cpu) {
         if (pendingOp == Op.NONE) return;
 
@@ -71,6 +75,24 @@ public final class Memory {
 
     private static int u16(short s) {
         return s & 0xFFFF;
+    }
+
+    @Override
+    public int readWord(int address) 
+    {
+        return peek(address);
+    }
+
+    @Override
+    public void writeWord(int address, int value) 
+    {
+        directWrite(address, value);
+    }
+    
+    @Override
+    public String getCacheStatus() 
+    {
+        return "Cache is currently DISABLED\nDirect Memory Access active.";
     }
 
     private static void checkAddr(int addr) {
