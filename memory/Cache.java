@@ -35,6 +35,22 @@ public class Cache implements MemoryBus {
         }
     }
  
+    @Override
+    public void requestRead(int address) 
+    {
+        // Pass the hardware request through to the physical memory
+        updateStatsAndCache(address);
+        this.memory.requestRead(address); 
+    }
+
+    @Override
+    public void requestWrite(int address) 
+    {
+        // Pass the hardware request through to the physical memory
+        updateStatsAndCache(address);
+        this.memory.requestWrite(address); 
+    }
+
     // read from cache, if its not there go fetch it from memory
     @Override
     public int readWord(int address) {
@@ -55,6 +71,13 @@ public class Cache implements MemoryBus {
         loadLine(address, value);// store it in cache so next time is a hit
         return value;
     }
+
+    @Override
+    public void tick(CPU cpu) 
+    {
+        // Pass the tick through to the physical hardware
+        this.memory.tick(cpu); 
+    }
  
     // write always goes to memory, update cache too if the address is already there
     @Override
@@ -70,7 +93,9 @@ public class Cache implements MemoryBus {
     }
  
     // clear everything out, called on IPL reset
-    public void reset() {
+    @Override
+    public void reset() 
+    {
         for (int i = 0; i < NUM_LINES; i++) {
             lines[i].invalidate();
         }
@@ -78,6 +103,21 @@ public class Cache implements MemoryBus {
         totalHits   = 0;
         totalMisses = 0;
         System.out.println("[CACHE RESET] all lines cleared");
+    }
+
+    private void updateStatsAndCache(int address) 
+    {
+        int hitIndex = findLine(address);
+        if (hitIndex != -1) 
+        {
+            totalHits++;
+        } 
+        else 
+        {
+            totalMisses++;
+            int value = memory.peek(address);
+            loadLine(address, value);
+        }
     }
  
     // search lines for a matching address, return index or -1 if not found
@@ -137,4 +177,30 @@ public class Cache implements MemoryBus {
     // getters for hit/miss counts
     public int getTotalHits()   { return totalHits;   }
     public int getTotalMisses() { return totalMisses; }
+
+
+    @Override
+    public String getCacheStatus() 
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("===== CACHE  =====\n");
+        sb.append(String.format("Mode:        %s\n", "FIFO (16 Lines)"));
+        
+        // Calculate how many lines are currently being used
+        int activeLines = 0;
+        for (CacheLine line : lines) {
+            if (line.valid) activeLines++;
+        }
+        
+        sb.append(String.format("Line Count:  %d / 16\n", activeLines));
+        sb.append("---------------------------\n");
+        sb.append(String.format("Total Hits:   %d\n", getTotalHits()));
+        sb.append(String.format("Total Misses: %d\n", getTotalMisses()));
+        
+        // Add a quick visual of the lines if you want
+        sb.append("---------------------------\n");
+        sb.append("Status:      READY\n");
+        
+        return sb.toString();
+    }
 }

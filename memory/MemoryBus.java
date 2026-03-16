@@ -16,4 +16,11 @@ public interface MemoryBus {
     // write a value to the given address
     // always writes to memory, updates cache too if address is already there
     void writeWord(int address, int value);
+
+    //added more to connect cache, memory and cpu all together
+    String getCacheStatus();
+    void reset();
+    void tick(CPU cpu);
+    void requestRead(int address);
+    void requestWrite(int address);
 }
