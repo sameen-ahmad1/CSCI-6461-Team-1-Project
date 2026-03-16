@@ -7,8 +7,8 @@ import memory.simple.Memory;
 public class CPU 
 {
     //memory 
-    private final Memory memory;
-    public CPU(Memory memory) 
+    private final MemoryBus memory;
+    public CPU(MemoryBus memory) 
     {
         this.memory = memory;
     }
