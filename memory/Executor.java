@@ -114,7 +114,7 @@ public final class Executor
     public static ExecuteResult execute(Decoder.Decoded decoded,
                                         CPU cpu,
                                         int effectiveAddress,
-                                        Memory memory)
+                                        MemoryBus memory)
     {
         int mar = effectiveAddress & MASK_12;
 
