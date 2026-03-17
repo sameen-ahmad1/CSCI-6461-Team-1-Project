@@ -372,34 +372,8 @@ public class gui extends JFrame{
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
             }
-            if (isRunning == false){
 
-                isRunning = true;
-
-                new Thread(() -> {
-                    while (isRunning) {
-
-                        cpu.cycle();
-                        cycleCount = cycleCount + 1;
-                        printerText = "running cycle " + Integer.toString(cycleCount) + "\n" + printerText;
-                        updateTexts();
-                        if (cpu.isHalted() || cpu.getMFR() != 0) {
-                            isRunning = false;
-                            break;
-                        }
-
-                        try { 
-                            Thread.sleep(2000); 
-                        } 
-                        catch (InterruptedException ex) {
-                            break;
-                        }
-                    }
-
-                    isRunning = false;
-
-                }).start();
-            }
+            startRunLoop();
 
         });
 
@@ -452,7 +426,13 @@ public class gui extends JFrame{
 
         haltButton.addActionListener((e) -> {
 
+            if (cpu == null) {
+                JOptionPane.showMessageDialog(this, "Press IPL first.");
+                return;
+            }
+
             isRunning = false;
+            cpu.halt();
             cpu.listRegisters();
             printerText = "halting run\n" + printerText;
             updateTexts();
@@ -477,9 +457,10 @@ public class gui extends JFrame{
 
         pausePlayButton.addActionListener((e) -> {
 
-            if(pausePlayLabel.getText() == "Pause"){
+            if(pausePlayLabel.getText().equals("Pause")){
 
                 pausePlayLabel.setText("Play");
+                isRunning = false;
                 printerText = "Pausing run\n" + printerText;
                 updateTexts();
 
@@ -488,6 +469,7 @@ public class gui extends JFrame{
 
                 pausePlayLabel.setText("Pause");
                 printerText = "Resuming run\n" + printerText;
+                startRunLoop();
                 updateTexts();
 
             }
@@ -1161,6 +1143,35 @@ public class gui extends JFrame{
     });
 
     }
+    
+    private void startRunLoop() {
+
+        if (cpu == null || isRunning) return;
+
+        isRunning = true;
+
+        new Thread(() -> {
+            while (isRunning) {
+
+                cpu.cycle();
+                cycleCount++;
+                printerText = "running cycle " + cycleCount + "\n" + printerText;
+                updateTexts();
+                if (cpu.isHalted() || cpu.getMFR() != 0) {
+                    isRunning = false;
+                    break;
+                }
+                try { Thread.sleep(2000); }
+                catch (InterruptedException ex) { break; }
+
+            }
+
+            isRunning = false;
+
+        }).start();
+
+    }
+    
 
     public static void main(String args[]){
 
