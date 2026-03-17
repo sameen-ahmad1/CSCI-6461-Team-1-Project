@@ -1,6 +1,5 @@
 package memory;
 import assembler.Isa;
-import memory.simple.Memory;
 
 /**
  * Executor: contains all instruction execution logic.

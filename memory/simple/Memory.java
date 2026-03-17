@@ -106,6 +106,10 @@ public final class Memory implements MemoryBus
     {
         return "Cache is currently DISABLED\nDirect Memory Access active.";
     }
+    @Override
+    public Device getDevice() {
+        return device;
+    }
 
     private static void checkAddr(int addr) {
         if (addr < 0 || addr >= SIZE) {

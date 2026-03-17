@@ -23,4 +23,8 @@ public interface MemoryBus {
     void tick(CPU cpu);
     void requestRead(int address);
     void requestWrite(int address);
+    // added for I/O device support
+    int inputDevice(int devid);
+    void outputDevice(int devid, int value);
+    Device getDevice();
 }

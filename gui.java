@@ -6,10 +6,11 @@ import java.io.FileReader;
 import javax.swing.*;
 import memory.CPU;
 import memory.Cache;
+import memory.DeviceListener;
 import memory.MemoryBus;
 import memory.simple.Memory;
 
-public class gui extends JFrame{
+public class gui extends JFrame implements DeviceListener{
 
     private boolean isRunning = false;
     private CPU cpu;
@@ -361,10 +362,12 @@ public class gui extends JFrame{
 
                  // The physical RAM
                 Memory rawMem = new Memory();  
+                // set the listener for device events (printer output, keyboard input, etc.)
+                rawMem.getDevice().setListener(this);
                 // The Cache layer   
                 this.memory = new Cache(rawMem);  
                 // Connect CPU to the Bus 
-                this.cpu = new CPU(this.memory);   
+                this.cpu = new CPU(this.memory);  
 
                 
                 this.memory.reset();
@@ -837,6 +840,38 @@ public class gui extends JFrame{
         printer.setCaretPosition(0);
     });
 
+    }
+
+    @Override
+    public int onKeyboardInput() {
+        String text = consoleInput.getText();
+        if (text.isEmpty()) {
+            return 0;
+        }
+        char ch = text.charAt(0);
+        SwingUtilities.invokeLater(() -> consoleInput.setText(text.substring(1)));
+        return (int) ch;
+    }
+
+    @Override
+    public void onPrinterOutput(int value) {
+        printerText = (char)(value & 0xFF) + printerText;
+        SwingUtilities.invokeLater(() -> {
+            printer.setText(printerText);
+            printer.setCaretPosition(0);
+        });
+    }
+
+    @Override
+    public void onCardReaderRead(int remaining) {
+        // no-op for now
+    }
+
+    @Override
+    public void onDeviceError(int devid, String message) {
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this, message, "Device Error", JOptionPane.ERROR_MESSAGE)
+        );
     }
 
     public static void main(String args[]){
