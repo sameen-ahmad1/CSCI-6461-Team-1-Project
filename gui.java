@@ -30,13 +30,20 @@ public class gui extends JFrame{
 
     public gui(){
 
+        Font font = new Font("Courier New", Font.BOLD, 14);
+
         JPanel outer = new JPanel(new BorderLayout(10,10));
 
         outer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        outer.setBackground(Color.decode("#28282D"));
 
         JPanel firstNorth = new JPanel(new BorderLayout(10,10));
         JPanel firstCenter = new JPanel(new BorderLayout(10,10));
         JPanel firstEast = new JPanel(new BorderLayout(10,10));
+
+        firstNorth.setBackground(Color.decode("#28282D"));
+        firstCenter.setBackground(Color.decode("#28282D"));
+        firstEast.setBackground(Color.decode("#28282D"));
 
         outer.add(firstNorth, BorderLayout.NORTH);
         outer.add(firstCenter, BorderLayout.CENTER);
@@ -45,6 +52,11 @@ public class gui extends JFrame{
         JLabel title = new JLabel("CSCI 6461 Machine Simulator");
         JLabel names = new JLabel("Group 1: Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia, Sameen Ahmad");
 
+        title.setForeground(Color.decode("#467ab9"));
+        title.setFont(font);
+        names.setForeground(Color.decode("#467ab9"));
+        names.setFont(font);
+
         firstNorth.add(title, BorderLayout.NORTH);
         firstNorth.add(names, BorderLayout.SOUTH);
 
@@ -52,27 +64,48 @@ public class gui extends JFrame{
         JPanel firstEastCenter = new JPanel(new BorderLayout(5,5));
         JPanel firstEastSouth = new JPanel(new BorderLayout(5,5));
 
+        firstEastNorth.setBackground(Color.decode("#28282D"));
+        firstEastCenter.setBackground(Color.decode("#28282D"));
+        firstEastSouth.setBackground(Color.decode("#28282D"));
+
         firstEast.add(firstEastNorth, BorderLayout.NORTH);
         firstEast.add(firstEastCenter, BorderLayout.CENTER);
         firstEast.add(firstEastSouth, BorderLayout.SOUTH);
 
         JLabel cacheContentLabel = new JLabel("Cache Content");
+        cacheContentLabel.setForeground(Color.decode("#467ab9"));
+        cacheContentLabel.setFont(font);
         cacheContent = new JTextArea("",20,30);
+        cacheContent.setFont(font);
+        cacheContent.setBackground(Color.decode("#3c3c44"));
+        cacheContent.setForeground(Color.decode("#B0D3D1"));
         cacheContent.setEditable(false);
 
         firstEastNorth.add(cacheContentLabel, BorderLayout.NORTH);
         firstEastNorth.add(cacheContent, BorderLayout.SOUTH);
 
         JLabel printerLabel = new JLabel("Printer");
+        printerLabel.setForeground(Color.decode("#467ab9"));
+        printerLabel.setFont(font);
         printer = new JTextArea("",10,20);
+        printer.setFont(font);
         printer.setEditable(false);
+        printer.setBackground(Color.decode("#3c3c44"));
+        printer.setForeground(Color.decode("#B0D3D1"));
         JScrollPane printerScroll = new JScrollPane(printer);
+        printerScroll.setBorder(BorderFactory.createEmptyBorder());
+        printerScroll.getViewport().setBackground(Color.decode("#3C3C44"));
 
         firstEastCenter.add(printerScroll, BorderLayout.SOUTH);
         firstEastCenter.add(printerLabel, BorderLayout.NORTH);
 
         JLabel consoleInputLabel = new JLabel("Console Input");
+        consoleInputLabel.setFont(font);
+        consoleInputLabel.setForeground(Color.decode("#467ab9"));
         consoleInput = new JTextField("", 20);
+        consoleInput.setFont(font);
+        consoleInput.setBackground(Color.decode("#3c3c44"));
+        consoleInput.setForeground(Color.decode("#B0D3D1"));
 
         firstEastSouth.add(consoleInputLabel, BorderLayout.NORTH);
         firstEastSouth.add(consoleInput, BorderLayout.SOUTH);
@@ -81,39 +114,71 @@ public class gui extends JFrame{
         JPanel firstCenterCenter = new JPanel(new BorderLayout(5,5));
         JPanel firstCenterSouth = new JPanel(new FlowLayout());
 
+        firstCenterNorth.setBackground(Color.decode("#28282D"));
+        firstCenterCenter.setBackground(Color.decode("#28282D"));
+        firstCenterSouth.setBackground(Color.decode("#28282D"));
+
         firstCenter.add(firstCenterNorth, BorderLayout.NORTH);
         firstCenter.add(firstCenterCenter, BorderLayout.CENTER);
         firstCenter.add(firstCenterSouth, BorderLayout.SOUTH);
 
         JLabel programFileLabel = new JLabel("Program File");
+        programFileLabel.setFont(font);
+        programFileLabel.setForeground(Color.decode("#467ab9"));
         programFile = new JTextField("", 50);
+        programFile.setFont(font);
+        programFile.setBackground(Color.decode("#3c3c44"));
+        programFile.setForeground(Color.decode("#B0D3D1"));
 
         firstCenterSouth.add(programFileLabel);
         firstCenterSouth.add(programFile);
 
         JPanel firstCenterCenterWest = new JPanel(new BorderLayout(5,5));
-        JPanel firstCenterCenterCenter = new JPanel(new GridLayout(0, 1, 5, 5));
-        JPanel firstCenterCenterEast = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel firstCenterCenterCenter = new JPanel(new GridBagLayout());
+        JPanel firstCenterCenterEast = new JPanel(new GridBagLayout());
+
+        firstCenterCenterWest.setBackground(Color.decode("#28282D"));
+        firstCenterCenterCenter.setBackground(Color.decode("#28282D"));
+        firstCenterCenterEast.setBackground(Color.decode("#28282D"));
 
         firstCenterCenter.add(firstCenterCenterWest, BorderLayout.WEST);
         firstCenterCenter.add(firstCenterCenterCenter, BorderLayout.CENTER);
         firstCenterCenter.add(firstCenterCenterEast, BorderLayout.EAST);
 
-        JPanel firstCenterCenterWestNorth = new JPanel(new BorderLayout(5,5));
-        JPanel firstCenterCenterWestSouth = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        // Binary and Octal Input stacked together in a single GridBagLayout panel
+        JPanel firstCenterCenterWestNorth = new JPanel(new GridBagLayout());
 
-        firstCenterCenterWest.add(firstCenterCenterWestNorth, BorderLayout.NORTH);
-        firstCenterCenterWest.add(firstCenterCenterWestSouth, BorderLayout.SOUTH);
+        firstCenterCenterWestNorth.setBackground(Color.decode("#28282D"));
+
+        firstCenterCenterWest.add(firstCenterCenterWestNorth, BorderLayout.CENTER);
+
+        GridBagConstraints gbcWest = new GridBagConstraints();
+        gbcWest.insets = new Insets(3, 5, 3, 5);
+        gbcWest.anchor = GridBagConstraints.WEST;
+        gbcWest.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel binaryLabel = new JLabel("Binary");
+        binaryLabel.setForeground(Color.decode("#467ab9"));
+        binaryLabel.setFont(font);
         binary = new JTextField("", 10);
+        binary.setFont(font);
         binary.setEditable(false);
+        binary.setBackground(Color.decode("#3c3c44"));
+        binary.setForeground(Color.decode("#B0D3D1"));
 
-        firstCenterCenterWestNorth.add(binaryLabel, BorderLayout.NORTH);
-        firstCenterCenterWestNorth.add(binary, BorderLayout.SOUTH);
+        gbcWest.gridx = 0; gbcWest.gridy = 0; gbcWest.gridwidth = 2;
+        firstCenterCenterWestNorth.add(binaryLabel, gbcWest);
+        gbcWest.gridy = 1;
+        firstCenterCenterWestNorth.add(binary, gbcWest);
+        gbcWest.gridwidth = 1;
 
         JLabel octalInputLabel = new JLabel("Octal Input");
+        octalInputLabel.setForeground(Color.decode("#467ab9"));
+        octalInputLabel.setFont(font);
         octalInput = new JTextField("", 8);
+        octalInput.setFont(font);
+        octalInput.setBackground(Color.decode("#3c3c44"));
+        octalInput.setForeground(Color.decode("#B0D3D1"));
 
         octalInput.addKeyListener(new KeyListener(){
             @Override
@@ -140,17 +205,31 @@ public class gui extends JFrame{
             }            
         });
 
-        firstCenterCenterWestSouth.add(octalInputLabel);
-        firstCenterCenterWestSouth.add(octalInput);
+        gbcWest.gridx = 0; gbcWest.gridy = 2;
+        firstCenterCenterWestNorth.add(octalInputLabel, gbcWest);
+        gbcWest.gridx = 1;
+        firstCenterCenterWestNorth.add(octalInput, gbcWest);
 
-        JPanel loadRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        // shared GBC for the Load / Load+ / Store / Store+ column
+        GridBagConstraints gbcCenter = new GridBagConstraints();
+        gbcCenter.insets = new Insets(5, 5, 5, 5);
+        gbcCenter.anchor = GridBagConstraints.WEST;
+
         JButton loadButton = new JButton();
         JLabel loadLabel = new JLabel("Load");
 
-        loadButton.setPreferredSize(new Dimension(20, 18));
+        loadLabel.setForeground(Color.decode("#467ab9"));
+        loadLabel.setFont(font);
 
-        loadRow.add(loadButton);
-        loadRow.add(loadLabel);
+        loadButton.setPreferredSize(new Dimension(20, 18));
+        loadButton.setBackground(Color.decode("#FFBA52"));
+        loadButton.setOpaque(true);
+        loadButton.setBorderPainted(false);
+
+        gbcCenter.gridx = 0; gbcCenter.gridy = 0;
+        firstCenterCenterCenter.add(loadButton, gbcCenter);
+        gbcCenter.gridx = 1;
+        firstCenterCenterCenter.add(loadLabel, gbcCenter);
 
         loadButton.addActionListener((e) -> {
             try {
@@ -168,14 +247,21 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel loadPlusRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton loadPlusButton = new JButton();
         JLabel loadPlusLabel = new JLabel("Load+");
 
-        loadPlusButton.setPreferredSize(new Dimension(20, 18));
+        loadPlusLabel.setForeground(Color.decode("#467ab9"));
+        loadPlusLabel.setFont(font);
 
-        loadPlusRow.add(loadPlusButton);
-        loadPlusRow.add(loadPlusLabel);
+        loadPlusButton.setPreferredSize(new Dimension(20, 18));
+        loadPlusButton.setBackground(Color.decode("#FFBA52"));
+        loadPlusButton.setOpaque(true);
+        loadPlusButton.setBorderPainted(false);
+
+        gbcCenter.gridx = 0; gbcCenter.gridy = 1;
+        firstCenterCenterCenter.add(loadPlusButton, gbcCenter);
+        gbcCenter.gridx = 1;
+        firstCenterCenterCenter.add(loadPlusLabel, gbcCenter);
 
         loadPlusButton.addActionListener((e) -> {
             try {
@@ -194,14 +280,21 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel storeRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton storeButton = new JButton();
         JLabel storeLabel = new JLabel("Store");
 
-        storeButton.setPreferredSize(new Dimension(20, 18));
+        storeLabel.setForeground(Color.decode("#467ab9"));
+        storeLabel.setFont(font);
 
-        storeRow.add(storeButton);
-        storeRow.add(storeLabel);
+        storeButton.setPreferredSize(new Dimension(20, 18));
+        storeButton.setBackground(Color.decode("#FFBA52"));
+        storeButton.setOpaque(true);
+        storeButton.setBorderPainted(false);
+
+        gbcCenter.gridx = 0; gbcCenter.gridy = 2;
+        firstCenterCenterCenter.add(storeButton, gbcCenter);
+        gbcCenter.gridx = 1;
+        firstCenterCenterCenter.add(storeLabel, gbcCenter);
 
         storeButton.addActionListener((e) -> {
             try {
@@ -218,14 +311,21 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel storePlusRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton storePlusButton = new JButton();
         JLabel storePlusLabel = new JLabel("Store+");
 
-        storePlusButton.setPreferredSize(new Dimension(20, 18));
+        storePlusLabel.setForeground(Color.decode("#467ab9"));
+        storePlusLabel.setFont(font);
 
-        storePlusRow.add(storePlusButton);
-        storePlusRow.add(storePlusLabel);
+        storePlusButton.setPreferredSize(new Dimension(20, 18));
+        storePlusButton.setBackground(Color.decode("#FFBA52"));
+        storePlusButton.setOpaque(true);
+        storePlusButton.setBorderPainted(false);
+
+        gbcCenter.gridx = 0; gbcCenter.gridy = 3;
+        firstCenterCenterCenter.add(storePlusButton, gbcCenter);
+        gbcCenter.gridx = 1;
+        firstCenterCenterCenter.add(storePlusLabel, gbcCenter);
 
         storePlusButton.addActionListener((e) -> {
             try {
@@ -243,19 +343,26 @@ public class gui extends JFrame{
             }
         });
 
-        firstCenterCenterCenter.add(loadRow);
-        firstCenterCenterCenter.add(loadPlusRow);
-        firstCenterCenterCenter.add(storeRow);
-        firstCenterCenterCenter.add(storePlusRow);
+        // shared GBC for the Clear Cache / Run / Step / Halt / IPL column
+        GridBagConstraints gbcEast = new GridBagConstraints();
+        gbcEast.insets = new Insets(5, 5, 5, 5);
+        gbcEast.anchor = GridBagConstraints.WEST;
 
-        JPanel runRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton runButton = new JButton();
         JLabel runLabel = new JLabel("Run");
 
-        runButton.setPreferredSize(new Dimension(20, 18));
+        runLabel.setForeground(Color.decode("#467ab9"));
+        runLabel.setFont(font);
 
-        runRow.add(runButton);
-        runRow.add(runLabel);
+        runButton.setPreferredSize(new Dimension(20, 18));
+        runButton.setBackground(Color.decode("#FFBA52"));
+        runButton.setOpaque(true);
+        runButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 1;
+        firstCenterCenterEast.add(runButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(runLabel, gbcEast);
 
         runButton.addActionListener((e) -> {
 
@@ -296,14 +403,21 @@ public class gui extends JFrame{
 
         });
 
-        JPanel stepRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton stepButton = new JButton();
         JLabel stepLabel = new JLabel("Step");
 
-        stepButton.setPreferredSize(new Dimension(20, 18));
+        stepLabel.setForeground(Color.decode("#467ab9"));
+        stepLabel.setFont(font);
 
-        stepRow.add(stepButton);
-        stepRow.add(stepLabel);
+        stepButton.setPreferredSize(new Dimension(20, 18));
+        stepButton.setBackground(Color.decode("#FFBA52"));
+        stepButton.setOpaque(true);
+        stepButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 2;
+        firstCenterCenterEast.add(stepButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(stepLabel, gbcEast);
 
         stepButton.addActionListener((e) -> {
 
@@ -320,14 +434,21 @@ public class gui extends JFrame{
             
         });
 
-        JPanel haltRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JButton haltButton = new JButton();
         JLabel haltLabel = new JLabel("Halt");
 
-        haltButton.setPreferredSize(new Dimension(20, 18));
+        haltLabel.setForeground(Color.decode("#467ab9"));
+        haltLabel.setFont(font);
 
-        haltRow.add(haltButton);
-        haltRow.add(haltLabel);
+        haltButton.setPreferredSize(new Dimension(20, 18));
+        haltButton.setBackground(Color.decode("#FFBA52"));
+        haltButton.setOpaque(true);
+        haltButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 3;
+        firstCenterCenterEast.add(haltButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(haltLabel, gbcEast);
 
         haltButton.addActionListener((e) -> {
 
@@ -342,15 +463,29 @@ public class gui extends JFrame{
         JButton IPLButton = new JButton();
         JLabel IPLLabel = new JLabel("IPL");
 
-        IPLButton.setPreferredSize(new Dimension(20, 18));
+        IPLLabel.setForeground(Color.decode("#467ab9"));
+        IPLLabel.setFont(font);
 
-        IPLRow.add(IPLButton);
-        IPLRow.add(IPLLabel);
+        IPLButton.setPreferredSize(new Dimension(20, 18));
+        IPLButton.setBackground(Color.decode("#FFBA52"));
+        IPLButton.setOpaque(true);
+        IPLButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 4;
+        firstCenterCenterEast.add(IPLButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(IPLLabel, gbcEast);
 
         IPLButton.addActionListener((e) -> {
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter a program file path.");
+                Memory rawMem = new Memory();
+                this.memory = new Cache(rawMem);
+                this.cpu = new CPU(this.memory);
+                this.memory.reset();
+                cycleCount = 0;
+                printerText = "testing individual instructions\n";
+                updateTexts();
                 return;
             }
 
@@ -430,15 +565,21 @@ public class gui extends JFrame{
         });
 
         //ADDED CLEAR CACHE BUTTON
-        JPanel clearCacheRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         JButton clearCacheButton = new JButton();
         JLabel clearCacheLabel = new JLabel("Clear Cache");
 
+        clearCacheLabel.setForeground(Color.decode("#467ab9"));
+        clearCacheLabel.setFont(font);
         
         clearCacheButton.setPreferredSize(new Dimension(20, 18));
+        clearCacheButton.setBackground(Color.decode("#FFBA52"));
+        clearCacheButton.setOpaque(true);
+        clearCacheButton.setBorderPainted(false);
 
-        clearCacheRow.add(clearCacheButton);
-        clearCacheRow.add(clearCacheLabel);
+        gbcEast.gridx = 0; gbcEast.gridy = 0;
+        firstCenterCenterEast.add(clearCacheButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(clearCacheLabel, gbcEast);
 
         clearCacheButton.addActionListener((e) -> {
             if (cpu == null) {
@@ -451,38 +592,57 @@ public class gui extends JFrame{
             updateTexts(); 
         });
 
-        // Add it to the East column of the Center panel
-        firstCenterCenterEast.add(clearCacheRow);
+        JPanel firstCenterNorthWest = new JPanel(new GridBagLayout());
+        JPanel firstCenterNorthCenter = new JPanel(new GridBagLayout());
+        JPanel firstCenterNorthEast = new JPanel(new GridBagLayout());
 
-        firstCenterCenterEast.add(runRow);
-        firstCenterCenterEast.add(stepRow);
-        firstCenterCenterEast.add(haltRow);
-        firstCenterCenterEast.add(IPLRow);
-
-        JPanel firstCenterNorthWest = new JPanel(new GridLayout(0, 1, 5, 5));
-        JPanel firstCenterNorthCenter = new JPanel(new GridLayout(0, 1, 5, 5));
-        JPanel firstCenterNorthEast = new JPanel(new GridLayout(0, 1, 5, 5));
+        firstCenterNorthWest.setBackground(Color.decode("#28282D"));
+        firstCenterNorthCenter.setBackground(Color.decode("#28282D"));
+        firstCenterNorthEast.setBackground(Color.decode("#28282D"));
 
         firstCenterNorth.add(firstCenterNorthWest, BorderLayout.WEST);
         firstCenterNorth.add(firstCenterNorthCenter, BorderLayout.CENTER);
         firstCenterNorth.add(firstCenterNorthEast, BorderLayout.EAST);
 
+        // shared GBC for GPR column
+        GridBagConstraints gbcGPR = new GridBagConstraints();
+        gbcGPR.insets = new Insets(4, 5, 4, 5);
+        gbcGPR.anchor = GridBagConstraints.WEST;
+
         JPanel gprLabelRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel gprLabel = new JLabel("GPR");
 
+        gprLabel.setForeground(Color.decode("#467ab9"));
+        gprLabel.setFont(font);
+        gprLabelRow.setBackground(Color.decode("#28282D"));
         gprLabelRow.add(gprLabel);
 
-        JPanel zeroRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        gbcGPR.gridx = 0; gbcGPR.gridy = 0; gbcGPR.gridwidth = 3; gbcGPR.anchor = GridBagConstraints.CENTER;
+        firstCenterNorthWest.add(gprLabelRow, gbcGPR);
+        gbcGPR.gridwidth = 1; gbcGPR.anchor = GridBagConstraints.WEST;
+
         JLabel zeroLabelGPR = new JLabel("0");
+        zeroLabelGPR.setFont(font);
+        zeroLabelGPR.setForeground(Color.decode("#467ab9"));
         zeroTextGPR = new JTextField("",10);
+        zeroTextGPR.setFont(font);
+        zeroTextGPR.setBackground(Color.decode("#3c3c44"));
+        zeroTextGPR.setForeground(Color.decode("#B0D3D1"));
         JButton zeroButtonGPR = new JButton();
 
         zeroButtonGPR.setPreferredSize(new Dimension(20, 18));
+        zeroButtonGPR.setBackground(Color.decode("#FFBA52"));
+        zeroButtonGPR.setOpaque(true);
+        zeroButtonGPR.setBorderPainted(false);
+
         zeroTextGPR.setEditable(false);
 
-        zeroRowGPR.add(zeroLabelGPR);
-        zeroRowGPR.add(zeroTextGPR);
-        zeroRowGPR.add(zeroButtonGPR);
+        gbcGPR.gridx = 0; gbcGPR.gridy = 1; gbcGPR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthWest.add(zeroLabelGPR, gbcGPR);
+        gbcGPR.gridx = 1; gbcGPR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthWest.add(zeroTextGPR, gbcGPR);
+        gbcGPR.gridx = 2;
+        firstCenterNorthWest.add(zeroButtonGPR, gbcGPR);
 
         zeroButtonGPR.addActionListener((e) -> {
             try {
@@ -498,17 +658,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel oneRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel oneLabelGPR = new JLabel("1");
+        oneLabelGPR.setForeground(Color.decode("#467ab9"));
+        oneLabelGPR.setFont(font);
         oneTextGPR = new JTextField("",10);
+        oneTextGPR.setFont(font);
+        oneTextGPR.setBackground(Color.decode("#3c3c44"));
+        oneTextGPR.setForeground(Color.decode("#B0D3D1"));
         JButton oneButtonGPR = new JButton();
 
         oneButtonGPR.setPreferredSize(new Dimension(20, 18));
+        oneButtonGPR.setBackground(Color.decode("#FFBA52"));
+        oneButtonGPR.setOpaque(true);
+        oneButtonGPR.setBorderPainted(false);
+
         oneTextGPR.setEditable(false);
 
-        oneRowGPR.add(oneLabelGPR);
-        oneRowGPR.add(oneTextGPR);
-        oneRowGPR.add(oneButtonGPR);
+        gbcGPR.gridx = 0; gbcGPR.gridy = 2; gbcGPR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthWest.add(oneLabelGPR, gbcGPR);
+        gbcGPR.gridx = 1; gbcGPR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthWest.add(oneTextGPR, gbcGPR);
+        gbcGPR.gridx = 2;
+        firstCenterNorthWest.add(oneButtonGPR, gbcGPR);
 
         oneButtonGPR.addActionListener((e) -> {
             try {
@@ -524,17 +695,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel twoRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel twoLabelGPR = new JLabel("2");
+        twoLabelGPR.setForeground(Color.decode("#467ab9"));
+        twoLabelGPR.setFont(font);
         twoTextGPR = new JTextField("",10);
+        twoTextGPR.setFont(font);
+        twoTextGPR.setBackground(Color.decode("#3c3c44"));
+        twoTextGPR.setForeground(Color.decode("#B0D3D1"));
         JButton twoButtonGPR = new JButton();
 
         twoButtonGPR.setPreferredSize(new Dimension(20, 18));
+        twoButtonGPR.setBackground(Color.decode("#FFBA52"));
+        twoButtonGPR.setOpaque(true);
+        twoButtonGPR.setBorderPainted(false);
+
         twoTextGPR.setEditable(false);
 
-        twoRowGPR.add(twoLabelGPR);
-        twoRowGPR.add(twoTextGPR);
-        twoRowGPR.add(twoButtonGPR);
+        gbcGPR.gridx = 0; gbcGPR.gridy = 3; gbcGPR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthWest.add(twoLabelGPR, gbcGPR);
+        gbcGPR.gridx = 1; gbcGPR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthWest.add(twoTextGPR, gbcGPR);
+        gbcGPR.gridx = 2;
+        firstCenterNorthWest.add(twoButtonGPR, gbcGPR);
 
         twoButtonGPR.addActionListener((e) -> {
             try {
@@ -550,17 +732,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel threeRowGPR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel threeLabelGPR = new JLabel("3");
+        threeLabelGPR.setFont(font);
+        threeLabelGPR.setForeground(Color.decode("#467ab9"));
         threeTextGPR = new JTextField("",10);
+        threeTextGPR.setFont(font);
+        threeTextGPR.setBackground(Color.decode("#3c3c44"));
+        threeTextGPR.setForeground(Color.decode("#B0D3D1"));
         JButton threeButtonGPR = new JButton();
 
         threeButtonGPR.setPreferredSize(new Dimension(20, 18));
+        threeButtonGPR.setBackground(Color.decode("#FFBA52"));
+        threeButtonGPR.setOpaque(true);
+        threeButtonGPR.setBorderPainted(false);
+
         threeTextGPR.setEditable(false);
 
-        threeRowGPR.add(threeLabelGPR);
-        threeRowGPR.add(threeTextGPR);
-        threeRowGPR.add(threeButtonGPR);
+        gbcGPR.gridx = 0; gbcGPR.gridy = 4; gbcGPR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthWest.add(threeLabelGPR, gbcGPR);
+        gbcGPR.gridx = 1; gbcGPR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthWest.add(threeTextGPR, gbcGPR);
+        gbcGPR.gridx = 2;
+        firstCenterNorthWest.add(threeButtonGPR, gbcGPR);
 
         threeButtonGPR.addActionListener((e) -> {
             try {
@@ -576,30 +769,53 @@ public class gui extends JFrame{
             }
         });
 
-        firstCenterNorthWest.add(gprLabelRow);
-        firstCenterNorthWest.add(zeroRowGPR);
-        firstCenterNorthWest.add(oneRowGPR);
-        firstCenterNorthWest.add(twoRowGPR);
-        firstCenterNorthWest.add(threeRowGPR);
+        // shared GBC for IXR column
+        GridBagConstraints gbcIXR = new GridBagConstraints();
+        gbcIXR.insets = new Insets(4, 5, 4, 5);
+        gbcIXR.anchor = GridBagConstraints.WEST;
 
         JPanel ixrLabelRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel ixrLabel = new JLabel("IXR");
 
+        ixrLabel.setForeground(Color.decode("#467ab9"));
+        ixrLabel.setFont(font);
+        ixrLabelRow.setBackground(Color.decode("#28282D"));
         ixrLabelRow.add(ixrLabel);
 
+        gbcIXR.gridx = 0; gbcIXR.gridy = 0; gbcIXR.gridwidth = 3; gbcIXR.anchor = GridBagConstraints.CENTER;
+        firstCenterNorthCenter.add(ixrLabelRow, gbcIXR);
+        gbcIXR.gridwidth = 1; gbcIXR.anchor = GridBagConstraints.WEST;
+
+        // IXR has no index 0 — empty placeholder keeps vertical alignment matching GPR
         JPanel zeroRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
 
-        JPanel oneRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        zeroRowIXR.setBackground(Color.decode("#28282D"));
+
+        gbcIXR.gridx = 0; gbcIXR.gridy = 1;
+        firstCenterNorthCenter.add(zeroRowIXR, gbcIXR);
+
         JLabel oneLabelIXR = new JLabel("1");
+        oneLabelIXR.setFont(font);
+        oneLabelIXR.setForeground(Color.decode("#467ab9"));
         oneTextIXR = new JTextField("",10);
+        oneTextIXR.setFont(font);
+        oneTextIXR.setBackground(Color.decode("#3c3c44"));
+        oneTextIXR.setForeground(Color.decode("#B0D3D1"));
         JButton oneButtonIXR = new JButton();
 
         oneButtonIXR.setPreferredSize(new Dimension(20, 18));
+        oneButtonIXR.setBackground(Color.decode("#FFBA52"));
+        oneButtonIXR.setOpaque(true);
+        oneButtonIXR.setBorderPainted(false);
+
         oneTextIXR.setEditable(false);
 
-        oneRowIXR.add(oneLabelIXR);
-        oneRowIXR.add(oneTextIXR);
-        oneRowIXR.add(oneButtonIXR);
+        gbcIXR.gridx = 0; gbcIXR.gridy = 2; gbcIXR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthCenter.add(oneLabelIXR, gbcIXR);
+        gbcIXR.gridx = 1; gbcIXR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthCenter.add(oneTextIXR, gbcIXR);
+        gbcIXR.gridx = 2;
+        firstCenterNorthCenter.add(oneButtonIXR, gbcIXR);
 
         oneButtonIXR.addActionListener((e) -> {
             try {
@@ -615,17 +831,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel twoRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel twoLabelIXR = new JLabel("2");
+        twoLabelIXR.setForeground(Color.decode("#467ab9"));
+        twoLabelIXR.setFont(font);
         twoTextIXR= new JTextField("",10);
+        twoTextIXR.setFont(font);
+        twoTextIXR.setBackground(Color.decode("#3c3c44"));
+        twoTextIXR.setForeground(Color.decode("#B0D3D1"));
         JButton twoButtonIXR = new JButton();
 
         twoButtonIXR.setPreferredSize(new Dimension(20, 18));
+        twoButtonIXR.setBackground(Color.decode("#FFBA52"));
+        twoButtonIXR.setOpaque(true);
+        twoButtonIXR.setBorderPainted(false);
+
         twoTextIXR.setEditable(false);
 
-        twoRowIXR.add(twoLabelIXR);
-        twoRowIXR.add(twoTextIXR);
-        twoRowIXR.add(twoButtonIXR);
+        gbcIXR.gridx = 0; gbcIXR.gridy = 3; gbcIXR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthCenter.add(twoLabelIXR, gbcIXR);
+        gbcIXR.gridx = 1; gbcIXR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthCenter.add(twoTextIXR, gbcIXR);
+        gbcIXR.gridx = 2;
+        firstCenterNorthCenter.add(twoButtonIXR, gbcIXR);
 
         twoButtonIXR.addActionListener((e) -> {
             try {
@@ -641,17 +868,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel threeRowIXR = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel threeLabelIXR = new JLabel("3");
+        threeLabelIXR.setForeground(Color.decode("#467ab9"));
+        threeLabelIXR.setFont(font);
         threeTextIXR = new JTextField("",10);
+        threeTextIXR.setFont(font);
+        threeTextIXR.setBackground(Color.decode("#3c3c44"));
+        threeTextIXR.setForeground(Color.decode("#B0D3D1"));
         JButton threeButtonIXR = new JButton();
 
         threeButtonIXR.setPreferredSize(new Dimension(20, 18));
+        threeButtonIXR.setBackground(Color.decode("#FFBA52"));
+        threeButtonIXR.setOpaque(true);
+        threeButtonIXR.setBorderPainted(false);
+
         threeTextIXR.setEditable(false);
 
-        threeRowIXR.add(threeLabelIXR);
-        threeRowIXR.add(threeTextIXR);
-        threeRowIXR.add(threeButtonIXR);
+        gbcIXR.gridx = 0; gbcIXR.gridy = 4; gbcIXR.anchor = GridBagConstraints.EAST;
+        firstCenterNorthCenter.add(threeLabelIXR, gbcIXR);
+        gbcIXR.gridx = 1; gbcIXR.anchor = GridBagConstraints.WEST;
+        firstCenterNorthCenter.add(threeTextIXR, gbcIXR);
+        gbcIXR.gridx = 2;
+        firstCenterNorthCenter.add(threeButtonIXR, gbcIXR);
 
         threeButtonIXR.addActionListener((e) -> {
             try {
@@ -667,23 +905,32 @@ public class gui extends JFrame{
             }
         });
 
-        firstCenterNorthCenter.add(ixrLabelRow);
-        firstCenterNorthCenter.add(zeroRowIXR);
-        firstCenterNorthCenter.add(oneRowIXR);
-        firstCenterNorthCenter.add(twoRowIXR);
-        firstCenterNorthCenter.add(threeRowIXR);
+        // shared GBC for PC / MAR / MBR / IR / CC / MFR column
+        GridBagConstraints gbcRegs = new GridBagConstraints();
+        gbcRegs.insets = new Insets(4, 5, 4, 5);
 
-        JPanel pcRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel pcLabel = new JLabel("PC");
+        pcLabel.setFont(font);
+        pcLabel.setForeground(Color.decode("#467ab9"));
         pcText = new JTextField("",10);
+        pcText.setFont(font);
+        pcText.setBackground(Color.decode("#3c3c44"));
+        pcText.setForeground(Color.decode("#B0D3D1"));
         JButton pcButton = new JButton();
 
         pcButton.setPreferredSize(new Dimension(20, 18));
+        pcButton.setBackground(Color.decode("#FFBA52"));
+        pcButton.setOpaque(true);
+        pcButton.setBorderPainted(false);
+
         pcText.setEditable(false);
 
-        pcRow.add(pcLabel);
-        pcRow.add(pcText);
-        pcRow.add(pcButton);
+        gbcRegs.gridx = 0; gbcRegs.gridy = 0; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(pcLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(pcText, gbcRegs);
+        gbcRegs.gridx = 2;
+        firstCenterNorthEast.add(pcButton, gbcRegs);
 
         pcButton.addActionListener((e) -> {
             try {
@@ -699,17 +946,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel marRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel marLabel = new JLabel("MAR");
+        marLabel.setFont(font);
+        marLabel.setForeground(Color.decode("#467ab9"));
         marText = new JTextField("",10);
+        marText.setFont(font);
+        marText.setBackground(Color.decode("#3c3c44"));
+        marText.setForeground(Color.decode("#B0D3D1"));
         JButton marButton = new JButton();
 
         marButton.setPreferredSize(new Dimension(20, 18));
+        marButton.setBackground(Color.decode("#FFBA52"));
+        marButton.setOpaque(true);
+        marButton.setBorderPainted(false);
+
         marText.setEditable(false);
 
-        marRow.add(marLabel);
-        marRow.add(marText);
-        marRow.add(marButton);
+        gbcRegs.gridx = 0; gbcRegs.gridy = 1; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(marLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(marText, gbcRegs);
+        gbcRegs.gridx = 2;
+        firstCenterNorthEast.add(marButton, gbcRegs);
 
         marButton.addActionListener((e) -> {
             try {
@@ -727,17 +985,28 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel mbrRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel mbrLabel = new JLabel("MBR");
+        mbrLabel.setFont(font);
+        mbrLabel.setForeground(Color.decode("#467ab9"));
         mbrText = new JTextField("",10);
+        mbrText.setFont(font);
+        mbrText.setBackground(Color.decode("#3c3c44"));
+        mbrText.setForeground(Color.decode("#B0D3D1"));
         JButton mbrButton = new JButton();
 
         mbrButton.setPreferredSize(new Dimension(20, 18));
+        mbrButton.setBackground(Color.decode("#FFBA52"));
+        mbrButton.setOpaque(true);
+        mbrButton.setBorderPainted(false);
+
         mbrText.setEditable(false);
 
-        mbrRow.add(mbrLabel);
-        mbrRow.add(mbrText);
-        mbrRow.add(mbrButton);
+        gbcRegs.gridx = 0; gbcRegs.gridy = 2; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(mbrLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(mbrText, gbcRegs);
+        gbcRegs.gridx = 2;
+        firstCenterNorthEast.add(mbrButton, gbcRegs);
 
         mbrButton.addActionListener((e) -> {
             try {
@@ -753,51 +1022,71 @@ public class gui extends JFrame{
             }
         });
 
-        JPanel irRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel irLabel = new JLabel("IR");
+        irLabel.setFont(font);
+        irLabel.setForeground(Color.decode("#467ab9"));
         irText = new JTextField("",10);
+        irText.setFont(font);
+        irText.setBackground(Color.decode("#3c3c44"));
+        irText.setForeground(Color.decode("#B0D3D1"));
 
         irText.setEditable(false);
 
-        irRow.add(irLabel);
-        irRow.add(irText);
+        gbcRegs.gridx = 0; gbcRegs.gridy = 3; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(irLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(irText, gbcRegs);
 
-        JPanel ccRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
         JLabel ccLabel = new JLabel("CC");
+        ccLabel.setFont(font);
+        ccLabel.setForeground(Color.decode("#467ab9"));
         JPanel ccTexts = new JPanel(new BorderLayout(5,5));
         JLabel oudeText = new JLabel("OUDE");
+        oudeText.setFont(font);
+        oudeText.setForeground(Color.decode("#467ab9"));
         ccText = new JTextField("",5);
+        ccText.setFont(font);
+        ccText.setBackground(Color.decode("#3c3c44"));
+        ccText.setForeground(Color.decode("#B0D3D1"));
 
         ccText.setEditable(false);
 
+        ccTexts.setBackground(Color.decode("#28282D"));
         ccTexts.add(ccText, BorderLayout.NORTH);
         ccTexts.add(oudeText, BorderLayout.SOUTH);
-        ccRow.add(ccLabel);
-        ccRow.add(ccTexts);
 
-        JPanel mfrRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        gbcRegs.gridx = 0; gbcRegs.gridy = 4; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(ccLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(ccTexts, gbcRegs);
+
         JLabel mfrLabel = new JLabel("MFR");
+        mfrLabel.setForeground(Color.decode("#467ab9"));
+        mfrLabel.setFont(font);
         JPanel mfrTexts = new JPanel(new BorderLayout(5,5));
         JLabel mortText = new JLabel("MOTR");
+        mortText.setForeground(Color.decode("#467ab9"));
+        mortText.setFont(font);
         mfrText = new JTextField("",5);
+        mfrText.setFont(font);
+        mfrText.setBackground(Color.decode("#3c3c44"));
+        mfrText.setForeground(Color.decode("#B0D3D1"));
 
         mfrText.setEditable(false);
 
+        mfrTexts.setBackground(Color.decode("#28282D"));
         mfrTexts.add(mfrText, BorderLayout.NORTH);
         mfrTexts.add(mortText, BorderLayout.SOUTH);
-        mfrRow.add(mfrLabel);
-        mfrRow.add(mfrTexts);
 
-        firstCenterNorthEast.add(pcRow);
-        firstCenterNorthEast.add(marRow);
-        firstCenterNorthEast.add(mbrRow);
-        firstCenterNorthEast.add(irRow);
-        firstCenterNorthEast.add(ccRow);
-        firstCenterNorthEast.add(mfrRow);
+        gbcRegs.gridx = 0; gbcRegs.gridy = 5; gbcRegs.anchor = GridBagConstraints.EAST;
+        firstCenterNorthEast.add(mfrLabel, gbcRegs);
+        gbcRegs.gridx = 1; gbcRegs.anchor = GridBagConstraints.WEST;
+        firstCenterNorthEast.add(mfrTexts, gbcRegs);
 
         this.add(outer);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
+        this.setResizable(false);
 
     }
 
