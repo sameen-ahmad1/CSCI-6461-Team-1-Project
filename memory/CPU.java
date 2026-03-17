@@ -70,7 +70,15 @@ public class CPU
 
     private void calculateEA() 
     {
+
+        // I/O instructions use decoded.addr as the raw devid — no EA computation needed
+        if (decoded.ins == Isa.Instruction.IN || decoded.ins == Isa.Instruction.OUT) 
+        {
+            curState = State.EXECUTE;
+            return;
+        }
         this.effectiveAddress = Executor.calculateEA(decoded, this);
+
         if ((decoded.i & 0x01) == 1) 
         {
             MAR = effectiveAddress;
