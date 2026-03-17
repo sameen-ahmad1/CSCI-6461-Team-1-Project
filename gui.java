@@ -479,7 +479,13 @@ public class gui extends JFrame{
         IPLButton.addActionListener((e) -> {
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter a program file path.");
+                Memory rawMem = new Memory();
+                this.memory = new Cache(rawMem);
+                this.cpu = new CPU(this.memory);
+                this.memory.reset();
+                cycleCount = 0;
+                printerText = "testing individual instructions\n";
+                updateTexts();
                 return;
             }
 
