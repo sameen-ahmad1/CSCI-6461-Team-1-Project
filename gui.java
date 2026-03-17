@@ -459,7 +459,41 @@ public class gui extends JFrame{
             
         });
 
-        JPanel IPLRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        JButton pausePlayButton = new JButton();
+        JLabel pausePlayLabel = new JLabel("Pause");
+
+        pausePlayLabel.setForeground(Color.decode("#467ab9"));
+        pausePlayLabel.setFont(font);
+
+        pausePlayButton.setPreferredSize(new Dimension(20, 18));
+        pausePlayButton.setBackground(Color.decode("#FFBA52"));
+        pausePlayButton.setOpaque(true);
+        pausePlayButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 4;
+        firstCenterCenterEast.add(pausePlayButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(pausePlayLabel, gbcEast);
+
+        pausePlayButton.addActionListener((e) -> {
+
+            if(pausePlayLabel.getText() == "Pause"){
+
+                pausePlayLabel.setText("Play");
+                printerText = "Pausing run\n" + printerText;
+                updateTexts();
+
+            }
+            else{
+
+                pausePlayLabel.setText("Pause");
+                printerText = "Resuming run\n" + printerText;
+                updateTexts();
+
+            }
+            
+        });
+
         JButton IPLButton = new JButton();
         JLabel IPLLabel = new JLabel("IPL");
 
@@ -471,7 +505,7 @@ public class gui extends JFrame{
         IPLButton.setOpaque(true);
         IPLButton.setBorderPainted(false);
 
-        gbcEast.gridx = 0; gbcEast.gridy = 4;
+        gbcEast.gridx = 0; gbcEast.gridy = 5;
         firstCenterCenterEast.add(IPLButton, gbcEast);
         gbcEast.gridx = 1;
         firstCenterCenterEast.add(IPLLabel, gbcEast);
