@@ -372,34 +372,8 @@ public class gui extends JFrame{
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
             }
-            if (isRunning == false){
 
-                isRunning = true;
-
-                new Thread(() -> {
-                    while (isRunning) {
-
-                        cpu.cycle();
-                        cycleCount = cycleCount + 1;
-                        printerText = "running cycle " + Integer.toString(cycleCount) + "\n" + printerText;
-                        updateTexts();
-                        if (cpu.isHalted() || cpu.getMFR() != 0) {
-                            isRunning = false;
-                            break;
-                        }
-
-                        try { 
-                            Thread.sleep(2000); 
-                        } 
-                        catch (InterruptedException ex) {
-                            break;
-                        }
-                    }
-
-                    isRunning = false;
-
-                }).start();
-            }
+            startRunLoop();
 
         });
 
@@ -452,14 +426,56 @@ public class gui extends JFrame{
 
         haltButton.addActionListener((e) -> {
 
+            if (cpu == null) {
+                JOptionPane.showMessageDialog(this, "Press IPL first.");
+                return;
+            }
+
             isRunning = false;
+            cpu.halt();
             cpu.listRegisters();
             printerText = "halting run\n" + printerText;
             updateTexts();
             
         });
 
-        JPanel IPLRow = new JPanel(new FlowLayout(FlowLayout.CENTER,5,5));
+        JButton pausePlayButton = new JButton();
+        JLabel pausePlayLabel = new JLabel("Pause");
+
+        pausePlayLabel.setForeground(Color.decode("#467ab9"));
+        pausePlayLabel.setFont(font);
+
+        pausePlayButton.setPreferredSize(new Dimension(20, 18));
+        pausePlayButton.setBackground(Color.decode("#FFBA52"));
+        pausePlayButton.setOpaque(true);
+        pausePlayButton.setBorderPainted(false);
+
+        gbcEast.gridx = 0; gbcEast.gridy = 4;
+        firstCenterCenterEast.add(pausePlayButton, gbcEast);
+        gbcEast.gridx = 1;
+        firstCenterCenterEast.add(pausePlayLabel, gbcEast);
+
+        pausePlayButton.addActionListener((e) -> {
+
+            if(pausePlayLabel.getText().equals("Pause")){
+
+                pausePlayLabel.setText("Play");
+                isRunning = false;
+                printerText = "Pausing run\n" + printerText;
+                updateTexts();
+
+            }
+            else{
+
+                pausePlayLabel.setText("Pause");
+                printerText = "Resuming run\n" + printerText;
+                startRunLoop();
+                updateTexts();
+
+            }
+            
+        });
+
         JButton IPLButton = new JButton();
         JLabel IPLLabel = new JLabel("IPL");
 
@@ -471,7 +487,7 @@ public class gui extends JFrame{
         IPLButton.setOpaque(true);
         IPLButton.setBorderPainted(false);
 
-        gbcEast.gridx = 0; gbcEast.gridy = 4;
+        gbcEast.gridx = 0; gbcEast.gridy = 5;
         firstCenterCenterEast.add(IPLButton, gbcEast);
         gbcEast.gridx = 1;
         firstCenterCenterEast.add(IPLLabel, gbcEast);
@@ -1127,6 +1143,35 @@ public class gui extends JFrame{
     });
 
     }
+    
+    private void startRunLoop() {
+
+        if (cpu == null || isRunning) return;
+
+        isRunning = true;
+
+        new Thread(() -> {
+            while (isRunning) {
+
+                cpu.cycle();
+                cycleCount++;
+                printerText = "running cycle " + cycleCount + "\n" + printerText;
+                updateTexts();
+                if (cpu.isHalted() || cpu.getMFR() != 0) {
+                    isRunning = false;
+                    break;
+                }
+                try { Thread.sleep(2000); }
+                catch (InterruptedException ex) { break; }
+
+            }
+
+            isRunning = false;
+
+        }).start();
+
+    }
+    
 
     public static void main(String args[]){
 

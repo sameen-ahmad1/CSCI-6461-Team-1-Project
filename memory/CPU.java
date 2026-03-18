@@ -82,6 +82,10 @@ public class CPU
         }
     }
 
+    public void halt() {
+        this.curState = State.HALT;
+    }
+
     public boolean isHalted() {
         return curState == State.HALT;
     }
