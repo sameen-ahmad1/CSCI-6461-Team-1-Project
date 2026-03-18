@@ -80,9 +80,15 @@ public class Device {
         }
     }
 
+
     private void writePrinter(int value) {
-        // Treat value as ASCII character
-        System.out.print((char) (value & 0xFF));
+        System.out.println("DEBUG writePrinter called, listener=" + (listener != null ? "SET" : "NULL") + " value=" + value);
+        if (listener != null) {
+            // print to the GUI printer area
+            listener.onPrinterOutput(value & 0xFFFF);
+        } else {
+            System.out.print((char) (value & 0xFF));
+        }
     }
 
     private int readCardReader() {

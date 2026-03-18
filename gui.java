@@ -497,6 +497,8 @@ public class gui extends JFrame implements DeviceListener{
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
                 Memory rawMem = new Memory();
+                // set the listener for device events (printer output, keyboard input, etc.)
+                rawMem.getDevice().setListener(this);
                 this.memory = new Cache(rawMem);
                 this.cpu = new CPU(this.memory);
                 this.memory.reset();
@@ -1189,7 +1191,8 @@ public class gui extends JFrame implements DeviceListener{
 
     @Override
     public void onPrinterOutput(int value) {
-        printerText = (char)(value & 0xFF) + printerText;
+        System.out.println("DEBUG onPrinterOutput called with value: " + value + " char: " + (char)(value & 0xFF));
+        printerText = printerText + (char)(value & 0xFF);
         SwingUtilities.invokeLater(() -> {
             printer.setText(printerText);
             printer.setCaretPosition(0);
