@@ -23,4 +23,6 @@ public interface MemoryBus {
     void tick(CPU cpu);
     void requestRead(int address);
     void requestWrite(int address);
+    void postError(String message);
+    String getErrors();
 }

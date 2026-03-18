@@ -7,10 +7,20 @@ public class CPU
 {
     //memory 
     private final MemoryBus memory;
+   // private StringBuilder logs = new StringBuilder();
     public CPU(MemoryBus memory) 
     {
         this.memory = memory;
     }
+
+//     private void addLog(String msg) {
+//     logs.insert(0, msg + "\n"); // Add new messages to the top
+// }
+
+    
+//     public String getLogs() {
+//         return logs.toString();
+//     }
     //CPU registers
     //program counter (12 bit)
     private int PC;           
@@ -120,7 +130,7 @@ public class CPU
         curState     = result.nextState;
 
         System.out.println("DEBUG: handleExecute finished. New State is: " + curState);
-        
+        //addLog("DEBUG: HandleExecute finished. New State is: " + curState);
     }
 
     //cpu tick

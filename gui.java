@@ -9,6 +9,8 @@ import memory.Cache;
 import memory.MemoryBus;
 import memory.simple.Memory;
 
+
+
 public class gui extends JFrame{
 
     private boolean isRunning = false;
@@ -29,7 +31,7 @@ public class gui extends JFrame{
     private JTextField consoleInput;
 
     public gui(){
-
+       
         Font font = new Font("Courier New", Font.BOLD, 14);
 
         JPanel outer = new JPanel(new BorderLayout(10,10));
@@ -1135,10 +1137,17 @@ public class gui extends JFrame{
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
         
+
+
+
         //added cache update
         cacheContent.setText(memory.getCacheStatus());
 
-        printer.setText(printerText);
+        // This pulls the FAULTS from Memory
+        String allMessages = memory.getErrors(); 
+        printer.setText(allMessages + printerText);
+
+        
         printer.setCaretPosition(0);
     });
 

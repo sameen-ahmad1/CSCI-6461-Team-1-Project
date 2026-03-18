@@ -1,11 +1,10 @@
 package memory.simple;
 import java.io.*;
-
 import memory.MachineFault;
-
 
 public final class RomLoader {
 
+   
     public static final class Result {
         public final int firstAddress;
         public final int linesLoaded;
@@ -16,7 +15,7 @@ public final class RomLoader {
         }
     }
 
-    public static Result loadIntoMemory(File file, Memory memory) throws IOException {
+    public Result loadIntoMemory(File file, Memory memory) throws IOException {
         int firstAddr = -1;
         int count = 0;
 
@@ -32,12 +31,20 @@ public final class RomLoader {
                 if (line.startsWith(";")) continue;
 
                 String[] toks = line.split("\\s+");
+
+
                 if (toks.length < 2) {
+                    String error = String.format("FAULT [%s] at Line %d: %s",  MachineFault.Code.LOADER_FORMAT_ERROR, 
+                    lineNo, 
+                    "Loader format error - expected address and value"
+                    );
+                    memory.postError(error);
                     throw new MachineFault(
                             MachineFault.Code.LOADER_FORMAT_ERROR,
                             lineNo,
                             "Loader format error on line " + lineNo + ": expected address and value"
                     );
+                    
                 }
 
                 try {
@@ -48,13 +55,21 @@ public final class RomLoader {
 
                     if (firstAddr == -1) firstAddr = addr;
                     count++;
+
                 } catch (NumberFormatException nfe) {
+                    String error2 = String.format("FAULT [%s] at Line %d: %s", 
+                    MachineFault.Code.LOADER_FORMAT_ERROR, 
+                    lineNo, 
+                    "Invalid octal number"
+                    );
+                    memory.postError(error2);
                     throw new MachineFault(
                             MachineFault.Code.LOADER_FORMAT_ERROR,
                             lineNo,
                             "Loader parse error on line " + lineNo + ": invalid octal number",
                             nfe
                     );
+                    
                 }
             }
         }
