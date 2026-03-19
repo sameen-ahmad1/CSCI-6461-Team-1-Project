@@ -15,7 +15,7 @@ public final class RomLoader {
         }
     }
 
-    public Result loadIntoMemory(File file, Memory memory) throws IOException {
+    public static Result loadIntoMemory(File file, Memory memory) throws IOException {
         int firstAddr = -1;
         int count = 0;
 

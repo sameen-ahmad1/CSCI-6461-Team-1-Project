@@ -23,16 +23,27 @@ public final class Memory implements MemoryBus
 
     
 
-    @Override
-public void postError(String message) {
-    // Just print to console for raw memory
-    System.err.println("SYSTEM FAULT: " + message);
-}
+    private StringBuilder errorLog = new StringBuilder();
 
-@Override
-public String getErrors() {
-    return ""; // Raw memory has no log buffer
-}
+    @Override
+    public void postError(String message) {
+       
+        System.err.println("SYSTEM FAULT: " + message);
+        
+      
+        errorLog.append(">> ").append(message).append("\n");
+    }
+
+    @Override
+    public String getErrors() 
+    {
+        // 3. Convert the buffer to a String
+        String result = errorLog.toString();
+        
+        errorLog.setLength(0); 
+        
+        return result;
+    }
 
     @Override
     public void requestRead(int mar) {
