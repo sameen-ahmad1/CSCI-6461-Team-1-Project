@@ -1052,21 +1052,10 @@ public class gui extends JFrame implements DeviceListener{
 
             Memory rawMem = ((Cache) memory).getUnderlyingMemory();
 
-            try {
-                // try to parse as integer first
-                int value = Integer.parseInt(text);
-                if (value < -32768 || value > 32767) {
-                    JOptionPane.showMessageDialog(this, "Input must be between -32768 and 32767.");
-                    return;
-                }
-                rawMem.getDevice().sendKeyboardInput(value & 0xFFFF);
-
-            } catch (NumberFormatException ex) {
-                // not an integer — treat as characters
-                for (char c : text.toCharArray()) {
-                    rawMem.getDevice().sendKeyboardInput((int) c);
-                }
+            for (char c : text.toCharArray()) {
+                rawMem.getDevice().sendKeyboardInput((int) c);
             }
+            rawMem.getDevice().sendKeyboardInput(13); // CR
 
             consoleInput.setText("");
         });
@@ -1188,7 +1177,7 @@ public class gui extends JFrame implements DeviceListener{
 
                 cpu.cycle();
                 cycleCount++;
-                printerText = "running cycle " + cycleCount + "\n" + printerText;
+                // printerText = "running cycle " + cycleCount + "\n" + printerText;
                 updateTexts();
                 if (cpu.isHalted() || cpu.getMFR() != 0) {
                     isRunning = false;
@@ -1205,20 +1194,30 @@ public class gui extends JFrame implements DeviceListener{
 
     }
 
+    private String lineBuffer = "";
+    private boolean nextValueIsInteger = false;
+
     @Override
     public void onPrinterOutput(int value) {
-        String output;
-        // if value is a printable ASCII character, display as char
-        if (value >= 32 && value <= 126) {
-            output = String.valueOf((char)(value & 0xFF));
-        } else {
-            // otherwise display as integer
-            output = String.valueOf(value) + "\n";
+        if (value == 1 && !nextValueIsInteger) {
+            nextValueIsInteger = true;
+            return;
         }
-        printerText = printerText + output;
+        if (value == 13) {
+            return;
+        } else if (value == 10) {
+            printerText = lineBuffer + "\n" + printerText;
+            lineBuffer = "";
+        } else if (nextValueIsInteger) {
+            nextValueIsInteger = false;
+            int signed = (value > 32767) ? value - 65536 : value;
+            lineBuffer += signed;
+        } else {
+            lineBuffer += (char)(value & 0xFF);
+        }
         SwingUtilities.invokeLater(() -> {
             printer.setText(printerText);
-            printer.setCaretPosition(printer.getDocument().getLength());
+            printer.setCaretPosition(0);
         });
     }
 
