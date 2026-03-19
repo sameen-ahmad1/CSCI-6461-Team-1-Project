@@ -24,3 +24,7 @@ A test case for the gui is provided in load_full_backend2.txt, which you can put
 Test cases for the backend are provided in /testfiles/part1/test1_0 to __ /testfiles/part1/test1_1 to __ and /testfiles/part1/test1_2 to __.
 
 The design notes are in part1.md in the folder docs/part1. The git logs are in part1logs.txt in the folder docs/part1.
+
+
+## Part 2 Instructions
+The design notes are in part2.md in the folder docs/part2

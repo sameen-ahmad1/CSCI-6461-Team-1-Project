@@ -226,7 +226,7 @@ public class CPU
         }
     //System.out.println("Cycle End - State: " + curState + " | PC: " + Integer.toString(PC, 8));
         // 1. Build the cycle trace string
-    String trace = String.format("Cycle End - State: %s | PC: %06o", curState, PC);
+    String trace = String.format("System Cycle State: %s | PC: %06o", curState, PC);
 
     // 2. Post it to the bus so the GUI can "see" it
     if (memory != null) 

@@ -40,12 +40,15 @@ public class Cache implements MemoryBus {
     @Override
     public void postError(String message) {
         // Add new errors to the top with a newline
-        errorLog.insert(0, message + "\n"); 
+        errorLog.append(message).append("\n");
     }
 
     @Override
     public String getErrors() {
-        return errorLog.toString();
+        //return errorLog.toString();
+        String currentErrors = this.errorLog.toString();
+        errorLog.setLength(0);
+        return currentErrors;
     }
 
     @Override
