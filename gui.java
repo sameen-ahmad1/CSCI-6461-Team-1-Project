@@ -369,14 +369,15 @@ public class gui extends JFrame{
 
         runButton.addActionListener((e) -> {
 
-            printerText = "running file\n" + printerText;
+            //printerText = "running file\n" + printerText;
 
             if (cpu == null) {
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
             }
-
+            //memory.postError("System: Running");
             startRunLoop();
+            updateTexts();
 
         });
 
@@ -437,7 +438,7 @@ public class gui extends JFrame{
             isRunning = false;
             cpu.halt();
             cpu.listRegisters();
-            printerText = "halting run\n" + printerText;
+            memory.postError("HALTING"); 
             updateTexts();
             
         });
@@ -464,14 +465,14 @@ public class gui extends JFrame{
 
                 pausePlayLabel.setText("Play");
                 isRunning = false;
-                printerText = "Pausing run\n" + printerText;
+                memory.postError("System Pausing");
                 updateTexts();
 
             }
             else{
 
                 pausePlayLabel.setText("Pause");
-                printerText = "Resuming run\n" + printerText;
+                //memory.postError("Resuming Run");
                 startRunLoop();
                 updateTexts();
 
@@ -496,6 +497,8 @@ public class gui extends JFrame{
         firstCenterCenterEast.add(IPLLabel, gbcEast);
 
         IPLButton.addActionListener((e) -> {
+            this.printerText = "";
+            printer.setText("");
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
                 Memory rawMem = new Memory();
@@ -503,7 +506,7 @@ public class gui extends JFrame{
                 this.cpu = new CPU(this.memory);
                 this.memory.reset();
                 cycleCount = 0;
-                printerText = "testing individual instructions\n";
+                printerText = "No File Loaded, Testing Individual Instructions\n";
                 updateTexts();
                 return;
             }
@@ -570,7 +573,8 @@ public class gui extends JFrame{
                     cpu.setPC(pc);
                 }
 
-                printerText = "file loaded\n" + printerText;
+                //printerText = "file loaded\n" + printerText;
+                memory.postError("IPL: File Loaded Successfully");
                 cycleCount = 0;
                 updateTexts();
 
@@ -618,7 +622,7 @@ public class gui extends JFrame{
             }
             
             memory.reset(); 
-            printerText = "Cache Cleared Manually\n" + printerText;
+            memory.postError("Cache Cleared Manually");
             updateTexts(); 
         });
 
@@ -1158,17 +1162,17 @@ public class gui extends JFrame{
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
         
 
-
-
-        //added cache update
+        String newLogs = memory.getErrors(); 
+            
+        // 2. If there are new logs, add them to the TOP of history
+        if (!newLogs.isEmpty()) 
+        {
+            this.printerText = newLogs + this.printerText;
+            printer.setText(this.printerText);
+            printer.setCaretPosition(0); 
+        }
+            
         cacheContent.setText(memory.getCacheStatus());
-
-        // This pulls the FAULTS from Memory
-        String allMessages = memory.getErrors(); 
-        printer.setText(allMessages + printerText);
-
-        
-        printer.setCaretPosition(0);
     });
 
     }
@@ -1176,20 +1180,40 @@ public class gui extends JFrame{
     private void startRunLoop() {
 
         if (cpu == null || isRunning) return;
-
+        
         isRunning = true;
 
         new Thread(() -> {
             while (isRunning) {
 
-                cpu.cycle();
-                cycleCount++;
-                printerText = "running cycle " + cycleCount + "\n" + printerText;
-                updateTexts();
-                if (cpu.isHalted() || cpu.getMFR() != 0) {
+                if (cpu.isHalted() || cpu.getMFR() != 0) 
+                {
                     isRunning = false;
+                    if (cpu.getMFR() != 0) 
+                    {
+                        System.out.println("System: RUN HALTED - Machine Fault");
+                        memory.postError("System: RUN HALTED - Machine Fault (" + cpu.getMFR() + ")");
+                    } 
+                    else 
+                    {
+                        System.out.println("System RUN Status: CPU Halted");
+                        memory.postError("System RUN Status: CPU Halted");
+                    }
                     break;
                 }
+
+                cpu.cycle();
+                //cycleCount++;
+                updateTexts();
+
+                if (cpu.isHalted() || cpu.getMFR() != 0) 
+                {
+                    isRunning = false;
+                    updateTexts();
+                    break;
+                }
+                //printerText = "running cycle " + cycleCount + "\n" + printerText;
+                
                 try { Thread.sleep(2000); }
                 catch (InterruptedException ex) { break; }
 

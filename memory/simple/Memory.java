@@ -26,23 +26,19 @@ public final class Memory implements MemoryBus
     private StringBuilder errorLog = new StringBuilder();
 
     @Override
-    public void postError(String message) {
-       
-        System.err.println("SYSTEM FAULT: " + message);
-        
-      
-        errorLog.append(">> ").append(message).append("\n");
+    public void postError(String message) 
+    {
+        // Add new errors to the top with a newline
+        errorLog.append(message).append("\n");
     }
 
     @Override
     public String getErrors() 
     {
-        // 3. Convert the buffer to a String
-        String result = errorLog.toString();
-        
-        errorLog.setLength(0); 
-        
-        return result;
+        //return errorLog.toString();
+        String currentErrors = this.errorLog.toString();
+        errorLog.setLength(0);
+        return currentErrors;
     }
 
     @Override
