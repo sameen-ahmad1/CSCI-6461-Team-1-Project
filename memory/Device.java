@@ -1,8 +1,7 @@
 package memory;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Handles I/O peripherals for the simulator.
@@ -18,9 +17,10 @@ public class Device {
     private static final int DEVID_CARD_READER = 2;
 
     // Card reader buffer — loaded before execution via loadCards()
-    private final Queue<Integer> cardBuffer = new ArrayDeque<>();
+    private final BlockingQueue<Integer> cardBuffer = new LinkedBlockingQueue<>();
     // Keyboard buffer — loaded before execution via loadKeyboardInput()
-    private final Queue<Integer> keyboardBuffer = new ArrayDeque<>();
+    private final BlockingQueue<Integer> keyboardBuffer = new LinkedBlockingQueue<>();
+
     public DeviceListener listener = null;
 
     // sets a listener for device events (printer output, keyboard input, etc.)
@@ -60,18 +60,24 @@ public class Device {
     // Device implementations
     // ----------------------------------------------------------------
 
-    
     private int readKeyboard() {
-        if (listener != null) {
-            return listener.onKeyboardInput() & 0xFFFF;
+        System.out.println("DEBUG: IN waiting for keyboard input...");
+        try {
+            int value = keyboardBuffer.take(); // blocks until a character is available
+            System.out.println("DEBUG: IN received value: " + value + " char: " + (char)(value & 0xFF));
+            return value & 0xFFFF;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return 0;
         }
-        if (!keyboardBuffer.isEmpty()) {
-            return keyboardBuffer.poll() & 0xFFFF;
-        }
-        // no listener, no buffer — return 0 instead of blocking
-        System.err.println("Device: keyboard buffer empty, returning 0");
-        return 0;
     }
+
+    // GUI calls this to push a character into the queue
+    public void sendKeyboardInput(int value) {
+        keyboardBuffer.add(value & 0xFFFF);
+    }
+
+
 
     public void loadKeyboardInput(String input) {
         keyboardBuffer.clear();

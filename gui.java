@@ -1043,6 +1043,34 @@ public class gui extends JFrame implements DeviceListener{
             }
         });
 
+        //action listener to wait for user input in the console text field. It sends the input to the keyboard device of the memory, which the CPU can read from.
+        consoleInput.addActionListener((e) -> {
+            if (cpu == null) return;
+
+            String text = consoleInput.getText().trim();
+            if (text.isEmpty()) return;
+
+            Memory rawMem = ((Cache) memory).getUnderlyingMemory();
+
+            try {
+                // try to parse as integer first
+                int value = Integer.parseInt(text);
+                if (value < -32768 || value > 32767) {
+                    JOptionPane.showMessageDialog(this, "Input must be between -32768 and 32767.");
+                    return;
+                }
+                rawMem.getDevice().sendKeyboardInput(value & 0xFFFF);
+
+            } catch (NumberFormatException ex) {
+                // not an integer — treat as characters
+                for (char c : text.toCharArray()) {
+                    rawMem.getDevice().sendKeyboardInput((int) c);
+                }
+            }
+
+            consoleInput.setText("");
+        });
+
         JLabel irLabel = new JLabel("IR");
         irLabel.setFont(font);
         irLabel.setForeground(Color.decode("#467ab9"));
@@ -1176,26 +1204,21 @@ public class gui extends JFrame implements DeviceListener{
         }).start();
 
     }
-    
-
-    @Override
-    public int onKeyboardInput() {
-        String text = consoleInput.getText();
-        if (text.isEmpty()) {
-            return 0;
-        }
-        char ch = text.charAt(0);
-        SwingUtilities.invokeLater(() -> consoleInput.setText(text.substring(1)));
-        return (int) ch;
-    }
 
     @Override
     public void onPrinterOutput(int value) {
-        System.out.println("DEBUG onPrinterOutput called with value: " + value + " char: " + (char)(value & 0xFF));
-        printerText = printerText + (char)(value & 0xFF);
+        String output;
+        // if value is a printable ASCII character, display as char
+        if (value >= 32 && value <= 126) {
+            output = String.valueOf((char)(value & 0xFF));
+        } else {
+            // otherwise display as integer
+            output = String.valueOf(value) + "\n";
+        }
+        printerText = printerText + output;
         SwingUtilities.invokeLater(() -> {
             printer.setText(printerText);
-            printer.setCaretPosition(0);
+            printer.setCaretPosition(printer.getDocument().getLength());
         });
     }
 
