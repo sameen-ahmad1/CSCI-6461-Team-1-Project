@@ -1,8 +1,7 @@
 package memory;
+import assembler.Isa;
 import java.util.HashMap;
 import java.util.Map;
-
-import assembler.Isa;
 
 /**
  * Decoder class: converts a 16-bit instruction word into structured fields.
@@ -75,17 +74,23 @@ public final class Decoder {
      * Decodes a 16-bit instruction word.
      * Throws MachineFault(ILLEGAL_OPCODE) if opcode not in Isa.Instruction.
      */
-    public static Decoded decode(int word16) {
+    public static Decoded decode(int word16, MemoryBus memory) {
         int raw = word16 & 0xFFFF;
 
         // opcode is top 6 bits
         int opcode = (raw >>> 10) & 0x3F;
         Isa.Instruction ins = OPCODE_MAP.get(opcode);
         if (ins == null) {
+            String msg = String.format("FAULT [%s]: Opcode %o is not implemented", 
+                            MachineFault.Code.ILLEGAL_OPCODE, opcode);
+
+            // Post to the bus so the GUI Printer sees it
+            memory.postError(msg); 
+
             throw new MachineFault(
-                    MachineFault.Code.ILLEGAL_OPCODE,
-                    opcode,
-                    "Illegal opcode: " + opcode + " (octal " + Integer.toString(opcode, 8) + ")"
+                MachineFault.Code.ILLEGAL_OPCODE,
+                opcode,
+                msg
             );
         }
 

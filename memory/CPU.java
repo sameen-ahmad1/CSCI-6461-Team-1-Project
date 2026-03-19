@@ -2,16 +2,25 @@ package memory;
 // Handles Fetch/Decode/Execute with 2-cycle memory timing
 
 import assembler.Isa;
-import memory.simple.Memory;
 
 public class CPU 
 {
     //memory 
-    private final Memory memory;
-    public CPU(Memory memory) 
+    private final MemoryBus memory;
+   // private StringBuilder logs = new StringBuilder();
+    public CPU(MemoryBus memory) 
     {
         this.memory = memory;
     }
+
+//     private void addLog(String msg) {
+//     logs.insert(0, msg + "\n"); // Add new messages to the top
+// }
+
+    
+//     public String getLogs() {
+//         return logs.toString();
+//     }
     //CPU registers
     //program counter (12 bit)
     private int PC;           
@@ -83,6 +92,10 @@ public class CPU
         }
     }
 
+    public void halt() {
+        this.curState = State.HALT;
+    }
+
     public boolean isHalted() {
         return curState == State.HALT;
     }
@@ -91,7 +104,7 @@ public class CPU
     private void decode() 
     {
         try {
-            decoded = Decoder.decode(IR);
+            decoded = Decoder.decode(IR, this.memory);
             if (decoded.ins == Isa.Instruction.HLT) 
             {
                 curState = State.HALT;
@@ -117,7 +130,7 @@ public class CPU
         curState     = result.nextState;
 
         System.out.println("DEBUG: handleExecute finished. New State is: " + curState);
-        
+        //addLog("DEBUG: HandleExecute finished. New State is: " + curState);
     }
 
     //cpu tick
@@ -211,7 +224,18 @@ public class CPU
                 //cpu works because of HALT or Fault
                 break;
         }
-    System.out.println("Cycle End - State: " + curState + " | PC: " + Integer.toString(PC, 8));
+    //System.out.println("Cycle End - State: " + curState + " | PC: " + Integer.toString(PC, 8));
+        // 1. Build the cycle trace string
+    String trace = String.format("System Cycle State: %s | PC: %06o", curState, PC);
+
+    // 2. Post it to the bus so the GUI can "see" it
+    if (memory != null) 
+    {
+        memory.postError(trace); 
+    }
+
+  
+    System.out.println(trace);
     }
 
 
@@ -332,7 +356,11 @@ public class CPU
         System.out.println("===============================================\n");
     }
 
-
+    public MemoryBus getMemory() 
+    {
+        // This returns the MemoryBus (or Cache) the CPU is using
+        return this.memory; 
+    }
 
     public void ipl() 
     {
@@ -349,9 +377,9 @@ public class CPU
         this.CC = 0;
         
         // 3. Load the instructions
-        memory.directWrite(010, 002020); // Instruction 1
-        memory.directWrite(011, 0102220);
-        memory.directWrite(020, 000100); // Data
+        memory.writeWord(010, 002020); // Instruction 1
+        memory.writeWord(011, 0102220);
+        memory.writeWord(020, 000100); // Data
 
 
         this.curState = State.FETCH_1;

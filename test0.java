@@ -1,6 +1,6 @@
-import java.io.*;
-
 import assembler.Assembler;
+import java.io.*;
+import memory.simple.Memory;
 
 public class test0 {
 
@@ -28,13 +28,13 @@ public class test0 {
 
         //generate test data 
         String input = "./testFiles/part0/test0_1/test.asm";
-
+        Memory testMemory = new Memory();
         //generate expected output
         String expectedLoadFile = getBuffer("./testFiles/part0/test0_1/expectedLoad.txt");
         String expectedListingFile = getBuffer("./testFiles/part0/test0_1/expectedListing.txt");
 
         //call the parser on the test data 
-        Assembler.main(new String[]{input});
+        Assembler.main(new String[]{input}, testMemory);
 
         //read in the outputs 
         String loadFile = getBuffer("load.txt");
@@ -56,13 +56,13 @@ public class test0 {
 
         //generate test data 
         String input = "./testFiles/part0/test0_2/test.asm";
-
+        Memory testMemory = new Memory();
         //generate expected output
         String expectedLoadFile = getBuffer("./testFiles/part0/test0_2/expectedLoad.txt");
         String expectedListingFile = getBuffer("./testFiles/part0/test0_2/expectedListing.txt");
 
         //call the parser on the test data 
-        Assembler.main(new String[]{input});
+        Assembler.main(new String[]{input}, testMemory);
 
         //read in the outputs 
         String loadFile = getBuffer("load.txt");

@@ -1,24 +1,47 @@
 package memory.simple;
 import java.util.Arrays;
-
 import memory.CPU;
 import memory.MachineFault;
+import memory.MemoryBus;
 
-public final class Memory {
+public final class Memory implements MemoryBus 
+{
     public static final int SIZE = 2048;
-
+   // private static StringBuilder logs = new StringBuilder();
     private final short[] mem = new short[SIZE];
 
     private enum Op { NONE, READ, WRITE }
     private Op pendingOp = Op.NONE;
     private int pendingAddr = 0;
 
+    @Override
     public void reset() {
         Arrays.fill(mem, (short) 0);
         pendingOp = Op.NONE;
         pendingAddr = 0;
     }
 
+    
+
+    private StringBuilder errorLog = new StringBuilder();
+
+    @Override
+    public void postError(String message) 
+    {
+        // Add new errors to the top with a newline
+        errorLog.append(message).append("\n");
+    }
+
+    @Override
+    public String getErrors() 
+    {
+        //return errorLog.toString();
+        String currentErrors = this.errorLog.toString();
+        errorLog.setLength(0);
+        return currentErrors;
+    }
+
+    @Override
     public void requestRead(int mar) {
         checkAddr(mar);
         checkNotBusy();
@@ -26,6 +49,7 @@ public final class Memory {
         pendingOp = Op.READ;
     }
 
+    @Override
     public void requestWrite(int mar) {
         checkAddr(mar);
         checkNotBusy();
@@ -33,7 +57,7 @@ public final class Memory {
         pendingOp = Op.WRITE;
     }
 
-    
+    @Override
     public void tick(CPU cpu) {
         if (pendingOp == Op.NONE) return;
 
@@ -61,11 +85,17 @@ public final class Memory {
 
     private void checkNotBusy() {
         if (pendingOp != Op.NONE) {
-            throw new MachineFault(
-                    MachineFault.Code.MEMORY_BUSY,
-                    pendingAddr,
-                    "Memory busy: new request before previous completed"
-            );
+            String msg = String.format("FAULT [%s]: Memory busy at addr %04o", 
+                                    MachineFault.Code.MEMORY_BUSY, pendingAddr);
+        
+        // Log it so the GUI can see it
+        postError(msg); 
+
+        throw new MachineFault(
+                MachineFault.Code.MEMORY_BUSY,
+                pendingAddr,
+                msg
+        );
         }
     }
 
@@ -73,13 +103,37 @@ public final class Memory {
         return s & 0xFFFF;
     }
 
-    private static void checkAddr(int addr) {
+    @Override
+    public int readWord(int address) 
+    {
+        return peek(address);
+    }
+
+    @Override
+    public void writeWord(int address, int value) 
+    {
+        directWrite(address, value);
+    }
+    
+    @Override
+    public String getCacheStatus() 
+    {
+        return "Cache is currently DISABLED\nDirect Memory Access active.";
+    }
+
+    private void checkAddr(int addr) {
         if (addr < 0 || addr >= SIZE) {
-            throw new MachineFault(
-                    MachineFault.Code.ILLEGAL_MEMORY_ADDRESS,
-                    addr,
-                    "Illegal memory address: " + addr + " (valid 0.." + (SIZE - 1) + ")"
-            );
+            String msg = String.format("FAULT [%s]: Invalid addr %04o (Limit: %04o)", 
+                                    MachineFault.Code.ILLEGAL_MEMORY_ADDRESS, addr, SIZE-1);
+        
+            // Log it so the GUI can see it
+            postError(msg);
+
+        throw new MachineFault(
+                MachineFault.Code.ILLEGAL_MEMORY_ADDRESS,
+                addr,
+                msg
+        );
         }
     }
 }
