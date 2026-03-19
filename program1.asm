@@ -1,4 +1,4 @@
-; ================= DATA (0–31 ONLY) =================
+; ================= DATA =================
         LOC     6
         Data    0       ; [6] count
         Data    0       ; [7] sign
@@ -9,19 +9,17 @@
         Data    0       ; [12] scratch
         Data    10      ; [13]
         Data    48      ; [14]
-        Data    13      ; [15]
-        Data    45      ; [16]
+        Data    13      ; [15] CR
+        Data    45      ; [16] '-'
         Data    20      ; [17]
-        Data    24      ; [18]
+        Data    32      ; [18] array base
 
-; ===== MAIN JUMP TABLE =====
         Data    RdLp    ; [19]
         Data    PrLp    ; [20]
         Data    TgLp    ; [21]
         Data    SrLp    ; [22]
         Data    Done    ; [23]
 
-; ===== INTERNAL LABEL TABLE =====
         Data    Stor    ; [24]
         Data    Sv      ; [25]
         Data    Neg     ; [26]
@@ -33,31 +31,13 @@
 
 ; ===== ARRAY =====
         LOC     32
-        Data    0  ; [32]
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0      ; [51]
+        Data    0,0,0,0,0,0,0,0,0,0
+        Data    0,0,0,0,0,0,0,0,0,0
 
 ; ================= CODE =================
         LOC     60
 
-; ===== INIT =====
+; INIT
         LDA     0,0,0
         STR     0,0,6
         STR     0,0,7
@@ -72,16 +52,20 @@ RdLp:
         JCC     3,1,0
 
         IN      0,0
+
+; check CR
         LDR     1,0,15
         TRR     0,1
         LDX     1,24
         JCC     3,1,0
 
+; check '-'
         LDR     1,0,16
         TRR     0,1
         LDX     1,27
-        JNE     0,1,0
+        JCC     3,0,0     ; if NOT '-', go digit
 
+; handle '-'
         LDA     1,0,1
         STR     1,0,7
         LDX     1,19
@@ -91,6 +75,7 @@ Dgt:
         SMR     0,0,14
         LDX     1,28
         JGE     0,1,0
+
         LDX     1,19
         JMA     1,0
 
@@ -102,16 +87,20 @@ Acc:
         MLT     0,2
         AMR     1,0,12
         STR     1,0,8
+
         LDX     1,19
         JMA     1,0
 
+; ===== STORE =====
 Stor:
         LDR     0,0,8
         LDR     1,0,7
+
         LDA     2,0,1
         TRR     1,2
         LDX     1,26
         JCC     3,1,0
+
         LDX     1,25
         JMA     1,0
 
@@ -123,6 +112,7 @@ Sv:
         LDR     2,0,18
         AMR     2,0,6
         STR     2,0,12
+
         LDX     1,12
         STR     0,1,0
 
@@ -148,6 +138,7 @@ PrLp:
         LDR     2,0,18
         AMR     2,0,6
         STR     2,0,12
+
         LDX     1,12
         LDR     0,1,0
         OUT     0,1
@@ -167,6 +158,7 @@ TgLp:
 
 TgRead:
         IN      0,0
+
         LDR     1,0,15
         TRR     0,1
         LDX     1,30
@@ -174,8 +166,8 @@ TgRead:
 
         LDR     1,0,16
         TRR     0,1
-        LDX     1,27
-        JNE     0,1,0
+        LDX     1,TAcc
+        JCC     3,0,0
 
         LDA     1,0,1
         STR     1,0,7
@@ -183,9 +175,8 @@ TgRead:
 
 TAcc:
         SMR     0,0,14
-        LDX     1,28
+        LDX     1,TgRead
         JGE     0,1,0
-        JMA     0,0,TgRead
 
         STR     0,0,12
         LDR     0,0,8
@@ -194,11 +185,13 @@ TAcc:
         MLT     0,2
         AMR     1,0,12
         STR     1,0,8
+
         JMA     0,0,TgRead
 
 TSv:
         LDR     0,0,8
         LDR     1,0,7
+
         LDA     2,0,1
         TRR     1,2
         LDX     1,29
@@ -245,6 +238,7 @@ SrLp:
 
 AbsOK:
         STR     1,0,12
+
         LDR     0,0,10
         SMR     0,0,12
         LDX     1,31
@@ -258,6 +252,7 @@ Update:
         STR     0,0,10
         LDR     0,0,6
         STR     0,0,11
+
         LDX     1,22
         JMA     1,0
 
@@ -269,6 +264,7 @@ Done:
         LDR     2,0,18
         AMR     2,0,11
         STR     2,0,12
+
         LDX     1,12
         LDR     0,1,0
         OUT     0,1
