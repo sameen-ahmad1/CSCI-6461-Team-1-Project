@@ -6,12 +6,11 @@ import java.io.FileReader;
 import javax.swing.*;
 import memory.CPU;
 import memory.Cache;
+import memory.DeviceListener;
 import memory.MemoryBus;
 import memory.simple.Memory;
 
-
-
-public class gui extends JFrame{
+public class gui extends JFrame implements DeviceListener{
 
     private boolean isRunning = false;
     private CPU cpu;
@@ -502,6 +501,8 @@ public class gui extends JFrame{
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
                 Memory rawMem = new Memory();
+                // set the listener for device events (printer output, keyboard input, etc.)
+                rawMem.getDevice().setListener(this);
                 this.memory = new Cache(rawMem);
                 this.cpu = new CPU(this.memory);
                 this.memory.reset();
@@ -518,10 +519,12 @@ public class gui extends JFrame{
 
                  // The physical RAM
                 Memory rawMem = new Memory();  
+                // set the listener for device events (printer output, keyboard input, etc.)
+                rawMem.getDevice().setListener(this);
                 // The Cache layer   
                 this.memory = new Cache(rawMem);  
                 // Connect CPU to the Bus 
-                this.cpu = new CPU(this.memory);   
+                this.cpu = new CPU(this.memory);  
 
                 
                 this.memory.reset();
@@ -1056,6 +1059,23 @@ public class gui extends JFrame{
             }
         });
 
+        //action listener to wait for user input in the console text field. It sends the input to the keyboard device of the memory, which the CPU can read from.
+        consoleInput.addActionListener((e) -> {
+            if (cpu == null) return;
+
+            String text = consoleInput.getText().trim();
+            if (text.isEmpty()) return;
+
+            Memory rawMem = ((Cache) memory).getUnderlyingMemory();
+
+            for (char c : text.toCharArray()) {
+                rawMem.getDevice().sendKeyboardInput((int) c);
+            }
+            rawMem.getDevice().sendKeyboardInput(13); // CR
+
+            consoleInput.setText("");
+        });
+
         JLabel irLabel = new JLabel("IR");
         irLabel.setFont(font);
         irLabel.setForeground(Color.decode("#467ab9"));
@@ -1203,7 +1223,8 @@ public class gui extends JFrame{
                 }
 
                 cpu.cycle();
-                //cycleCount++;
+                cycleCount++;
+                // printerText = "running cycle " + cycleCount + "\n" + printerText;
                 updateTexts();
 
                 if (cpu.isHalted() || cpu.getMFR() != 0) 
@@ -1212,10 +1233,8 @@ public class gui extends JFrame{
                     updateTexts();
                     break;
                 }
-                //printerText = "running cycle " + cycleCount + "\n" + printerText;
-                
-                try { Thread.sleep(2000); }
-                catch (InterruptedException ex) { break; }
+                // try { Thread.sleep(2000); }
+                // catch (InterruptedException ex) { break; }
 
             }
 
@@ -1224,7 +1243,45 @@ public class gui extends JFrame{
         }).start();
 
     }
-    
+
+    private String lineBuffer = "";
+    private boolean nextValueIsInteger = false;
+
+    @Override
+    public void onPrinterOutput(int value) {
+        if (value == 1 && !nextValueIsInteger) {
+            nextValueIsInteger = true;
+            return;
+        }
+        if (value == 13) {
+            return;
+        } else if (value == 10) {
+            printerText = lineBuffer + "\n" + printerText;
+            lineBuffer = "";
+        } else if (nextValueIsInteger) {
+            nextValueIsInteger = false;
+            int signed = (value > 32767) ? value - 65536 : value;
+            lineBuffer += signed;
+        } else {
+            lineBuffer += (char)(value & 0xFF);
+        }
+        SwingUtilities.invokeLater(() -> {
+            printer.setText(printerText);
+            printer.setCaretPosition(0);
+        });
+    }
+
+    @Override
+    public void onCardReaderRead(int remaining) {
+        // no-op for now
+    }
+
+    @Override
+    public void onDeviceError(int devid, String message) {
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this, message, "Device Error", JOptionPane.ERROR_MESSAGE)
+        );
+    }
 
     public static void main(String args[]){
 

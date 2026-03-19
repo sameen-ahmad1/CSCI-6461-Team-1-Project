@@ -182,17 +182,23 @@ public class Assembler
                 currentLoc = Integer.parseInt(splitByParts[1]);
                 continue;
             }
+            // if the line contains a colon, which means there is a label
+            if (line.contains(":")) {
+                String[] parts = line.split(":", 2);
+                line = (parts.length > 1) ? parts[1].trim() : "";
+            }
 
-                
-            //this checks if the line contains a colon, which means there is a label
-            if (line.contains(":"))
-            {
-                // [1] is the actual instruction
-                line = line.split(":")[1].trim();
+            // after removing label, line may be empty
+            if (line.isEmpty()) {
+                continue;
             }
 
             // split into whitespace tokens
             String[] binaryParts = line.split("\\s+");
+            if (binaryParts.length == 0 || binaryParts[0].isEmpty()) {
+                continue;
+            }
+
             String operationName = binaryParts[0].toUpperCase();
 
             int instructions = 0;
@@ -201,12 +207,10 @@ public class Assembler
             if (binaryParts.length > 1) {
                 operandText = String.join(" ", Arrays.copyOfRange(binaryParts, 1, binaryParts.length)).trim();
             }
-            // remove all whitespace so "3, 0, 15" -> "3,0,15"
             operandText = operandText.replaceAll("\\s+", "");
             String[] operands = operandText.isEmpty() ? new String[0] : operandText.split(",");
 
-            if (operationName.equals("DATA"))
-            {
+            if (operationName.equals("DATA")) {
                 if (operands.length < 1) {
                    
                     String msg = String.format("ASSEMBLER ERROR: DATA missing value on Line %s", fileLine);
@@ -218,19 +222,11 @@ public class Assembler
                         
                     throw new IllegalArgumentException(msg);
                 }
+                String val = operands[0];
 
-                    //if its the data, then get the value of it
-                    String val = binaryParts[1];
-
-                    //check to see if the value is a label thats already in the table
-                if (table.containsKey(val))
-                {
-                    //get the memory address if its already there
+                if (table.containsKey(val)) {
                     instructions = table.get(val);
-                }
-                else
-                {
-                    //convert it into the int
+                } else {
                     instructions = Integer.parseInt(val);
                 }
             }

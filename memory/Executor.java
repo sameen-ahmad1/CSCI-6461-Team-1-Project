@@ -104,6 +104,11 @@ public final class Executor
     {
         int ea = decoded.addr & 0x1F;   // raw 5-bit address field
 
+        // dont need to calculate EA for IN/OUT, just return the device id in addr field
+        if (decoded.ins == Isa.Instruction.IN || decoded.ins == Isa.Instruction.OUT) {
+        return decoded.addr;
+        }
+
         if (indexAllowed(decoded.ins))
         {
             int x = decoded.x & 0x03;
@@ -279,13 +284,13 @@ public final class Executor
             // -----------------------------------------------------------------
             // I/O  (devid carried in decoded.addr)
             // -----------------------------------------------------------------
-            // case IN:
-            //     cpu.setGPR(decoded.r, memory.inputDevice(decoded.addr) & MASK_16);
-            //     return ExecuteResult.done();
+            case IN:
+                cpu.setGPR(decoded.r, memory.inputDevice(decoded.addr) & MASK_16);
+                return ExecuteResult.done();
 
-            // case OUT:
-            //     memory.outputDevice(decoded.addr, cpu.getGPR(decoded.r) & MASK_16);
-            //     return ExecuteResult.done();
+            case OUT:
+                memory.outputDevice(decoded.addr, cpu.getGPR(decoded.r) & MASK_16);
+                return ExecuteResult.done();
 
             // -----------------------------------------------------------------
             // Unimplemented / illegal

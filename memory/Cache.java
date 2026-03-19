@@ -221,4 +221,23 @@ public class Cache implements MemoryBus {
         
         return sb.toString();
     }
+    public Memory getUnderlyingMemory() {
+        return memory;
+    }
+
+    // need here to pass through to the device layer in memory for I/O support
+    @Override
+    public int inputDevice(int devid) {
+        return memory.inputDevice(devid);
+    }
+
+    @Override
+    public void outputDevice(int devid, int value) {
+        memory.outputDevice(devid, value);
+    }
+
+    @Override
+    public Device getDevice() {
+        return memory.getDevice();
+    }
 }

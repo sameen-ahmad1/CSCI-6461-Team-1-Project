@@ -3,6 +3,7 @@ import java.util.Arrays;
 import memory.CPU;
 import memory.MachineFault;
 import memory.MemoryBus;
+import memory.Device;
 
 public final class Memory implements MemoryBus 
 {
@@ -13,6 +14,7 @@ public final class Memory implements MemoryBus
     private enum Op { NONE, READ, WRITE }
     private Op pendingOp = Op.NONE;
     private int pendingAddr = 0;
+    private final Device device = new Device();
 
     @Override
     public void reset() {
@@ -114,11 +116,25 @@ public final class Memory implements MemoryBus
     {
         directWrite(address, value);
     }
+
+    public int inputDevice(int devid) 
+    {
+        return device.read(devid);
+    }   
+
+    public void outputDevice(int devid, int value) 
+    {
+        device.write(devid, value);
+    }
     
     @Override
     public String getCacheStatus() 
     {
         return "Cache is currently DISABLED\nDirect Memory Access active.";
+    }
+    @Override
+    public Device getDevice() {
+        return device;
     }
 
     private void checkAddr(int addr) {
