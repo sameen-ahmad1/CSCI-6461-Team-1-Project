@@ -1,6 +1,7 @@
 package assembler;
 import java.io.*;
 import java.util.*;
+import memory.MemoryBus;
 
 //FROM PAGE 24 of the instruction
 // Building the Assembler
@@ -38,16 +39,24 @@ public class Assembler
     private static final Map<String, Integer> table = new HashMap<>();
 
     //error checker make sure that the values stay within bit limits
-    private static void rangeCheck(int val, int max, String name) 
+    private static void rangeCheck(int val, int max, String name, MemoryBus memory) 
     {
         if (val < 0 || val > max) 
         {
-            throw new IllegalArgumentException(name + " value " + val + " is out of range (0-" + max + ")");
+            String errorMsg = String.format("ASSEMBLER ERROR: %s value %d is out of range (0-%d)", name, val, max);
+
+            // 1. Post to the GUI-monitored bus if available
+            if (memory != null) {
+                memory.postError(errorMsg);
+            } 
+
+            // 2. Throw the exception to stop the assembly process
+            throw new IllegalArgumentException(errorMsg);
         }
     }
 
     //first pass
-    private static void passOne(File file) throws IOException 
+    private static void passOne(File file, MemoryBus memory) throws IOException 
     {
         table.clear(); // clear the symbol table before starting pass one
         //location is set to 0, from his instructions 
@@ -86,7 +95,14 @@ public class Assembler
                     //ERROR CHECK: Duplicate labels
                     if (table.containsKey(name)) 
                     {
-                        throw new IllegalArgumentException("Duplicate label found: " + name);
+                        String msg = String.format("ASSEMBLER ERROR: Duplicate label found '%s'", name);
+    
+                        // Post to the GUI if memory is available
+                        if (memory != null) {
+                            memory.postError(msg);
+                        }
+
+                        throw new IllegalArgumentException(msg);
                     }
 
                     //put the label name and the location to the table
@@ -129,7 +145,7 @@ public class Assembler
 
 
     //pass TWO will go here, coverts into 16-bit octal
-    private static void passTwo(File file) throws IOException
+    private static void passTwo(File file, MemoryBus memory) throws IOException
     {
         //current location counter
         int currentLoc = 0;
@@ -192,7 +208,15 @@ public class Assembler
             if (operationName.equals("DATA"))
             {
                 if (operands.length < 1) {
-                    throw new IllegalArgumentException("DATA missing value on line: " + fileLine);
+                   
+                    String msg = String.format("ASSEMBLER ERROR: DATA missing value on Line %s", fileLine);
+        
+                    // Log to the GUI Printer before failing
+                    if (memory != null) {
+                            memory.postError(msg);
+                        }
+                        
+                    throw new IllegalArgumentException(msg);
                 }
 
                     //if its the data, then get the value of it
@@ -224,7 +248,15 @@ public class Assembler
                 } 
                 catch (IllegalArgumentException e) 
                 {
-                    throw new IllegalArgumentException("Opcode NOT allowed '" + operationName + "' on line: " + fileLine);
+                    String msg = String.format("ASSEMBLER ERROR, Opcode NOT allowed. Unknown Mnemonic '%s'", 
+                            operationName);
+                    // Check if memory is not null before posting
+                    if (memory != null) 
+                    {
+                        memory.postError(msg);
+                    }
+                    
+                    throw new IllegalArgumentException(msg);
                 }
                 
 
@@ -241,28 +273,58 @@ public class Assembler
                         // HLT: no operands
                         if (operands.length != 0) 
                         {
-                            throw new IllegalArgumentException(instr.mnemonic + " takes no operands: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' takes no operands", 
+                                    fileLine, instr.mnemonic);
+        
+                            // Post to the Bus so it appears in the GUI Printer
+                            if (memory != null) {
+                                memory.postError(msg);
+                            }
+
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " takes no operands: " + fileLine);
                         }
                     }
 
                     case TRAP_CODE -> {
                         // TRAP code
                         if (operands.length != 1) {
-                            throw new IllegalArgumentException("TRAP requires 1 operand (code): " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: TRAP requires exactly 1 operand", 
+                                    fileLine);
+        
+                            // Log to the GUI Printer
+                            if (memory != null) {
+                                memory.postError(msg);
+                            }
+
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException("TRAP requires 1 operand (code): " + fileLine);
                         }
                         int code = Integer.parseInt(operands[0]);
                         // table max 16 => 0..15
-                        if (code < 0 || code > 15) {
-                            throw new IllegalArgumentException("TRAP code out of range (0..15): " + fileLine);
+                        if (code < 0 || code > 15) 
+                        {
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: TRAP code %d is out of range (0-15)", 
+                                    fileLine, code);
+                            if (memory != null) { 
+                                memory.postError(msg);
+                            }
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException("TRAP code out of range (0..15): " + fileLine);
                         }
-                        rangeCheck(code, 15, "TRAP Code");
+                        rangeCheck(code, 15, "TRAP Code", memory);
                         instructions |= (code & 0x1F);
                     }
 
                     case R_X_ADDR_I -> {
                         // r, x, address[, I]
                         if (!(operands.length == 3 || operands.length == 4)) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires r,x,address[,I]: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires 3 or 4 operands", 
+                                    fileLine, instr.mnemonic, fileLine);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires r,x,address[,I]: " + fileLine);
                         }
 
                         int r  = Integer.parseInt(operands[0]);
@@ -273,9 +335,9 @@ public class Assembler
 
                         int indirectBit = (operands.length == 4) ? Integer.parseInt(operands[3]) : 0;
 
-                        rangeCheck(r, 3, "Register/CC/FR");
-                        rangeCheck(ix, 3, "Index Register");
-                        rangeCheck(memAddr, 31, "Address");
+                        rangeCheck(r, 3, "Register/CC/FR", memory);
+                        rangeCheck(ix, 3, "Index Register", memory);
+                        rangeCheck(memAddr, 31, "Address", memory);
 
 
                         instructions |= (r & 0x3) << 8;
@@ -287,7 +349,12 @@ public class Assembler
                     case CC_X_ADDR_I -> {
                         // cc, x, address[, I]
                         if (!(operands.length == 3 || operands.length == 4)) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires cc,x,address[,I]: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires cc,x,address[,I]", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires cc,x,address[,I]: " + fileLine);
                         }
 
                         int cc = Integer.parseInt(operands[0]);
@@ -308,7 +375,12 @@ public class Assembler
                     case X_ADDR_I -> {
                         // x, address[, I]
                         if (!(operands.length == 2 || operands.length == 3)) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires x,address[,I]: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires x,address[,I]", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires x,address[,I]: " + fileLine);
                         }
 
                         int ix = Integer.parseInt(operands[0]);
@@ -318,8 +390,8 @@ public class Assembler
 
                         int indirectBit = (operands.length == 3) ? Integer.parseInt(operands[2]) : 0;
 
-                        rangeCheck(ix, 3, "Index Register");
-                        rangeCheck(memAddr, 31, "Address");
+                        rangeCheck(ix, 3, "Index Register", memory);
+                        rangeCheck(memAddr, 31, "Address", memory);
 
                         // R field stays 0
                         instructions |= (ix & 0x3) << 6;
@@ -330,14 +402,19 @@ public class Assembler
                     case R_IMM -> {
                         // r, immed  (AIR/SIR)
                         if (operands.length != 2) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires r,immed: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires r,immed", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires r,immed: " + fileLine);
                         }
 
                         int r = Integer.parseInt(operands[0]);
                         int imm = Integer.parseInt(operands[1]);
 
-                        rangeCheck(r, 3, "Register");
-                        rangeCheck(imm, 31, "Immediate Value");
+                        rangeCheck(r, 3, "Register", memory);
+                        rangeCheck(imm, 31, "Immediate Value", memory);
 
                         instructions |= (r & 0x3) << 8;
                         instructions |= (imm & 0x1F); // 5-bit imm
@@ -346,25 +423,35 @@ public class Assembler
                     case IMM -> {
                         // immed (RFS)
                         if (operands.length != 1) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires immed: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires 1 immed operand", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires immed: " + fileLine);
                         }
 
                         int imm = Integer.parseInt(operands[0]);
-                        rangeCheck(imm, 31, "Immediate Value");
+                        rangeCheck(imm, 31, "Immediate Value", memory);
                         instructions |= (imm & 0x1F);
                     }
 
                     case RX_RY -> {
                         // rx, ry (MLT/DVD/TRR/AND/ORR)
                         if (operands.length != 2) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires rx,ry: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires rx,ry", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                           // throw new IllegalArgumentException(instr.mnemonic + " requires rx,ry: " + fileLine);
                         }
 
                         int rx = Integer.parseInt(operands[0]);
                         int ry = Integer.parseInt(operands[1]);
 
-                        rangeCheck(rx, 3, "Rx");
-                        rangeCheck(ry, 3, "Ry");
+                        rangeCheck(rx, 3, "Rx", memory);
+                        rangeCheck(ry, 3, "Ry", memory);
 
                         // Use R slot for rx, IX slot for ry
                         instructions |= (rx & 0x3) << 8;
@@ -374,25 +461,35 @@ public class Assembler
                     case RX_ONLY -> {
                         // rx (NOT)
                         if (operands.length != 1) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires rx: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires rx", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                          //  throw new IllegalArgumentException(instr.mnemonic + " requires rx: " + fileLine);
                         }
 
                         int rx = Integer.parseInt(operands[0]);
-                        rangeCheck(rx, 3, "Rx");
+                        rangeCheck(rx, 3, "Rx", memory);
                         instructions |= (rx & 0x3) << 8;
                     }
 
                     case IO_R_DEVID -> {
                         // r, devid (IN/OUT/CHK)
                         if (operands.length != 2) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires r,devid: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires r,devid", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                           // throw new IllegalArgumentException(instr.mnemonic + " requires r,devid: " + fileLine);
                         }
 
                         int r = Integer.parseInt(operands[0]);
                         int dev = Integer.parseInt(operands[1]);
 
-                        rangeCheck(r, 3, "Register");
-                        rangeCheck(dev, 31, "Device ID");
+                        rangeCheck(r, 3, "Register", memory);
+                        rangeCheck(dev, 31, "Device ID", memory);
                         instructions |= (r & 0x3) << 8;
                         instructions |= (dev & 0x1F);
                     }
@@ -400,7 +497,12 @@ public class Assembler
                     case FR_X_ADDR_I -> {
                         // fr, x, address[, I]  (FADD/FSUB/VADD/VSUB/LDFR/STFR)
                         if (!(operands.length == 3 || operands.length == 4)) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires fr,x,address[,I]: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires fr,x,address[,I]", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires fr,x,address[,I]: " + fileLine);
                         }
 
                         int fr = Integer.parseInt(operands[0]);
@@ -421,7 +523,12 @@ public class Assembler
                         // r, count, L/R, A/L (SRC/RRC)
                         // This assumes [OP:6][R:2][A/L:1][L/R:1][COUNT:4][00:2]
                         if (operands.length != 4) {
-                            throw new IllegalArgumentException(instr.mnemonic + " requires r,count,L/R,A/L: " + fileLine);
+                            String msg = String.format("ASSEMBLER ERROR at Line %s: '%s' requires  r,count,L/R,A/L", 
+                                    fileLine, instr.mnemonic);
+        
+                            if (memory != null) memory.postError(msg);
+                            throw new IllegalArgumentException(msg);
+                            //throw new IllegalArgumentException(instr.mnemonic + " requires r,count,L/R,A/L: " + fileLine);
                         }
 
                         int r     = Integer.parseInt(operands[0]);
@@ -429,8 +536,8 @@ public class Assembler
                         int lr    = Integer.parseInt(operands[2]); // 0/1
                         int al    = Integer.parseInt(operands[3]); // 0/1
 
-                        rangeCheck(r, 3, "Register");
-                        rangeCheck(count, 15, "Count");
+                        rangeCheck(r, 3, "Register", memory);
+                        rangeCheck(count, 15, "Count", memory);
                         // rebuild lower bits for this format
                         instructions = (instr.opcode << 10);
                         instructions |= (r & 0x3) << 8;
@@ -477,7 +584,7 @@ public class Assembler
 
 
     //take the file path from the terminal and run the two functions
-    public static void main(String[] args) 
+    public static void main(String[] args,  MemoryBus memory) 
     {
         //sanity check, if there is nothing 
         if (args.length < 1) 
@@ -493,9 +600,9 @@ public class Assembler
         try 
         {
             //pass 1 so read the file and set
-            passOne(file);
+            passOne(file, memory);
             //pass 2 so convert the instructions to octal
-            passTwo(file);
+            passTwo(file,memory);
             //if everything works as intended, it'll print that its successful 
             System.out.println("Assembler successful!!");
         }

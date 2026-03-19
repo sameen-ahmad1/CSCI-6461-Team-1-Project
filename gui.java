@@ -9,6 +9,8 @@ import memory.Cache;
 import memory.MemoryBus;
 import memory.simple.Memory;
 
+
+
 public class gui extends JFrame{
 
     private boolean isRunning = false;
@@ -16,6 +18,7 @@ public class gui extends JFrame{
     private MemoryBus memory;
 
     private int cycleCount = 0;
+    private static gui instance;
     private String printerText = "";
 
     private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
@@ -29,7 +32,7 @@ public class gui extends JFrame{
     private JTextField consoleInput;
 
     public gui(){
-
+       instance = this;
         Font font = new Font("Courier New", Font.BOLD, 14);
 
         JPanel outer = new JPanel(new BorderLayout(10,10));
@@ -402,8 +405,8 @@ public class gui extends JFrame{
 
             cpu.cycle();
             cpu.listRegisters();
-            cycleCount = cycleCount + 1;
-            printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
+            //cycleCount = cycleCount + 1;
+            //printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
             updateTexts();
             
         });
@@ -525,7 +528,7 @@ public class gui extends JFrame{
                 String actualLoadFile = filePath;
 
                 if (filePath.toLowerCase().endsWith(".asm")) {
-                    Assembler.main(new String[]{filePath});
+                    Assembler.main(new String[]{filePath}, this.memory);
                     // load.txt is written by your assembler (in current working dir)
                     actualLoadFile = "load.txt";
                     assembled = true;
@@ -571,13 +574,24 @@ public class gui extends JFrame{
                 cycleCount = 0;
                 updateTexts();
 
-            } catch (java.io.FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "File not found: " + filePath);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid format in load file.");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+            } 
+            catch (IllegalArgumentException ex) {
+                // This catches your "Duplicate Label", "Missing DATA", etc.
+                printerText += "STOP: " + ex.getMessage() + "\n";
+                updateTexts();
             }
+            catch (Exception ex) 
+            {
+                printerText += "CRITICAL ERROR: " + ex.getMessage() + "\n";
+                updateTexts();
+            }
+            // catch (java.io.FileNotFoundException ex) {
+            //     JOptionPane.showMessageDialog(this, "File not found: " + filePath);
+            // } catch (NumberFormatException ex) {
+            //     JOptionPane.showMessageDialog(this, "Invalid format in load file.");
+            // } catch (Exception ex) {
+            //     JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+            // }
         });
 
         //ADDED CLEAR CACHE BUTTON
@@ -1106,6 +1120,14 @@ public class gui extends JFrame{
 
     }
 
+    public static void postAssemblerError(String msg) 
+    {
+        if (instance != null) {
+            instance.printerText = ">> " + msg + "\n" + instance.printerText;
+            instance.updateTexts(); 
+        }
+    }
+
     private static int readStartAddressIfPresent(String startFilePath, int fallbackAddr) {
         try (BufferedReader br = new BufferedReader(new FileReader(startFilePath))) {
             String s = br.readLine();
@@ -1135,10 +1157,17 @@ public class gui extends JFrame{
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
         
+
+
+
         //added cache update
         cacheContent.setText(memory.getCacheStatus());
 
-        printer.setText(printerText);
+        // This pulls the FAULTS from Memory
+        String allMessages = memory.getErrors(); 
+        printer.setText(allMessages + printerText);
+
+        
         printer.setCaretPosition(0);
     });
 

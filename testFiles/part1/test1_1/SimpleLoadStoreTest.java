@@ -54,7 +54,6 @@ public class SimpleLoadStoreTest {
 
     public static void main(String[] args) {
         Memory mem = new Memory();
-
         int[] GPR = new int[4];
         int[] IX  = new int[4];
 
@@ -64,7 +63,7 @@ public class SimpleLoadStoreTest {
         GPR[2] = 0xBEEF;
 
         int strWord = enc_R_X_ADDR_I(Isa.Instruction.STR, 2, 0, 10, 0);
-        Decoder.Decoded dSTR = Decoder.decode(strWord);
+        Decoder.Decoded dSTR = Decoder.decode(strWord, mem);
 
         check(dSTR.ins == Isa.Instruction.STR, "Decode STR mnemonic");
         check(dSTR.r == 2 && dSTR.x == 0 && dSTR.i == 0 && dSTR.addr == 10, "Decode STR fields");
@@ -77,9 +76,9 @@ public class SimpleLoadStoreTest {
         // 2) LDR: load M[EA] -> GPR[r]
         // ----------------------------
         GPR[2] = 0;
-
+        
         int ldrWord = enc_R_X_ADDR_I(Isa.Instruction.LDR, 2, 0, 10, 0);
-        Decoder.Decoded dLDR = Decoder.decode(ldrWord);
+        Decoder.Decoded dLDR = Decoder.decode(ldrWord, mem);
 
         check(dLDR.ins == Isa.Instruction.LDR, "Decode LDR mnemonic");
         check(dLDR.r == 2 && dLDR.x == 0 && dLDR.i == 0 && dLDR.addr == 10, "Decode LDR fields");
@@ -95,7 +94,7 @@ public class SimpleLoadStoreTest {
         IX[1] = 7;
 
         int ldaWord = enc_R_X_ADDR_I(Isa.Instruction.LDA, 1, 1, 20, 0);
-        Decoder.Decoded dLDA = Decoder.decode(ldaWord);
+        Decoder.Decoded dLDA = Decoder.decode(ldaWord, mem);
 
         check(dLDA.ins == Isa.Instruction.LDA, "Decode LDA mnemonic");
         check(dLDA.r == 1 && dLDA.x == 1 && dLDA.i == 0 && dLDA.addr == 20, "Decode LDA fields");
@@ -110,7 +109,7 @@ public class SimpleLoadStoreTest {
         IX[2] = 0x1234;
 
         int stxWord = enc_X_ADDR_I(Isa.Instruction.STX, 2, 15, 0);
-        Decoder.Decoded dSTX = Decoder.decode(stxWord);
+        Decoder.Decoded dSTX = Decoder.decode(stxWord, mem);
 
         int eaSTX = computeEA(dSTX, IX, mem);
         mem.directWrite(eaSTX, IX[dSTX.x]);
@@ -125,7 +124,7 @@ public class SimpleLoadStoreTest {
         IX[2] = 0;
 
         int ldxWord = enc_X_ADDR_I(Isa.Instruction.LDX, 2, 15, 0);
-        Decoder.Decoded dLDX = Decoder.decode(ldxWord);
+        Decoder.Decoded dLDX = Decoder.decode(ldxWord, mem);
 
         int eaLDX = computeEA(dLDX, IX, mem);
         IX[dLDX.x] = mem.peek(eaLDX);
@@ -141,7 +140,7 @@ public class SimpleLoadStoreTest {
         mem.directWrite(21, 0xCAFE);
 
         int ldrIndWord = enc_R_X_ADDR_I(Isa.Instruction.LDR, 0, 0, 5, 1);
-        Decoder.Decoded dInd = Decoder.decode(ldrIndWord);
+        Decoder.Decoded dInd = Decoder.decode(ldrIndWord, mem);
 
         check(dInd.ins == Isa.Instruction.LDR, "Decode indirect LDR mnemonic");
         check(dInd.i == 1 && dInd.addr == 5, "Decode indirect LDR fields");
