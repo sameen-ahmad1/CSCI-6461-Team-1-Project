@@ -17,6 +17,7 @@ public class gui extends JFrame implements DeviceListener{
     private MemoryBus memory;
 
     private int cycleCount = 0;
+    private static gui instance;
     private String printerText = "";
 
     private JTextField zeroTextGPR, oneTextGPR, twoTextGPR, threeTextGPR;
@@ -30,7 +31,7 @@ public class gui extends JFrame implements DeviceListener{
     private JTextField consoleInput;
 
     public gui(){
-
+       instance = this;
         Font font = new Font("Courier New", Font.BOLD, 14);
 
         JPanel outer = new JPanel(new BorderLayout(10,10));
@@ -367,14 +368,15 @@ public class gui extends JFrame implements DeviceListener{
 
         runButton.addActionListener((e) -> {
 
-            printerText = "running file\n" + printerText;
+            //printerText = "running file\n" + printerText;
 
             if (cpu == null) {
                 JOptionPane.showMessageDialog(this, "No program loaded. Press IPL first.");
                 return;
             }
-
+            //memory.postError("System: Running");
             startRunLoop();
+            updateTexts();
 
         });
 
@@ -403,8 +405,8 @@ public class gui extends JFrame implements DeviceListener{
 
             cpu.cycle();
             cpu.listRegisters();
-            cycleCount = cycleCount + 1;
-            printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
+            //cycleCount = cycleCount + 1;
+            //printerText = "stepping cycle " + Integer.toString(cycleCount) + "\n" + printerText;
             updateTexts();
             
         });
@@ -435,7 +437,7 @@ public class gui extends JFrame implements DeviceListener{
             isRunning = false;
             cpu.halt();
             cpu.listRegisters();
-            printerText = "halting run\n" + printerText;
+            memory.postError("HALTING"); 
             updateTexts();
             
         });
@@ -462,14 +464,14 @@ public class gui extends JFrame implements DeviceListener{
 
                 pausePlayLabel.setText("Play");
                 isRunning = false;
-                printerText = "Pausing run\n" + printerText;
+                memory.postError("System Pausing");
                 updateTexts();
 
             }
             else{
 
                 pausePlayLabel.setText("Pause");
-                printerText = "Resuming run\n" + printerText;
+                //memory.postError("Resuming Run");
                 startRunLoop();
                 updateTexts();
 
@@ -494,6 +496,8 @@ public class gui extends JFrame implements DeviceListener{
         firstCenterCenterEast.add(IPLLabel, gbcEast);
 
         IPLButton.addActionListener((e) -> {
+            this.printerText = "";
+            printer.setText("");
             String filePath = programFile.getText().trim();
             if (filePath.isEmpty()) {
                 Memory rawMem = new Memory();
@@ -503,7 +507,7 @@ public class gui extends JFrame implements DeviceListener{
                 this.cpu = new CPU(this.memory);
                 this.memory.reset();
                 cycleCount = 0;
-                printerText = "testing individual instructions\n";
+                printerText = "No File Loaded, Testing Individual Instructions\n";
                 updateTexts();
                 return;
             }
@@ -530,7 +534,7 @@ public class gui extends JFrame implements DeviceListener{
                 String actualLoadFile = filePath;
 
                 if (filePath.toLowerCase().endsWith(".asm")) {
-                    Assembler.main(new String[]{filePath});
+                    Assembler.main(new String[]{filePath}, this.memory);
                     // load.txt is written by your assembler (in current working dir)
                     actualLoadFile = "load.txt";
                     assembled = true;
@@ -572,17 +576,29 @@ public class gui extends JFrame implements DeviceListener{
                     cpu.setPC(pc);
                 }
 
-                printerText = "file loaded\n" + printerText;
+                //printerText = "file loaded\n" + printerText;
+                memory.postError("IPL: File Loaded Successfully");
                 cycleCount = 0;
                 updateTexts();
 
-            } catch (java.io.FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "File not found: " + filePath);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid format in load file.");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+            } 
+            catch (IllegalArgumentException ex) {
+                // This catches your "Duplicate Label", "Missing DATA", etc.
+                printerText += "STOP: " + ex.getMessage() + "\n";
+                updateTexts();
             }
+            catch (Exception ex) 
+            {
+                printerText += "CRITICAL ERROR: " + ex.getMessage() + "\n";
+                updateTexts();
+            }
+            // catch (java.io.FileNotFoundException ex) {
+            //     JOptionPane.showMessageDialog(this, "File not found: " + filePath);
+            // } catch (NumberFormatException ex) {
+            //     JOptionPane.showMessageDialog(this, "Invalid format in load file.");
+            // } catch (Exception ex) {
+            //     JOptionPane.showMessageDialog(this, "Error loading program: " + ex.getMessage());
+            // }
         });
 
         //ADDED CLEAR CACHE BUTTON
@@ -609,7 +625,7 @@ public class gui extends JFrame implements DeviceListener{
             }
             
             memory.reset(); 
-            printerText = "Cache Cleared Manually\n" + printerText;
+            memory.postError("Cache Cleared Manually");
             updateTexts(); 
         });
 
@@ -1128,6 +1144,14 @@ public class gui extends JFrame implements DeviceListener{
 
     }
 
+    public static void postAssemblerError(String msg) 
+    {
+        if (instance != null) {
+            instance.printerText = ">> " + msg + "\n" + instance.printerText;
+            instance.updateTexts(); 
+        }
+    }
+
     private static int readStartAddressIfPresent(String startFilePath, int fallbackAddr) {
         try (BufferedReader br = new BufferedReader(new FileReader(startFilePath))) {
             String s = br.readLine();
@@ -1157,11 +1181,18 @@ public class gui extends JFrame implements DeviceListener{
         ccText.setText(String.format("%04o", cpu.getCC() & 0xF));
         mfrText.setText(String.format("%04o", cpu.getMFR() & 0xF));
         
-        //added cache update
-        cacheContent.setText(memory.getCacheStatus());
 
-        printer.setText(printerText);
-        printer.setCaretPosition(0);
+        String newLogs = memory.getErrors(); 
+            
+        // 2. If there are new logs, add them to the TOP of history
+        if (!newLogs.isEmpty()) 
+        {
+            this.printerText = newLogs + this.printerText;
+            printer.setText(this.printerText);
+            printer.setCaretPosition(0); 
+        }
+            
+        cacheContent.setText(memory.getCacheStatus());
     });
 
     }
@@ -1169,18 +1200,37 @@ public class gui extends JFrame implements DeviceListener{
     private void startRunLoop() {
 
         if (cpu == null || isRunning) return;
-
+        
         isRunning = true;
 
         new Thread(() -> {
             while (isRunning) {
 
+                if (cpu.isHalted() || cpu.getMFR() != 0) 
+                {
+                    isRunning = false;
+                    if (cpu.getMFR() != 0) 
+                    {
+                        System.out.println("System: RUN HALTED - Machine Fault");
+                        memory.postError("System: RUN HALTED - Machine Fault (" + cpu.getMFR() + ")");
+                    } 
+                    else 
+                    {
+                        System.out.println("System RUN Status: CPU Halted");
+                        memory.postError("System RUN Status: CPU Halted");
+                    }
+                    break;
+                }
+
                 cpu.cycle();
                 cycleCount++;
                 // printerText = "running cycle " + cycleCount + "\n" + printerText;
                 updateTexts();
-                if (cpu.isHalted() || cpu.getMFR() != 0) {
+
+                if (cpu.isHalted() || cpu.getMFR() != 0) 
+                {
                     isRunning = false;
+                    updateTexts();
                     break;
                 }
                 // try { Thread.sleep(2000); }

@@ -20,12 +20,23 @@ public final class Executor
     // =========================================================================
     private static final int MASK_12 = 0x7FF;
     private static final int MASK_16 = 0xFFFF;
+   // private static StringBuilder logs = new StringBuilder();
 
     // CC bit positions (0-indexed from LSB)
     private static final int CC_OVERFLOW = 0;
     private static final int CC_DIVZERO  = 2;
     private static final int CC_EQUAL    = 3;
 
+    // private static void addLog(String msg) 
+    // {
+    //     logs.insert(0, msg + "\n"); // Add new messages to the top
+    // }
+
+    
+    // public String getLogs() 
+    // {
+    //     return logs.toString();
+    // }
     // =========================================================================
     // EXECUTE RESULT
     // Returned by execute() so CPU can apply state changes without knowing
@@ -287,6 +298,8 @@ public final class Executor
             default:
                 System.out.printf("FAULT: Unhandled instruction %s (Opcode: %o) Raw: %06o\n",
                         decoded.ins, decoded.opcode, decoded.raw);
+                String error3 = String.format("FAULT: Unhandled instruction %s Opcode: %o Raw: %06o\n", decoded.ins, decoded.opcode, decoded.raw);
+                memory.postError(error3);
                 cpu.setMFR(MachineFault.Code.ILLEGAL_OPCODE.value);
                 return ExecuteResult.fault();
         }
@@ -306,12 +319,14 @@ public final class Executor
         {
             System.out.printf("DEBUG: finishLoad LDR - MBR is %06o, writing to GPR[%d]\n",
                     value, decoded.r);
+            //addLog(String.format("DEBUG: finishLoad LDR - MBR is %06o, writing to GPR[%d]\n", value, decoded.r));
             cpu.setGPR(decoded.r, value);
         }
         else if (decoded.ins == Isa.Instruction.LDX)
         {
             System.out.printf("DEBUG: finishLoad LDX - MBR is %06o, writing to IX[%d]\n",
                     value, decoded.x);
+            //addLog(String.format("DEBUG: finishLoad LDX - MBR is %06o, writing to IX[%d]\n",value, decoded.x));
             cpu.setIX(decoded.x, value);
         }
     }

@@ -8,7 +8,7 @@ import memory.Device;
 public final class Memory implements MemoryBus 
 {
     public static final int SIZE = 2048;
-
+   // private static StringBuilder logs = new StringBuilder();
     private final short[] mem = new short[SIZE];
 
     private enum Op { NONE, READ, WRITE }
@@ -21,6 +21,26 @@ public final class Memory implements MemoryBus
         Arrays.fill(mem, (short) 0);
         pendingOp = Op.NONE;
         pendingAddr = 0;
+    }
+
+    
+
+    private StringBuilder errorLog = new StringBuilder();
+
+    @Override
+    public void postError(String message) 
+    {
+        // Add new errors to the top with a newline
+        errorLog.append(message).append("\n");
+    }
+
+    @Override
+    public String getErrors() 
+    {
+        //return errorLog.toString();
+        String currentErrors = this.errorLog.toString();
+        errorLog.setLength(0);
+        return currentErrors;
     }
 
     @Override
@@ -67,11 +87,17 @@ public final class Memory implements MemoryBus
 
     private void checkNotBusy() {
         if (pendingOp != Op.NONE) {
-            throw new MachineFault(
-                    MachineFault.Code.MEMORY_BUSY,
-                    pendingAddr,
-                    "Memory busy: new request before previous completed"
-            );
+            String msg = String.format("FAULT [%s]: Memory busy at addr %04o", 
+                                    MachineFault.Code.MEMORY_BUSY, pendingAddr);
+        
+        // Log it so the GUI can see it
+        postError(msg); 
+
+        throw new MachineFault(
+                MachineFault.Code.MEMORY_BUSY,
+                pendingAddr,
+                msg
+        );
         }
     }
 
@@ -111,13 +137,19 @@ public final class Memory implements MemoryBus
         return device;
     }
 
-    private static void checkAddr(int addr) {
+    private void checkAddr(int addr) {
         if (addr < 0 || addr >= SIZE) {
-            throw new MachineFault(
-                    MachineFault.Code.ILLEGAL_MEMORY_ADDRESS,
-                    addr,
-                    "Illegal memory address: " + addr + " (valid 0.." + (SIZE - 1) + ")"
-            );
+            String msg = String.format("FAULT [%s]: Invalid addr %04o (Limit: %04o)", 
+                                    MachineFault.Code.ILLEGAL_MEMORY_ADDRESS, addr, SIZE-1);
+        
+            // Log it so the GUI can see it
+            postError(msg);
+
+        throw new MachineFault(
+                MachineFault.Code.ILLEGAL_MEMORY_ADDRESS,
+                addr,
+                msg
+        );
         }
     }
 }

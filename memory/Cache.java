@@ -12,7 +12,7 @@ import memory.simple.Memory;
  */
 public class Cache implements MemoryBus {
     private static final int NUM_LINES = 16; //number of lines in the cache
- 
+    //private StringBuilder logs = new StringBuilder();
     private final CacheLine[] lines; //array of cache lines
  
     private final Memory memory; //reference to main memory for misses and writes
@@ -35,6 +35,22 @@ public class Cache implements MemoryBus {
         }
     }
  
+    private StringBuilder errorLog = new StringBuilder();
+
+    @Override
+    public void postError(String message) {
+        // Add new errors to the top with a newline
+        errorLog.append(message).append("\n");
+    }
+
+    @Override
+    public String getErrors() {
+        //return errorLog.toString();
+        String currentErrors = this.errorLog.toString();
+        errorLog.setLength(0);
+        return currentErrors;
+    }
+
     @Override
     public void requestRead(int address) 
     {
@@ -60,6 +76,7 @@ public class Cache implements MemoryBus {
             totalHits++;
             System.out.printf("[CACHE HIT]  addr=%04o  data=%06o  line=%d\n",
                     address, lines[hitIndex].data, hitIndex);
+            //addLog(String.format("[CACHE HIT]  addr=%04o data=%06o  line=%d\n", address, lines[hitIndex].data, hitIndex));
             return lines[hitIndex].data;
         }
  
@@ -67,7 +84,7 @@ public class Cache implements MemoryBus {
         int value = memory.peek(address);
         System.out.printf("[CACHE MISS] addr=%04o  data=%06o  fetched from memory\n",
                 address, value);
- 
+        //addLog(String.format("[CACHE MISS] addr=%04o  data=%06o  fetched from memory\n", address, value));
         loadLine(address, value);// store it in cache so next time is a hit
         return value;
     }
@@ -84,11 +101,12 @@ public class Cache implements MemoryBus {
     public void writeWord(int address, int value) {
         memory.directWrite(address, value); //write through to memory
         System.out.printf("[CACHE WRITE] addr=%04o  data=%06o\n", address, value);
- 
+        //addLog(String.format("[CACHE WRITE] addr=%04o  data=%06o\n", address, value));
         int hitIndex = findLine(address); // if its in the cache update it so it doesnt go stale
         if (hitIndex != -1) {
             lines[hitIndex].updateData(value);
             System.out.printf("[CACHE UPDATE] line=%d updated with new data\n", hitIndex);
+            //addLog(String.format("[CACHE UPDATE] line=%d updated with new data\n", hitIndex));
         }
     }
  
