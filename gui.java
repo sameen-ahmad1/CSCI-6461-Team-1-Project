@@ -1194,8 +1194,8 @@ public class gui extends JFrame implements DeviceListener{
                     isRunning = false;
                     break;
                 }
-                try { Thread.sleep(2000); }
-                catch (InterruptedException ex) { break; }
+                // try { Thread.sleep(2000); }
+                // catch (InterruptedException ex) { break; }
 
             }
 
