@@ -67,6 +67,15 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 - postError(String message) / getErrors(): Lightweight fault reporting channel through the bus so errors can be surfaced to the CPU or GUI without throwing exceptions
 
 ### I/O Subsystem (The Keyboard & Printer)
+- `Device.java` handles all of the I/O operations when  `IN` and `OUT` instruction are called. `Executor.java` has all functionality for instruction execution and calls `Device.java` as an interface.
+     - `read(int devid)`: reads specified input device
+     - `write(int devid, int value)`: writes a value to a specified devid
+     - `readKeyboard()`, `sendKeyboardInput(int value)`, `loadKeyboardInput(String input)`, `writePrinter(int value)` all use the keyboard buffer defined in this class to execute IN and OUT functionality
+- `Devicelistener.java` bridges the keyboard listener in `gui.java` to `Device.java` and allows for input from IN to get processed and output for OUT to be sent back to the intended device.
+- device id specification is as follows:
+   - 0 - Keyboard  (input only)
+   - 1 - Printer   (output only)
+   - 2 - Card Reader (input only)
 
 
 ### GUI
