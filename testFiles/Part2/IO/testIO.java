@@ -1,12 +1,10 @@
-package testFiles.part2.IO;
+package testFiles.Part2.IO;
 import assembler.Assembler;
-import memory.Cache;
-import memory.CPU;
-import memory.simple.Memory;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import memory.CPU;
+import memory.Cache;
+import memory.simple.Memory;
 
 public class testIO {
 
@@ -21,7 +19,8 @@ public class testIO {
     }
 
     private void loadProgram(String asmFile) throws Exception {
-        Assembler.main(new String[]{ asmFile });
+       
+        Assembler.main(new String[]{ asmFile }, this.cache);
 
         BufferedReader reader = new BufferedReader(new FileReader("load.txt"));
         int firstAddr = -1;

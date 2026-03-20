@@ -20,7 +20,7 @@
 ;        STR 1, 0, 3000, 0 ; ERROR: MemoryBus should post "Invalid Address 3000"
 
 ; --- TEST 5: INVALID REGISTER (Assembler/Decoder Error) ---
-;        LDR 5, 0, 10, 0   ; ERROR: Register 5 does not exist (only 0-3)
+        LDR 5, 0, 10, 0   ; ERROR: Register 5 does not exist (only 0-3)
 
 ; --- TEST 6: CIRCULAR INDIRECT (Runtime Logic) ---
 ; M[30] points to 30. An indirect load here might cause a loop or fault.

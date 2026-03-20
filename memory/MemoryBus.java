@@ -27,4 +27,6 @@ public interface MemoryBus {
     int inputDevice(int devid);
     void outputDevice(int devid, int value);
     Device getDevice();
+    void postError(String message);
+    String getErrors();
 }

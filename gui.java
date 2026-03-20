@@ -443,7 +443,7 @@ public class gui extends JFrame implements DeviceListener{
         });
 
         JButton pausePlayButton = new JButton();
-        JLabel pausePlayLabel = new JLabel("Pause");
+        JLabel pausePlayLabel = new JLabel("Play");
 
         pausePlayLabel.setForeground(Color.decode("#467ab9"));
         pausePlayLabel.setFont(font);
@@ -514,6 +514,8 @@ public class gui extends JFrame implements DeviceListener{
 
             try {
                 isRunning = false;
+                pausePlayLabel.setText("Play");
+                
                 // memory.reset();
                 // cpu = new CPU(memory);
 
@@ -1202,6 +1204,7 @@ public class gui extends JFrame implements DeviceListener{
         if (cpu == null || isRunning) return;
         
         isRunning = true;
+        updateTexts();
 
         new Thread(() -> {
             while (isRunning) {
@@ -1233,8 +1236,8 @@ public class gui extends JFrame implements DeviceListener{
                     updateTexts();
                     break;
                 }
-                // try { Thread.sleep(2000); }
-                // catch (InterruptedException ex) { break; }
+                 try { Thread.sleep(1000); }
+                 catch (InterruptedException ex) { break; }
 
             }
 
