@@ -78,7 +78,7 @@ public class gui extends JFrame implements DeviceListener{
         JLabel cacheContentLabel = new JLabel("Cache Content");
         cacheContentLabel.setForeground(Color.decode("#467ab9"));
         cacheContentLabel.setFont(font);
-        cacheContent = new JTextArea("",20,30);
+        cacheContent = new JTextArea("",20,40);
         cacheContent.setFont(font);
         cacheContent.setBackground(Color.decode("#3c3c44"));
         cacheContent.setForeground(Color.decode("#B0D3D1"));
