@@ -46,8 +46,25 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 - The "Miss" Path: The Cache pauses the CPU, fetches a block from Main Memory, performs a FIFO eviction if necessary, and then resumes the CPU
 
 ### Cache
-- 
+- The Cache subsystem sits between the CPU and main memory, storing recently accessed words so the CPU can retrieve them faster on subsequent accesses
+- Built around three pieces: the `MemoryBus` interface that decouples the CPU from the memory layer, the `CacheLine` class representing a single cache slot, and the `Cache` class managing all 16 lines
 - Write Policy: Write-Through. Every write to the cache is simultaneously written to main memory
+- Eviction Policy: FIFO. When all 16 lines are full, the line that was inserted earliest is replaced first
+
+### CacheLine
+- CacheLine represents a single slot in the cache, holding a validity flag, a tag (the memory address being cached), the actual 16-bit data word, and a FIFO order counter for eviction priority
+- Constructor CacheLine(): Initializes the line as empty (valid = false, tag = -1, data = 0, fifoOrder = 0), ensuring every slot starts clean before the cache is populated
+- load(int tag, int data, int fifoOrder): Fills the line with a new address and data word on a cache miss. Marks the line valid and stamps it with the current FIFO counter. Data is masked to 16 bits to match hardware word width
+- updateData(int data): Overwrites the stored data without touching the FIFO order, called on a write-hit to keep the cached copy consistent with memory
+- invalidate(): Resets the line back to its initial empty state, called on IPL to ensure no stale data persists across program loads
+
+### MemoryBus
+- MemoryBus is the interface that allows the cache to be plugged in between the CPU and Memory without modifying either. The CPU only ever holds a MemoryBus reference so it remains unaware of whether it is talking to cache or memory directly
+- readWord(int address) / writeWord(int address, int value): Core read and write operations. The CPU calls these without knowing if the result comes from cache or memory
+- requestRead(int address) / requestWrite(int address): Hardware-level memory cycle triggers used by the CPU tick-based state machine for operations that resolve over multiple cycles
+- tick(CPU cpu): Advances the memory subsystem by one clock cycle, allowing pending read/write operations to finalize and simulate hardware latency
+- getCacheStatus(): Exposes cache line contents and hit/miss statistics to the GUI without the CPU needing direct knowledge of the cache implementation
+- postError(String message) / getErrors(): Lightweight fault reporting channel through the bus so errors can be surfaced to the CPU or GUI without throwing exceptions
 
 ### I/O Subsystem (The Keyboard & Printer)
 
