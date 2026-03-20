@@ -16,7 +16,6 @@ Team Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, and Wesam Abu Rabia
 - The design notes are in part1.md in the folder docs/part1
 - The git logs are in part1logs.txt in the folder docs/part1
 
-
 ## Part 2 Instructions
 - To unpack the jar file run the command “jar xf part2.jar”.
 - To run the gui/simulator, use the command “java -cp part2.jar gui”. This can also be done on the unpacked files using the command “java gui”
