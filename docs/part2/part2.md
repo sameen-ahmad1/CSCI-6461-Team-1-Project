@@ -6,10 +6,10 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 
 ### CPU
 - The CPU acts as the central state machine of the simulator, executing instructions through a multi-step cycle
-- Instruction Cycle: Implements FETCH_1, FETCH_2, DECODE, COMPUTE_EA, EXECUTE, and other states.
+- Instruction Cycle: Implements FETCH_1, FETCH_2, DECODE, COMPUTE_EA, EXECUTE, and other states
 - Registers: Maintains four General Purpose Registers (GPR0–GPR3), three Index Registers (X1–X3), a Program Counter (PC), and an Instruction Register (IR)
-- State Transition Logic: The CPU.java uses a switch statement within the tick() function. This ensures that a single clock pulse only advances the CPU by one micro-operation (ex: MAR <- PC)
-- I/O Handling: Implements IN and OUT instructions. The IN instruction is designed as a blocking operation, halting the CPU cycle until the GUI keyboard buffer provides data.
+- State Transition Logic: The CPU.java uses a switch statement within the tick() function. This ensures that a single clock moves only advances the CPU by one micro-operation (ex: MAR <- PC)
+- I/O Handling: Implements IN and OUT instructions. The IN instruction is designed as a blocking operation, halting the CPU cycle until the GUI keyboard buffer provides data
 - Every instruction is broken down into micro-operations that occur over multiple "ticks":
     - Instruction Fetch (IF): The PC is placed on the MAR. The MemoryBus is signaled for a read. The data returns to the MBR and is moved to the IR
     - Decode (ID): The 16-bit word in the IR is bit-masked to extract:
@@ -17,16 +17,26 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
         - GPR (Bits 8-9): Selects one of four general-purpose registers
         - IXR (Bits 6-7): Selects one of three index registers
         - I-Bit (Bit 5): Determines if Indirect Addressing is required
-        - Address (Bits 0-4): The base memory displacement
+        - Address (Bits 0-4): The base memory
     - Effective Address Calculation (EA): This is the core of the program1.asm array logic
     - Execute (EX): The ALU performs the operation (ex: SMR for subtraction or AIR for immediate addition)
     - Write-Back (WB): The result is stored back in a GPR or sent to the MemoryBus using a STR instruction
 
 ### Memory
-- A simplified memory module representing a fixed address space
+- A memory module representing a fixed address space
 - Memory is accessed using the MemoryBus interface, allowing the Cache to sit between the CPU and the physical RAM without changing CPU logic
-- Logical vs. Physical: The CPU sees "Logical Memory" (the MemoryBus interface). The Cache provides the physical implementation
-- The IPL (Initial Program Load) button triggers a specialized "Direct Write" mode that bypasses CPU cycles to rapidly populate the memory from the .asm file
+- Internal Storage & Addressing
+    - Capacity: 4096 words (Addressable from 0000 to 7777 in octal)
+    - Word Size: 16-bits per address
+    - Addressing Logic: The memory uses a 12-bit Memory Address Register (MAR) to select a location. Because the system is word-addressable, there is no need for byte-alignment logic, simplifying the data path between RAM and GPRs
+- Key Memory Functions (Implementation)
+    - The readWord(int address) Logic: When a read is requested, the memory must return the 16-bit integer at that index. If the address is out of bounds (above 4095), the system is designed to trigger a "Machine Check" error to prevent a simulation crash
+    - The writeWord(int address, int value) Logic: This handles the STR (Store Register) and STX (Store Index Register) instructions
+- Memory Design Principles
+    - Instruction vs. Data Separation: Our design reserves addresses 0-5 for system pointers and 6-31 for constants, with code starting at 060
+    - The IPL (Initial Program Load): A specific "Direct Access" method was created for the Loader. This allows the GUI to populate memory from a text file without the CPU needing to be "ON". This bypasses the Cache to ensure the initial state of the machine is clean.
+    - Bus Interface: By implementing a MemoryBus interface, we successfully separated the CPU from the physical RAM. This allowed us to "plug in" the Cache module in Part 2 without modifying a single line of code in the CPU class. The CPU simply calls readWord(), and it doesn't care if that word comes from the Cache or the RAM
+
 
 
 ### Memory & Cache Interaction
@@ -37,7 +47,7 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 
 ### Cache
 - 
-- Write Policy: Write-Through. Every write to the cache is simultaneously written to main memory to ensure data integrity
+- Write Policy: Write-Through. Every write to the cache is simultaneously written to main memory
 
 ### I/O Subsystem (The Keyboard & Printer)
 
@@ -57,7 +67,6 @@ Group #1 Members: Sameen Ahmad, Zack Rahbar, Liza Mozolyuk, Wesam Abu Rabia
 - To provide the best user experience, the system implements a Prepend Logic for logs
 - Buffer Management: The MemoryBus collects cycle logs into a StringBuilder
 - Ordering: When updateTexts() is called, the new block of logs is added to the front of the existing text string (newLogs + history)
-- Internal Chronology: While the newest cycles are at the top, the lines within a cycle (Fetch -> Decode -> Execute) maintain their natural top-to-bottom reading order for clarity
 
 ### Error & Debug Messages
 - Invalid Opcode Detection: If the IR receives a word that doesn't match a known instruction, the system triggers a "Machine Check" error displayed in the Printer
