@@ -74,6 +74,7 @@ public class gui extends JFrame implements DeviceListener{
         firstEast.add(firstEastCenter, BorderLayout.CENTER);
         firstEast.add(firstEastSouth, BorderLayout.SOUTH);
 
+
         JLabel cacheContentLabel = new JLabel("Cache Content");
         cacheContentLabel.setForeground(Color.decode("#467ab9"));
         cacheContentLabel.setFont(font);
@@ -82,9 +83,12 @@ public class gui extends JFrame implements DeviceListener{
         cacheContent.setBackground(Color.decode("#3c3c44"));
         cacheContent.setForeground(Color.decode("#B0D3D1"));
         cacheContent.setEditable(false);
+        JScrollPane cacheScroll = new JScrollPane(cacheContent);
+        cacheScroll.setBorder(BorderFactory.createEmptyBorder());
+        cacheScroll.getViewport().setBackground(Color.decode("#3C3C44"));
 
         firstEastNorth.add(cacheContentLabel, BorderLayout.NORTH);
-        firstEastNorth.add(cacheContent, BorderLayout.SOUTH);
+        firstEastNorth.add(cacheScroll, BorderLayout.SOUTH);
 
         JLabel printerLabel = new JLabel("Printer");
         printerLabel.setForeground(Color.decode("#467ab9"));

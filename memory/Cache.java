@@ -198,29 +198,25 @@ public class Cache implements MemoryBus {
 
 
     @Override
-    public String getCacheStatus() 
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("===== CACHE  =====\n");
-        sb.append(String.format("Mode:        %s\n", "FIFO (16 Lines)"));
-        
-        // Calculate how many lines are currently being used
-        int activeLines = 0;
-        for (CacheLine line : lines) {
-            if (line.valid) activeLines++;
+public String getCacheStatus() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("===== CACHE STATUS =====\n");
+    sb.append(String.format("Hits: %-4d | Misses: %-4d\n", totalHits, totalMisses));
+    sb.append("---------------------------------\n");
+    sb.append("Idx | Tag (Addr) | Data   | FIFO\n");
+    sb.append("---------------------------------\n");
+
+    for (int i = 0; i < NUM_LINES; i++) {
+        if (lines[i].valid) {
+            sb.append(String.format("%02d  | %06o     | %06o | %d\n", 
+                i, lines[i].tag, lines[i].data, lines[i].fifoOrder));
+        } else {
+            sb.append(String.format("%02d  | [ EMPTY ]  | ------ | --\n", i));
         }
-        
-        sb.append(String.format("Line Count:  %d / 16\n", activeLines));
-        sb.append("---------------------------\n");
-        sb.append(String.format("Total Hits:   %d\n", getTotalHits()));
-        sb.append(String.format("Total Misses: %d\n", getTotalMisses()));
-        
-        // Add a quick visual of the lines if you want
-        sb.append("---------------------------\n");
-        sb.append("Status:      READY\n");
-        
-        return sb.toString();
     }
+    sb.append("---------------------------------");
+    return sb.toString();
+}
     public Memory getUnderlyingMemory() {
         return memory;
     }
