@@ -29,6 +29,7 @@ public class gui extends JFrame implements DeviceListener{
     private JTextField binary, octalInput, programFile;
     private JTextArea cacheContent, printer;
     private JTextField consoleInput;
+    private JTextField cardReader;
 
     public gui(){
        instance = this;
@@ -65,10 +66,14 @@ public class gui extends JFrame implements DeviceListener{
         JPanel firstEastNorth = new JPanel(new BorderLayout(5,5));
         JPanel firstEastCenter = new JPanel(new BorderLayout(5,5));
         JPanel firstEastSouth = new JPanel(new BorderLayout(5,5));
+        JPanel firstEastSouthNorth = new JPanel(new BorderLayout(5,5));
+        JPanel firstEastSouthSouth = new JPanel(new BorderLayout(5,5));
 
         firstEastNorth.setBackground(Color.decode("#28282D"));
         firstEastCenter.setBackground(Color.decode("#28282D"));
         firstEastSouth.setBackground(Color.decode("#28282D"));
+        firstEastSouthNorth.setBackground(Color.decode("#28282D"));
+        firstEastSouthSouth.setBackground(Color.decode("#28282D"));
 
         firstEast.add(firstEastNorth, BorderLayout.NORTH);
         firstEast.add(firstEastCenter, BorderLayout.CENTER);
@@ -113,8 +118,26 @@ public class gui extends JFrame implements DeviceListener{
         consoleInput.setBackground(Color.decode("#3c3c44"));
         consoleInput.setForeground(Color.decode("#B0D3D1"));
 
-        firstEastSouth.add(consoleInputLabel, BorderLayout.NORTH);
-        firstEastSouth.add(consoleInput, BorderLayout.SOUTH);
+        firstEastSouthNorth.add(consoleInputLabel, BorderLayout.NORTH);
+        firstEastSouthNorth.add(consoleInput, BorderLayout.SOUTH);
+
+        JLabel cardReaderLabel = new JLabel("Card Reader");
+        cardReaderLabel.setFont(font);
+        cardReaderLabel.setForeground(Color.decode("#467ab9"));
+        cardReader = new JTextField("", 20);
+        cardReader.setFont(font);
+        cardReader.setBackground(Color.decode("#3c3c44"));
+        cardReader.setForeground(Color.decode("#B0D3D1"));
+
+        firstEastSouthSouth.add(cardReaderLabel, BorderLayout.NORTH);
+        firstEastSouthSouth.add(cardReader, BorderLayout.SOUTH);
+
+        cardReader.addActionListener((e) -> {
+            
+        });
+
+        firstEastSouth.add(firstEastSouthNorth, BorderLayout.NORTH);
+        firstEastSouth.add(firstEastSouthSouth, BorderLayout.SOUTH);
 
         JPanel firstCenterNorth = new JPanel(new BorderLayout(5,5));
         JPanel firstCenterCenter = new JPanel(new BorderLayout(5,5));
