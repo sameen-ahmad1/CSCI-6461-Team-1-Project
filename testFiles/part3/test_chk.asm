@@ -1,15 +1,11 @@
-LOC 10
-CHK 0, 0            ; R0 <- keyboard status  (devid 0)
-CHK 1, 1            ; R1 <- printer status   (devid 1)
-CHK 2, 2            ; R2 <- card reader status (devid 2)
+        LOC     010
 
-STR 0, 0, 0, 20    ; memory[20] = R0 (keyboard result)
-STR 1, 0, 0, 21    ; memory[21] = R1 (printer result)
-STR 2, 0, 0, 22    ; memory[22] = R2 (card reader result)
+Loop:
+        CHK     0,2             ; GPR[0] = card reader status: 1=ready, 0=empty
+        JZ      0,0,Done        ; if GPR[0] == 0 (empty), stop
+        IN      0,2             ; GPR[0] = next card word (ASCII char code)
+        OUT     0,1             ; send GPR[0] to printer (devid 1)
+        JMA     0,Loop          ; go back and check again
 
-LOC 17
-JZ 0, 0, 0, 17     ; R0 holds keyboard status (=1), so this WON'T spin
-                    ; see note below
-
-LOC 16
-JZ 3, 0, 0, 16     ; R3 = 0 always, spins here
+Done:
+        HLT

@@ -133,7 +133,21 @@ public class gui extends JFrame implements DeviceListener{
         firstEastSouthSouth.add(cardReader, BorderLayout.SOUTH);
 
         cardReader.addActionListener((e) -> {
-            
+            if (cpu == null) return;
+            String text = cardReader.getText();
+            if (text.isEmpty()) return;
+
+            Memory rawMem = ((Cache) memory).getUnderlyingMemory();
+            // +1 for the newline appended at the end of each submission
+            int[] cards = new int[text.length() + 1];
+            for (int i = 0; i < text.length(); i++) {
+                cards[i] = (int) text.charAt(i);
+            }
+            cards[text.length()] = 10; // append newline so lines are separated in printer output
+            rawMem.getDevice().appendCards(cards);
+            memory.postError("Card Reader: queued " + text.length() + " char(s) (" + rawMem.getDevice().cardBufferSize() + " total)");
+            cardReader.setText("");
+            updateTexts();
         });
 
         firstEastSouth.add(firstEastSouthNorth, BorderLayout.NORTH);
@@ -1214,11 +1228,11 @@ public class gui extends JFrame implements DeviceListener{
         String newLogs = memory.getErrors(); 
             
         // 2. If there are new logs, add them to the TOP of history
-        if (!newLogs.isEmpty()) 
+        if (!newLogs.isEmpty())
         {
             this.printerText = newLogs + this.printerText;
-            printer.setText(this.printerText);
-            printer.setCaretPosition(0); 
+            printer.setText(lineBuffer + (this.printerText.isEmpty() ? "" : "\n" + this.printerText));
+            printer.setCaretPosition(0);
         }
             
         cacheContent.setText(memory.getCacheStatus());
@@ -1296,7 +1310,7 @@ public class gui extends JFrame implements DeviceListener{
             lineBuffer += (char)(value & 0xFF);
         }
         SwingUtilities.invokeLater(() -> {
-            printer.setText(printerText);
+            printer.setText(lineBuffer + (printerText.isEmpty() ? "" : "\n" + printerText));
             printer.setCaretPosition(0);
         });
     }

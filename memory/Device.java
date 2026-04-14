@@ -157,6 +157,16 @@ public class Device {
     }
 
     /**
+     * Appends cards to the buffer without clearing existing entries.
+     * Used by the GUI card reader field so multiple submissions queue up.
+     */
+    public void appendCards(int[] cards) {
+        for (int card : cards) {
+            cardBuffer.add(card & 0xFFFF);
+        }
+    }
+
+    /**
      * Returns how many card words remain unread.
      * Useful for post-execution sanity checks in tests.
      */
