@@ -2,7 +2,9 @@ import assembler.Assembler;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import javax.swing.*;
 import memory.CPU;
 import memory.Cache;
@@ -134,18 +136,39 @@ public class gui extends JFrame implements DeviceListener{
 
         cardReader.addActionListener((e) -> {
             if (cpu == null) return;
-            String text = cardReader.getText();
+            String text = cardReader.getText().trim();
             if (text.isEmpty()) return;
 
             Memory rawMem = ((Cache) memory).getUnderlyingMemory();
-            // +1 for the newline appended at the end of each submission
-            int[] cards = new int[text.length() + 1];
-            for (int i = 0; i < text.length(); i++) {
-                cards[i] = (int) text.charAt(i);
+            File f = new File(text);
+            if (f.exists() && f.isFile()) {
+                // Load file contents — each character becomes one card word
+                try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                    ArrayList<Integer> cardList = new ArrayList<>();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        for (char c : line.toCharArray()) {
+                            cardList.add((int) c);
+                        }
+                        cardList.add(10); // newline after each line
+                    }
+                    int[] cards = new int[cardList.size()];
+                    for (int i = 0; i < cardList.size(); i++) cards[i] = cardList.get(i);
+                    rawMem.getDevice().appendCards(cards);
+                    memory.postError("Card Reader: loaded file \"" + f.getName() + "\" — "
+                            + cards.length + " char(s) queued (" + rawMem.getDevice().cardBufferSize() + " total)");
+                } catch (Exception ex) {
+                    memory.postError("Card Reader ERROR: could not read file — " + ex.getMessage());
+                }
+            } else {
+                // Treat input as literal text
+                int[] cards = new int[text.length() + 1];
+                for (int i = 0; i < text.length(); i++) cards[i] = (int) text.charAt(i);
+                cards[text.length()] = 10;
+                rawMem.getDevice().appendCards(cards);
+                memory.postError("Card Reader: queued " + text.length() + " char(s) ("
+                        + rawMem.getDevice().cardBufferSize() + " total)");
             }
-            cards[text.length()] = 10; // append newline so lines are separated in printer output
-            rawMem.getDevice().appendCards(cards);
-            memory.postError("Card Reader: queued " + text.length() + " char(s) (" + rawMem.getDevice().cardBufferSize() + " total)");
             cardReader.setText("");
             updateTexts();
         });

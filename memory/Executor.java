@@ -300,12 +300,6 @@ public final class Executor
             {
                 int chkStatus = memory.checkDeviceStatus(decoded.addr) & MASK_16;
                 cpu.setGPR(decoded.r, chkStatus);
-                String[] devNames = {"keyboard", "printer", "card reader"};
-                String devName = (decoded.addr >= 0 && decoded.addr < devNames.length)
-                                 ? devNames[decoded.addr] : "devid=" + decoded.addr;
-                memory.postError(String.format(
-                    "CHK: %s (devid %d) -> status=%d -> GPR[%d]=%d",
-                    devName, decoded.addr, chkStatus, decoded.r, chkStatus));
                 return ExecuteResult.done();
             }
 
