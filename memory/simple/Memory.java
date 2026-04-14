@@ -126,6 +126,10 @@ public final class Memory implements MemoryBus
     {
         device.write(devid, value);
     }
+
+    public int checkDeviceStatus(int devid) {
+        return device.checkDeviceStatus(devid);
+    }
     
     @Override
     public String getCacheStatus() 
