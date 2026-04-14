@@ -292,6 +292,17 @@ public final class Executor
                 memory.outputDevice(decoded.addr, cpu.getGPR(decoded.r) & MASK_16);
                 return ExecuteResult.done();
 
+            case TRAP:  // TRAP (octal 030)
+                memory.requestRead(0);              // kick off: read memory[0] to get table base
+                return ExecuteResult.memRead(CPU.State.TRAP_1);
+                
+            case CHK:
+            {
+                int chkStatus = memory.checkDeviceStatus(decoded.addr) & MASK_16;
+                cpu.setGPR(decoded.r, chkStatus);
+                return ExecuteResult.done();
+            }
+
             // -----------------------------------------------------------------
             // Unimplemented / illegal
             // -----------------------------------------------------------------
