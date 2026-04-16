@@ -17,7 +17,7 @@ LOC     0
         Data    32          ; [17] const_32 (space)
         Data    10          ; [18] const_10 (LF)
         Data    13          ; [19] const_13 (CR)
-        Data    WordPrompt  ; [20] WordPrompt address (fix jump target)        
+        Data    WordPrompt  ; [20] WordPrompt address
         Data    46          ; [21] const_46 '.'
         Data    33          ; [22] const_33 '!'
         Data    63          ; [23] const_63 '?'
@@ -27,7 +27,7 @@ LOC     0
         Data    RdLp        ; [26]
         Data    RdChar      ; [27]
         Data    PrDone      ; [28]
-        Data    PrChar      ; [29]
+        Data    RdWord      ; [29]
         Data    RdWord      ; [30]
         Data    SrLoop      ; [31]
 
@@ -419,9 +419,7 @@ Init:
         LDA     0,0,0
         STR     0,0,6       ; idx = 0
         STR     0,0,7       ; bufLen = 0
-
-        LDX     1,26        ; jump to WordPrompt instead of RdLp
-        JMA     1,0
+        ; fall through into RdLp
 
 RdLp:
 RdChar:
@@ -429,25 +427,29 @@ RdChar:
         LDA     1,0,0
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0
+        JCC     3,1,0       ; no input ready → PrDone
 
         IN      0,2
 
+        ; skip null
         LDA     1,0,0
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,26
+        JCC     3,1,0       ; null → loop back, try again
 
+        ; CR → end of line
         LDR     1,0,19
         TRR     0,1
         LDX     1,28
         JCC     3,1,0
 
+        ; LF → end of line
         LDR     1,0,18
         TRR     0,1
         LDX     1,28
         JCC     3,1,0
 
+        ; store char to flat buffer
         STR     0,0,13
         LDR     2,0,25
         AMR     2,0,6
@@ -456,72 +458,32 @@ RdChar:
         LDR     0,0,13
         STR     0,1,0
 
+        ; print char immediately (R0 still holds it)
+        OUT     0,1
+
+        ; increment idx and loop back
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-
-        LDX     1,26
+        LDX     1,26        ; back to RdLp
         JMA     1,0
 
 PrDone:
+        ; save bufLen, reset idx, go prompt for word
         LDR     0,0,6
-        STR     0,0,7
+        STR     0,0,7       ; bufLen = idx
         LDA     0,0,0
-        STR     0,0,6
+        STR     0,0,6       ; idx = 0
 
-        LDX     1,20        ; FIX: go to WordPrompt (not RdLp / RdWord)
+        LDX     1,20        ; jump to WordPrompt
         JMA     1,0
 
-PrChar:
-        LDR     0,0,6
-        LDR     1,0,7
-        TRR     0,1
-        LDX     1,30
-        JCC     3,1,0
-
-        LDR     2,0,25
-        AMR     2,0,6
-        STR     2,0,12
-        LDX     1,12
-        LDR     0,1,0
-
-        OUT     0,1
-
-        LDR     0,0,6
-        AIR     0,1
-        STR     0,0,6
-
-        LDR     1,0,21
-        TRR     0,1
-        LDX     1,29
-        JCC     3,1,0
-
-        LDR     1,0,22
-        TRR     0,1
-        LDX     1,29
-        JCC     3,1,0
-
-        LDR     1,0,23
-        TRR     0,1
-        LDX     1,29
-        JCC     3,1,0
-
-        LDX     1,29
-        JMA     1,0
-
-PrNewline:
+WordPrompt:
+        ; print "\r\nEnter word:\r\n"
         LDR     0,0,19
         OUT     0,1
         LDR     0,0,18
         OUT     0,1
-        LDR     0,0,6
-        AIR     0,1
-        STR     0,0,6
-        LDX     1,29
-        JMA     1,0
-
-WordPrompt:
-        ; print "Enter word:\r\n"
         LDR     0,0,16
         AIR     0,21
         OUT     0,1
@@ -572,16 +534,19 @@ WordPrompt:
         LDA     0,0,0
         STR     0,0,6       ; charIdx = 0
 
-        LDX     1,30        ; RdWord (NOT RdLp, NOT WordPrompt loop)
+        LDX     1,30        ; jump to RdWord
         JMA     1,0
 
 RdWord:
         IN      0,0
+
+        ; CR → word entry done, null-term and search
         LDR     1,0,19
         TRR     0,1
         LDX     1,28
         JCC     3,1,0
 
+        ; LF → word entry done, null-term and search
         LDR     1,0,18
         TRR     0,1
         LDX     1,28
@@ -598,7 +563,7 @@ RdWord:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,31        ; SrLoop (start search instead of re-prompting)
+        LDX     1,30        ; keep reading word chars
         JMA     1,0
 
 WNullTerm:
