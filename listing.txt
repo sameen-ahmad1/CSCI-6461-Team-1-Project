@@ -1,6 +1,28 @@
-000012	146002	        CHK     0,2             ; GPR[0] = card reader status: 1=ready, 0=empty
-000013	020017	        JZ      0,0,Done        ; if GPR[0] == 0 (empty), stop
-000014	142002	        IN      0,2             ; GPR[0] = next card word (ASCII char code)
-000015	144001	        OUT     0,1             ; send GPR[0] to printer (devid 1)
-000016	026012	        JMA     0,Loop          ; go back and check again
-000017	000000	        HLT
+000000	000000	Data 0      ; 0 = input counter
+000001	000000	Data 0      ; 1 = temp
+000002	000000	Data 0      ; 2 = buffer base index
+000003	000000	Data 0      ; 3 = length
+000004	146002	        CHK 0,2
+000005	020017	        JZ 0,0,FinishInput
+000006	142002	        IN 0,2
+000007	004002	        STR 0,0,2
+000010	002400	        LDR 1,0,0
+000011	014401	        AIR 1,1
+000012	004400	        STR 1,0,0
+000013	003002	        LDR 2,0,2
+000014	015001	        AIR 2,1
+000015	005002	        STR 2,0,2
+000016	026004	        JMA 0,Start
+000017	002400	        LDR 1,0,0
+000020	004403	        STR 1,0,3
+000021	007000	        LDA 2,0,0
+000022	002402	        LDR 1,0,2
+000023	003403	        LDR 3,0,3
+000024	165300	        TRR 2,3
+000025	025433	        JCC 3,0,Done
+000026	002002	        LDR 0,0,2
+000027	144001	        OUT 0,1
+000030	003002	        LDR 2,0,2
+000031	015001	        AIR 2,1
+000032	026022	        JMA 0,PrintLoop
+000033	000000	        HLT
