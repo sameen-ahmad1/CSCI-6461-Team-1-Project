@@ -17,7 +17,7 @@ LOC     0
         Data    32          ; [17] const_32 (space)
         Data    10          ; [18] const_10 (LF)
         Data    13          ; [19] const_13 (CR)
-        Data    0           ; [20] unused
+        Data    WordPrompt  ; [20] WordPrompt address (fix jump target)        
         Data    46          ; [21] const_46 '.'
         Data    33          ; [22] const_33 '!'
         Data    63          ; [23] const_63 '?'
@@ -469,6 +469,9 @@ PrDone:
         LDA     0,0,0
         STR     0,0,6
 
+        LDX     1,20        ; FIX: go to WordPrompt (not RdLp / RdWord)
+        JMA     1,0
+
 PrChar:
         LDR     0,0,6
         LDR     1,0,7
@@ -569,7 +572,7 @@ WordPrompt:
         LDA     0,0,0
         STR     0,0,6       ; charIdx = 0
 
-        LDX     1,26        ; jump to RdWord next
+        LDX     1,30        ; RdWord (NOT RdLp, NOT WordPrompt loop)
         JMA     1,0
 
 RdWord:
@@ -595,7 +598,7 @@ RdWord:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,30
+        LDX     1,31        ; SrLoop (start search instead of re-prompting)
         JMA     1,0
 
 WNullTerm:
