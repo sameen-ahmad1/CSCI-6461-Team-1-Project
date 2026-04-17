@@ -3,29 +3,29 @@ LOC     0
         Data    6
 
         LOC     6
-        Data    0           ; [6]  idx (general purpose index)
-        Data    0           ; [7]  bufLen (total chars stored in flat buffer)
+        Data    0           ; [6]  idx
+        Data    0           ; [7]  bufLen
         Data    0           ; [8]  wordCount
         Data    0           ; [9]  foundFlag
         Data    0           ; [10] foundSent
         Data    0           ; [11] foundWord
-        Data    0           ; [12] scratch (indirect address)
-        Data    0           ; [13] wbufIdx / scratch2
-        Data    0           ; [14] sentCount (periods seen so far in search)
-        Data    50          ; [15] const_50
+        Data    0           ; [12] scratch
+        Data    0           ; [13] wbufIdx
+        Data    0           ; [14] sentCount
+        Data    ChkBound    ; [15]
         Data    48          ; [16] const_48
         Data    32          ; [17] const_32 (space)
         Data    10          ; [18] const_10 (LF)
         Data    13          ; [19] const_13 (CR)
-        Data    WordPrompt  ; [20] WordPrompt address
+        Data    WordPrompt  ; [20]
         Data    46          ; [21] const_46 '.'
-        Data    33          ; [22] const_33 '!'
-        Data    63          ; [23] const_63 '?'
-        Data    500         ; [24] const_wbuf (word buffer base)
-        Data    400         ; [25] const_buf  (flat text buffer base)
+        Data    NotFound    ; [22]
+        Data    PrintResult ; [23]
+        Data    500         ; [24] const_wbuf
+        Data    400         ; [25] const_buf
         Data    RdLp        ; [26]
-        Data    SrLoop      ; [27] search loop target
-        Data    PrDone      ; [28] used by RdChar for CR/LF
+        Data    SrLoop      ; [27]
+        Data    PrDone      ; [28]
         Data    RdWord      ; [29]
         Data    ENDWORD     ; [30]
         Data    SrNoMatch   ; [31]
@@ -168,9 +168,8 @@ LOC     600
 
 Init:
         LDA     0,0,0
-        STR     0,0,6       ; idx = 0
-        STR     0,0,7       ; bufLen = 0
-        ; fall through into RdLp
+        STR     0,0,6
+        STR     0,0,7
 
 RdLp:
 RdChar:
@@ -178,29 +177,25 @@ RdChar:
         LDA     1,0,0
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0       ; no input ready → PrDone
+        JCC     3,1,0
 
         IN      0,2
 
-        ; skip null
         LDA     1,0,0
         TRR     0,1
         LDX     1,26
-        JCC     3,1,0       ; null → loop back
+        JCC     3,1,0
 
-        ; CR → end of line
         LDR     1,0,19
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0       ; → PrDone
+        JCC     3,1,0
 
-        ; LF → end of line
         LDR     1,0,18
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0       ; → PrDone
+        JCC     3,1,0
 
-        ; store char to flat buffer
         STR     0,0,13
         LDR     2,0,25
         AMR     2,0,6
@@ -209,10 +204,8 @@ RdChar:
         LDR     0,0,13
         STR     0,1,0
 
-        ; print char immediately
         OUT     0,1
 
-        ; increment idx and loop back
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
@@ -221,11 +214,11 @@ RdChar:
 
 PrDone:
         LDR     0,0,6
-        STR     0,0,7       ; bufLen = idx
+        STR     0,0,7
         LDA     0,0,0
-        STR     0,0,6       ; idx = 0
+        STR     0,0,6
         LDX     1,20
-        JMA     1,0         ; → WordPrompt
+        JMA     1,0
 
 WordPrompt:
         LDR     0,0,19
@@ -280,29 +273,25 @@ WordPrompt:
         OUT     0,1
 
         LDA     0,0,0
-        STR     0,0,6       ; idx = 0
+        STR     0,0,6
         LDX     1,29
-        JMA     1,0         ; → RdWord
+        JMA     1,0
 
 RdWord:
         IN      0,0
 
-        ; CR
         LDR     1,0,19
         TRR     0,1
         LDX     1,30
-        JCC     3,1,0       ; → ENDWORD
+        JCC     3,1,0
 
-        ; LF
         LDR     1,0,18
         TRR     0,1
         LDX     1,30
-        JCC     3,1,0       ; → ENDWORD
+        JCC     3,1,0
 
-        ; echo char
         OUT     0,1
 
-        ; store char to word buffer
         STR     0,0,13
         LDR     2,0,24
         AMR     2,0,6
@@ -311,15 +300,13 @@ RdWord:
         LDR     0,0,13
         STR     0,1,0
 
-        ; idx++
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
         LDX     1,29
-        JMA     1,0         ; → RdWord
+        JMA     1,0
 
 ENDWORD:
-        ; null terminate word buffer
         LDR     2,0,24
         AMR     2,0,6
         STR     2,0,12
@@ -327,133 +314,96 @@ ENDWORD:
         LDA     0,0,0
         STR     0,1,0
 
-        ; init search state
         LDA     0,0,0
-        STR     0,0,6       ; idx = 0
-        STR     0,0,9       ; foundFlag = 0
-        STR     0,0,14      ; sentCount = 0
+        STR     0,0,6
+        STR     0,0,9
+        STR     0,0,14
         LDA     0,0,1
-        STR     0,0,8       ; wordCount = 1
+        STR     0,0,8
 
 SrLoop:
-        LDR     0,0,7       ; bufLen
-        LDR     1,0,6       ; idx
-        SMR     0,1,0       ; bufLen - idx
-        LDX     1,20
-        JCC     1,1,0       ; jump to WordPrompt if idx >= bufLen
+        LDR     0,0,6
+        LDR     1,0,7
+        SMR     1,0,0
+        LDX     2,23
+        JCC     1,2,0           ; idx == bufLen → PrintResult
 
-        ; load current char from flat buffer
         LDR     2,0,25
         AMR     2,0,6
         STR     2,0,12
         LDX     1,12
         LDR     0,1,0
-        STR     0,0,13      ; save current char
+        STR     0,0,13
 
-        ; check '.'
+        ; if '.'
         LDR     1,0,21
         TRR     0,1
-        LDX     1,27
-        JCC     3,1,SrEndSent
+        LDX     2,27
+        JCC     3,2,SrEndSent
 
-        ; check '!'
-        LDR     1,0,22
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,SrEndSent
-
-        ; check '?'
-        LDR     1,0,23
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,SrEndSent
-
-        ; check space
+        ; if space
         LDR     1,0,17
         TRR     0,1
-        LDX     1,27
-        JCC     3,1,SrSpace
+        LDX     2,27
+        JCC     3,2,SrSpace
 
-        ; try to match word, reset wbufIdx
+        ; word match - reset wbufIdx
         LDA     0,0,0
         STR     0,0,13
 
 CmpLoop:
-        ; load char from word buffer at wbufIdx
         LDR     2,0,24
         AMR     2,0,13
         STR     2,0,12
         LDX     1,12
         LDR     1,1,0
 
-        ; if null → full word matched, check boundary
+        ; word[wbufIdx] == 0 → found
         LDA     2,0,0
         TRR     1,2
-        LDX     1,27
-        JCC     3,1,ChkBound
+        LDX     2,15
+        JCC     3,2,0           ; → ChkBound
 
-        ; load flat buffer char at idx+wbufIdx
-        LDR     2,0,6
+        ; load text char
+        LDR     2,0,25
+        AMR     2,0,6
         AMR     2,0,13
-        LDR     3,0,25
-        AMR     3,2,0
-        STR     3,0,12
+        STR     2,0,12
         LDX     2,12
         LDR     0,2,0
 
-        ; compare
+        ; mismatch → SrNoMatch
         TRR     0,1
-        LDX     1,31
-        JCC     3,1,0       ; mismatch → SrNoMatch
+        LDX     2,31
+        JCC     3,2,0
 
-        ; match, advance wbufIdx
+        ; match: advance wbufIdx, fall through to CmpLoop
         LDR     0,0,13
         AIR     0,1
         STR     0,0,13
-        LDX     1,27
-        JMA     1,0         ; → CmpLoop
+
+        ; *** fall through back to CmpLoop ***
 
 ChkBound:
-        ; check char after match is a boundary
-        LDR     2,0,6
-        AMR     2,0,13
-        LDR     3,0,25
-        AMR     3,2,0
-        STR     3,0,12
-        LDX     2,12
-        LDR     0,2,0
-
-        LDA     1,0,0
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,Found
-
-        LDR     1,0,17
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,Found
-
-        LDR     1,0,21
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,Found
-
-        LDR     1,0,22
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,Found
-
-        LDR     1,0,23
-        TRR     0,1
-        LDX     1,27
-        JCC     3,1,Found
+        LDA     0,0,1
+        STR     0,0,9
+        LDR     0,0,14
+        AIR     0,1
+        STR     0,0,10
+        LDR     0,0,8
+        STR     0,0,11
+        LDR     0,0,6
+        AIR     0,1
+        STR     0,0,6
+        LDX     2,23
+        JMA     2,0             ; → PrintResult
 
 SrNoMatch:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,27
-        JMA     1,0         ; → SrLoop
+        LDX     2,27
+        JMA     2,0
 
 SrSpace:
         LDR     0,0,8
@@ -462,39 +412,60 @@ SrSpace:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,27
-        JMA     1,0         ; → SrLoop
+        LDX     2,27
+        JMA     2,0
 
 SrEndSent:
         LDR     0,0,14
         AIR     0,1
         STR     0,0,14
         LDA     0,0,1
-        STR     0,0,8       ; reset wordCount to 1
+        STR     0,0,8
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,27
-        JMA     1,0         ; → SrLoop
-
-Found:
-        LDA     0,0,1
-        STR     0,0,9       ; foundFlag = 1
-        LDR     0,0,14
-        AIR     0,1
-        STR     0,0,10      ; foundSent = sentCount + 1
-        LDR     0,0,8
-        STR     0,0,11      ; foundWord = wordCount
+        LDX     2,27
+        JMA     2,0
 
 PrintResult:
         LDR     0,0,9
         LDA     1,0,0
         TRR     0,1
-        LDX     1,27          ; reuse any convenient register load
-        JCC     3,1,0         ; if foundFlag == 0, fall to NotFound
+        LDX     1,22
+        JCC     3,1,0           ; foundFlag == 0 → NotFound
 
-        ; --- FOUND path ---
-        ; print foundSent ([10]) and foundWord ([11]) here
+        LDR     0,0,16
+        AIR     0,31
+        AIR     0,4
+        OUT     0,1
+
+        LDR     0,0,21
+        AIR     0,12
+        OUT     0,1
+
+        LDR     0,0,10
+        OUT     0,1
+
+        LDR     0,0,17
+        OUT     0,1
+
+        LDR     0,0,16
+        AIR     0,31
+        AIR     0,8
+        OUT     0,1
+
+        LDR     0,0,21
+        AIR     0,12
+        OUT     0,1
+
+        LDR     0,0,11
+        OUT     0,1
+
+        LDR     0,0,18
+        OUT     0,1
+        LDR     0,0,19
+        OUT     0,1
+
         HLT
 
 NotFound:
