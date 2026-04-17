@@ -23,263 +23,14 @@ LOC     0
         Data    63          ; [23] const_63 '?'
         Data    500         ; [24] const_wbuf (word buffer base)
         Data    400         ; [25] const_buf  (flat text buffer base)
-
         Data    RdLp        ; [26]
-        Data    RdChar      ; [27]
-        Data    PrDone      ; [28]
+        Data    SrLoop      ; [27] search loop target
+        Data    PrDone      ; [28] used by RdChar for CR/LF
         Data    RdWord      ; [29]
-        Data    RdWord      ; [30]
-        Data    SrLoop      ; [31]
+        Data    ENDWORD     ; [30]
+        Data    SrNoMatch   ; [31]
 
         LOC     400
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
-        Data    0
         Data    0
         Data    0
         Data    0
@@ -435,19 +186,19 @@ RdChar:
         LDA     1,0,0
         TRR     0,1
         LDX     1,26
-        JCC     3,1,0       ; null → loop back, try again
+        JCC     3,1,0       ; null → loop back
 
         ; CR → end of line
         LDR     1,0,19
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0
+        JCC     3,1,0       ; → PrDone
 
         ; LF → end of line
         LDR     1,0,18
         TRR     0,1
         LDX     1,28
-        JCC     3,1,0
+        JCC     3,1,0       ; → PrDone
 
         ; store char to flat buffer
         STR     0,0,13
@@ -458,28 +209,25 @@ RdChar:
         LDR     0,0,13
         STR     0,1,0
 
-        ; print char immediately (R0 still holds it)
+        ; print char immediately
         OUT     0,1
 
         ; increment idx and loop back
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,26        ; back to RdLp
+        LDX     1,26
         JMA     1,0
 
 PrDone:
-        ; save bufLen, reset idx, go prompt for word
         LDR     0,0,6
         STR     0,0,7       ; bufLen = idx
         LDA     0,0,0
         STR     0,0,6       ; idx = 0
-
-        LDX     1,20        ; jump to WordPrompt
-        JMA     1,0
+        LDX     1,20
+        JMA     1,0         ; → WordPrompt
 
 WordPrompt:
-        ; print "\r\nEnter word:\r\n"
         LDR     0,0,19
         OUT     0,1
         LDR     0,0,18
@@ -532,26 +280,29 @@ WordPrompt:
         OUT     0,1
 
         LDA     0,0,0
-        STR     0,0,6       ; charIdx = 0
-
-        LDX     1,30        ; jump to RdWord
-        JMA     1,0
+        STR     0,0,6       ; idx = 0
+        LDX     1,29
+        JMA     1,0         ; → RdWord
 
 RdWord:
         IN      0,0
 
-        ; CR → word entry done, null-term and search
+        ; CR
         LDR     1,0,19
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,30
+        JCC     3,1,0       ; → ENDWORD
 
-        ; LF → word entry done, null-term and search
+        ; LF
         LDR     1,0,18
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,30
+        JCC     3,1,0       ; → ENDWORD
 
+        ; echo char
+        OUT     0,1
+
+        ; store char to word buffer
         STR     0,0,13
         LDR     2,0,24
         AMR     2,0,6
@@ -560,13 +311,15 @@ RdWord:
         LDR     0,0,13
         STR     0,1,0
 
+        ; idx++
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,30        ; keep reading word chars
-        JMA     1,0
+        LDX     1,29
+        JMA     1,0         ; → RdWord
 
-WNullTerm:
+ENDWORD:
+        ; null terminate word buffer
         LDR     2,0,24
         AMR     2,0,6
         STR     2,0,12
@@ -574,63 +327,73 @@ WNullTerm:
         LDA     0,0,0
         STR     0,1,0
 
-SrInit:
+        ; init search state
         LDA     0,0,0
-        STR     0,0,6
-        STR     0,0,9
-        STR     0,0,14
+        STR     0,0,6       ; idx = 0
+        STR     0,0,9       ; foundFlag = 0
+        STR     0,0,14      ; sentCount = 0
         LDA     0,0,1
-        STR     0,0,8
+        STR     0,0,8       ; wordCount = 1
 
 SrLoop:
+        ; if idx >= bufLen → not found
         LDR     0,0,6
         LDR     1,0,7
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,20
+        JCC     3,1,0       ; → WordPrompt
 
+        ; load current char from flat buffer
         LDR     2,0,25
         AMR     2,0,6
         STR     2,0,12
         LDX     1,12
         LDR     0,1,0
-        STR     0,0,13
+        STR     0,0,13      ; save current char
 
+        ; check '.'
         LDR     1,0,21
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,SrEndSent
 
+        ; check '!'
         LDR     1,0,22
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,SrEndSent
 
+        ; check '?'
         LDR     1,0,23
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,SrEndSent
 
+        ; check space
         LDR     1,0,17
         TRR     0,1
-        LDX     1,29
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,SrSpace
 
+        ; try to match word, reset wbufIdx
         LDA     0,0,0
         STR     0,0,13
 
 CmpLoop:
+        ; load char from word buffer at wbufIdx
         LDR     2,0,24
         AMR     2,0,13
         STR     2,0,12
         LDX     1,12
         LDR     1,1,0
 
+        ; if null → full word matched, check boundary
         LDA     2,0,0
         TRR     1,2
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,ChkBound
 
+        ; load flat buffer char at idx+wbufIdx
         LDR     2,0,6
         AMR     2,0,13
         LDR     3,0,25
@@ -639,17 +402,20 @@ CmpLoop:
         LDX     2,12
         LDR     0,2,0
 
+        ; compare
         TRR     0,1
         LDX     1,31
-        JCC     3,1,0
+        JCC     3,1,0       ; mismatch → SrNoMatch
 
+        ; match, advance wbufIdx
         LDR     0,0,13
         AIR     0,1
         STR     0,0,13
-        LDX     1,28
-        JMA     1,0
+        LDX     1,27
+        JMA     1,0         ; → CmpLoop
 
 ChkBound:
+        ; check char after match is a boundary
         LDR     2,0,6
         AMR     2,0,13
         LDR     3,0,25
@@ -660,15 +426,35 @@ ChkBound:
 
         LDA     1,0,0
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,Found
+
+        LDR     1,0,17
+        TRR     0,1
+        LDX     1,27
+        JCC     3,1,Found
+
+        LDR     1,0,21
+        TRR     0,1
+        LDX     1,27
+        JCC     3,1,Found
+
+        LDR     1,0,22
+        TRR     0,1
+        LDX     1,27
+        JCC     3,1,Found
+
+        LDR     1,0,23
+        TRR     0,1
+        LDX     1,27
+        JCC     3,1,Found
 
 SrNoMatch:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,31
-        JMA     1,0
+        LDX     1,27
+        JMA     1,0         ; → SrLoop
 
 SrSpace:
         LDR     0,0,8
@@ -677,36 +463,36 @@ SrSpace:
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,28
-        JMA     1,0
+        LDX     1,27
+        JMA     1,0         ; → SrLoop
 
 SrEndSent:
         LDR     0,0,14
         AIR     0,1
         STR     0,0,14
         LDA     0,0,1
-        STR     0,0,8
+        STR     0,0,8       ; reset wordCount to 1
         LDR     0,0,6
         AIR     0,1
         STR     0,0,6
-        LDX     1,28
-        JMA     1,0
+        LDX     1,27
+        JMA     1,0         ; → SrLoop
 
 Found:
         LDA     0,0,1
-        STR     0,0,9
+        STR     0,0,9       ; foundFlag = 1
         LDR     0,0,14
         AIR     0,1
-        STR     0,0,10
+        STR     0,0,10      ; foundSent = sentCount + 1
         LDR     0,0,8
-        STR     0,0,11
+        STR     0,0,11      ; foundWord = wordCount
 
 PrintResult:
         LDR     0,0,9
         LDA     1,0,0
         TRR     0,1
-        LDX     1,28
-        JCC     3,1,0
+        LDX     1,27
+        JCC     3,1,NotFound
 
 NotFound:
         LDR     0,0,16
