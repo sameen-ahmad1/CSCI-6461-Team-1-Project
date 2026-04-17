@@ -336,12 +336,11 @@ ENDWORD:
         STR     0,0,8       ; wordCount = 1
 
 SrLoop:
-        ; if idx >= bufLen → not found
-        LDR     0,0,6
-        LDR     1,0,7
-        TRR     0,1
+        LDR     0,0,7       ; bufLen
+        LDR     1,0,6       ; idx
+        SMR     0,1,0       ; bufLen - idx
         LDX     1,20
-        JCC     3,1,0       ; → WordPrompt
+        JCC     1,1,0       ; jump to WordPrompt if idx >= bufLen
 
         ; load current char from flat buffer
         LDR     2,0,25
@@ -491,8 +490,12 @@ PrintResult:
         LDR     0,0,9
         LDA     1,0,0
         TRR     0,1
-        LDX     1,27
-        JCC     3,1,NotFound
+        LDX     1,27          ; reuse any convenient register load
+        JCC     3,1,0         ; if foundFlag == 0, fall to NotFound
+
+        ; --- FOUND path ---
+        ; print foundSent ([10]) and foundWord ([11]) here
+        HLT
 
 NotFound:
         LDR     0,0,16
