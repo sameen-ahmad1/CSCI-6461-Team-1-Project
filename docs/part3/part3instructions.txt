@@ -9,4 +9,4 @@ The source code for program 2 is provided in program2.asm. To run program 2, ent
 
 Test cases for the backend are provided in /testfiles/part3/. In the various sub folders there are tests for the cache, error testing, and for the individual instructions. Individual instructions may also be tested on the gui (pressing IPL with no filepath allows you to set the machine to do so).
 
-The design notes are in readme.md in the folder docs/part3. The git logs are in part3logs.txt in the folder docs/part3.
+The design notes are in readme.md in the folder docs/part3. Design notes for previous parts are in their respective folders. The git logs are in part3logs.txt in the folder docs/part3.
