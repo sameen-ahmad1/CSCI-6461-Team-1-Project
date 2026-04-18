@@ -29,6 +29,42 @@ public class Device {
     }   
 
     // ----------------------------------------------------------------
+    // Called by Memory.checkDeviceStatus(devid)
+    // ----------------------------------------------------------------
+    public int checkDeviceStatus(int devid) {
+        switch (devid) {
+            case DEVID_KEYBOARD:
+                // Ready if the listener is attached (GUI running) OR buffer already has data
+                if (listener != null) {
+                    return 1;
+                }
+                if (!keyboardBuffer.isEmpty()) {
+                    return 1;
+                }
+                return 0;
+
+            case DEVID_PRINTER:
+                // Ready if a listener is attached to receive output
+                if (listener != null) {
+                    return 1;
+                }
+                return 0;
+
+            case DEVID_CARD_READER:
+                // Ready if cards remain in the pre-loaded buffer
+                if (!cardBuffer.isEmpty()) {
+                    return 1;
+                }
+                return 0;
+
+            default:
+                // devid 3–31: CHK not defined by spec
+                System.err.println("Device: CHK on unsupported devid: " + devid);
+                return 0;
+        }
+    }
+
+    // ----------------------------------------------------------------
     // Called by Memory.inputDevice(devid)
     // ----------------------------------------------------------------
     public int read(int devid) {
@@ -115,6 +151,16 @@ public class Device {
      */
     public void loadCards(int[] cards) {
         cardBuffer.clear();
+        for (int card : cards) {
+            cardBuffer.add(card & 0xFFFF);
+        }
+    }
+
+    /**
+     * Appends cards to the buffer without clearing existing entries.
+     * Used by the GUI card reader field so multiple submissions queue up.
+     */
+    public void appendCards(int[] cards) {
         for (int card : cards) {
             cardBuffer.add(card & 0xFFFF);
         }

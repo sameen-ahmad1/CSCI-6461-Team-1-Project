@@ -26,6 +26,7 @@ public interface MemoryBus {
     // added for I/O device support
     int inputDevice(int devid);
     void outputDevice(int devid, int value);
+    int checkDeviceStatus(int devid);
     Device getDevice();
     void postError(String message);
     String getErrors();

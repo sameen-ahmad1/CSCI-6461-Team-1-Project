@@ -2,6 +2,7 @@ package memory;
 // Handles Fetch/Decode/Execute with 2-cycle memory timing
 
 import assembler.Isa;
+import memory.Executor.ExecuteResult;
 
 public class CPU 
 {
@@ -65,8 +66,11 @@ public class CPU
         LDR_FINISH, 
         LDX_FINISH, 
         AMR_FINISH,
-        SMR_FINISH,       
+        SMR_FINISH,  
+        TRAP_1,
+        TRAP_2,     
         HALT
+
     }
 
     private Decoder.Decoded decoded;
@@ -230,6 +234,31 @@ public class CPU
 
             case HALT:
                 //cpu works because of HALT or Fault
+                break;
+            case TRAP_1:
+                int trapCode = IR & 0x0F;
+                int tableEntry = (MBR + trapCode) & MASK_12;
+                memory.postError(String.format(
+                    "TRAP: code=%d, table base=%o (oct), looking up entry at %o (oct)",
+                    trapCode, MBR, tableEntry));
+                System.out.println("DEBUG TRAP_1: MBR(tableBase)=" + MBR + " trapCode=" + trapCode + " tableEntry=" + tableEntry);
+                memory.requestRead(tableEntry);
+                memoryCycles = 1;
+                curState = State.TRAP_2;
+                break;
+
+            case TRAP_2:
+                int routineAddr = MBR & MASK_12;
+                MAR = 2;
+                MBR = PC & MASK_16;
+                memory.postError(String.format(
+                    "TRAP: routine at %o (oct), return PC=%o (oct) saved to mem[2], jumping to routine",
+                    routineAddr, PC));
+                System.out.println("DEBUG TRAP_2: about to write MBR=" + MBR + " to MAR=" + MAR);
+                memory.requestWrite(MAR);
+                memoryCycles = 1;
+                PC = routineAddr;
+                curState = State.FETCH_1;
                 break;
         }
     //System.out.println("Cycle End - State: " + curState + " | PC: " + Integer.toString(PC, 8));

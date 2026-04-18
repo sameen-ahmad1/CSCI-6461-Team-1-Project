@@ -233,6 +233,11 @@ public String getCacheStatus() {
     }
 
     @Override
+    public int checkDeviceStatus(int devid) {
+        return memory.checkDeviceStatus(devid);
+    }
+
+    @Override
     public Device getDevice() {
         return memory.getDevice();
     }
